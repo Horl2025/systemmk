@@ -605,27 +605,59 @@ function AddUserModal({ onClose, onAdd }: { onClose: () => void; onAdd: (user: a
 
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="modal modal-md">
-        <div className="modal-header">
-          <h3 className="modal-title">បង្កើតគណនី Admin / User ថ្មី</h3>
-          <button className="btn btn-ghost" onClick={onClose}>✕</button>
+      <div 
+        className="modal modal-md animate-scaleUp"
+        style={{
+          borderRadius: '24px',
+          overflow: 'hidden',
+          boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.35)',
+          maxWidth: '500px',
+          width: '100%',
+          margin: '0 auto',
+          background: '#FFFFFF'
+        }}
+      >
+        <div 
+          style={{ 
+            background: 'linear-gradient(135deg, #1E1B18 0%, #2D2013 100%)', 
+            padding: '16px 20px', 
+            color: '#FFFFFF',
+            borderBottom: '2px solid rgba(245, 158, 11, 0.3)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#FEF3C7', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <UserPlus size={18} color="#F59E0B" />
+            <span>បង្កើតគណនី Admin / User ថ្មី</span>
+          </h3>
+          <button 
+            type="button"
+            onClick={onClose}
+            style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: 'none', color: '#CBD5E1', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            ✕
+          </button>
         </div>
+
         <form onSubmit={handleSubmit}>
-          <div className="modal-body space-y-3">
-            <div className="form-group">
-              <label className="form-label">ឈ្មោះពេញ (Full Name) <span className="required">*</span></label>
+          <div className="modal-body space-y-2" style={{ padding: '16px 20px', background: '#F8FAFC', maxHeight: '52vh', overflowY: 'auto' }}>
+            <div className="form-group" style={{ marginBottom: '8px' }}>
+              <label className="form-label" style={{ fontSize: '0.74rem', fontWeight: 700 }}>ឈ្មោះពេញ (Full Name) <span className="required">*</span></label>
               <input 
                 className="form-control" 
                 value={form.full_name} 
                 onChange={e => setForm({...form, full_name: e.target.value})} 
                 required 
                 placeholder="ឧ. លោក គង់ វិរៈ" 
+                style={{ padding: '8px 12px' }}
               />
             </div>
 
-            <div className="grid-cols-2 gap-3" style={{ display: 'grid' }}>
-              <div className="form-group">
-                <label className="form-label">អ៊ីមែល (Email) <span className="required">*</span></label>
+            <div className="grid-cols-2 gap-2" style={{ display: 'grid', marginBottom: '8px' }}>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" style={{ fontSize: '0.74rem', fontWeight: 700 }}>អ៊ីមែល (Email) <span className="required">*</span></label>
                 <input 
                   type="email"
                   className="form-control" 
@@ -633,35 +665,38 @@ function AddUserModal({ onClose, onAdd }: { onClose: () => void; onAdd: (user: a
                   onChange={e => setForm({...form, email: e.target.value})} 
                   required 
                   placeholder="admin2@systemmk.org" 
+                  style={{ padding: '8px 12px' }}
                 />
               </div>
-              <div className="form-group">
-                <label className="form-label">លេខទូរស័ព្ទ</label>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" style={{ fontSize: '0.74rem', fontWeight: 700 }}>លេខទូរស័ព្ទ</label>
                 <input 
                   type="tel"
                   className="form-control" 
                   value={form.phone} 
                   onChange={e => setForm({...form, phone: e.target.value})} 
                   placeholder="012 345 678" 
+                  style={{ padding: '8px 12px' }}
                 />
               </div>
             </div>
 
-            <div className="grid-cols-2 gap-3" style={{ display: 'grid' }}>
-              <div className="form-group">
-                <label className="form-label">តួនាទី (Role) <span className="required">*</span></label>
+            <div className="grid-cols-2 gap-2" style={{ display: 'grid', marginBottom: '8px' }}>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" style={{ fontSize: '0.74rem', fontWeight: 700 }}>តួនាទី (Role) <span className="required">*</span></label>
                 <select 
                   className="form-control" 
                   value={form.role} 
                   onChange={e => setForm({...form, role: e.target.value as UserRole})}
+                  style={{ padding: '8px 12px', fontSize: '0.78rem' }}
                 >
                   <option value="admin">អ្នកគ្រប់គ្រងទូទៅ / General Admin</option>
                   <option value="recorder">អ្នកកត់ត្រា / Recorder</option>
                   <option value="guest">ភ្ញៀវ/សិស្សវត្ត / Guest</option>
                 </select>
               </div>
-              <div className="form-group">
-                <label className="form-label">លេខសម្ងាត់ (Password) <span className="required">*</span></label>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" style={{ fontSize: '0.74rem', fontWeight: 700 }}>លេខសម្ងាត់ (Password) <span className="required">*</span></label>
                 <input 
                   type="password"
                   className="form-control" 
@@ -669,18 +704,34 @@ function AddUserModal({ onClose, onAdd }: { onClose: () => void; onAdd: (user: a
                   onChange={e => setForm({...form, password: e.target.value})} 
                   required 
                   placeholder="••••••••" 
+                  style={{ padding: '8px 12px' }}
                 />
               </div>
             </div>
 
-            <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', padding: '10px 14px', borderRadius: '12px', fontSize: '0.78rem', color: '#1E40AF' }}>
-              💡 <strong>សិទ្ធិ Admin ទូទៅ៖</strong> អាចជួយគ្រប់គ្រងព្រះសង្ឃ កត់វត្តមាន និងគ្រប់គ្រងហិរញ្ញវត្ថុវត្តបានយ៉ាងរលូន។
+            <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', padding: '8px 12px', borderRadius: '10px', fontSize: '0.72rem', color: '#1E40AF' }}>
+              💡 <strong>សិទ្ធិ Admin ទូទៅ៖</strong> អាចជួយគ្រប់គ្រងព្រះសង្ឃ កត់វត្តមាន និងគ្រប់គ្រងហិរញ្ញវត្ថុវត្ត។
             </div>
           </div>
-          <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>បោះបង់</button>
-            <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'កំពុងបង្កើត...' : 'បង្កើតគណនី / Create Admin'}
+
+          <div className="modal-footer" style={{ padding: '12px 20px', background: '#FFFFFF', borderTop: '1.5px solid #E2E8F0', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+            <button type="button" className="btn btn-secondary" onClick={onClose} style={{ padding: '7px 16px', borderRadius: '10px', fontWeight: 800, fontSize: '0.8rem' }}>បោះបង់</button>
+            <button 
+              type="submit" 
+              className="btn btn-primary hover-lift" 
+              disabled={loading}
+              style={{
+                background: 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)',
+                border: 'none',
+                color: '#FFFFFF',
+                padding: '7px 20px',
+                borderRadius: '10px',
+                fontWeight: 800,
+                fontSize: '0.82rem',
+                boxShadow: '0 4px 12px rgba(124, 58, 237, 0.35)'
+              }}
+            >
+              {loading ? 'កំពុងបង្កើត...' : 'បង្កើតគណនី / Create'}
             </button>
           </div>
         </form>
