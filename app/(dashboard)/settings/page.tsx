@@ -393,35 +393,35 @@ export default function SettingsPage() {
             </button>
           </div>
 
-          <div className="table-wrapper" style={{ border: 'none' }}>
-            <table className="table">
+          <div className="table-wrapper" style={{ border: 'none', overflowX: 'auto', width: '100%' }}>
+            <table className="table" style={{ width: '100%', minWidth: '650px' }}>
               <thead>
                 <tr style={{ background: '#F8FAFC' }}>
-                  <th style={{ padding: '16px 20px', fontWeight: 800 }}>ឈ្មោះអ្នកប្រើប្រាស់ / Name</th>
-                  <th style={{ padding: '16px 20px', fontWeight: 800 }}>អ៊ីមែល / Email</th>
-                  <th style={{ padding: '16px 20px', fontWeight: 800 }}>លេខទូរស័ព្ទ / Phone</th>
-                  <th style={{ padding: '16px 20px', fontWeight: 800 }}>តួនាទី / Role</th>
-                  <th style={{ padding: '16px 20px', fontWeight: 800 }}>អ្នកបង្កើត / Created By</th>
-                  <th style={{ padding: '16px 20px', fontWeight: 800, textAlign: 'center' }}>សកម្មភាព</th>
+                  <th style={{ padding: '14px 18px', fontWeight: 800, whiteSpace: 'nowrap' }}>ឈ្មោះអ្នកប្រើប្រាស់ / Name</th>
+                  <th style={{ padding: '14px 18px', fontWeight: 800, whiteSpace: 'nowrap' }}>អ៊ីមែល / Email</th>
+                  <th style={{ padding: '14px 18px', fontWeight: 800, whiteSpace: 'nowrap' }}>លេខទូរស័ព្ទ / Phone</th>
+                  <th style={{ padding: '14px 18px', fontWeight: 800, whiteSpace: 'nowrap' }}>តួនាទី / Role</th>
+                  <th style={{ padding: '14px 18px', fontWeight: 800, whiteSpace: 'nowrap' }}>អ្នកបង្កើត / Created By</th>
+                  <th style={{ padding: '14px 18px', fontWeight: 800, textAlign: 'center', whiteSpace: 'nowrap' }}>សកម្មភាព</th>
                 </tr>
               </thead>
               <tbody>
                 {usersList.map(u => (
                   <tr key={u.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                    <td style={{ padding: '16px 20px' }}>
+                    <td style={{ padding: '14px 18px', whiteSpace: 'nowrap' }}>
                       <div className="flex items-center gap-3">
-                        <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: u.role === 'chief_monk' ? '#FEF3C7' : u.role === 'admin' ? '#EFF6FF' : '#ECFDF5', color: u.role === 'chief_monk' ? '#B45309' : u.role === 'admin' ? '#1D4ED8' : '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800 }}>
+                        <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: u.role === 'chief_monk' ? '#FEF3C7' : u.role === 'admin' ? '#EFF6FF' : '#ECFDF5', color: u.role === 'chief_monk' ? '#B45309' : u.role === 'admin' ? '#1D4ED8' : '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, flexShrink: 0 }}>
                           {u.full_name?.charAt(0) || 'U'}
                         </div>
                         <div>
-                          <div style={{ fontWeight: 800, color: '#0F172A', fontSize: '0.92rem' }}>{u.full_name}</div>
-                          <div style={{ fontSize: '0.7rem', color: '#64748B' }}>{u.display_name}</div>
+                          <div style={{ fontWeight: 800, color: '#0F172A', fontSize: '0.9rem', whiteSpace: 'nowrap' }}>{u.full_name}</div>
+                          <div style={{ fontSize: '0.7rem', color: '#64748B', whiteSpace: 'nowrap' }}>{u.display_name}</div>
                         </div>
                       </div>
                     </td>
-                    <td className="font-latin" style={{ padding: '16px 20px', color: '#334155', fontWeight: 600 }}>{u.email}</td>
-                    <td className="font-latin" style={{ padding: '16px 20px', color: '#64748B' }}>{u.phone || '—'}</td>
-                    <td style={{ padding: '16px 20px' }}>
+                    <td className="font-latin" style={{ padding: '14px 18px', color: '#334155', fontWeight: 600, whiteSpace: 'nowrap' }}>{u.email}</td>
+                    <td className="font-latin" style={{ padding: '14px 18px', color: '#64748B', whiteSpace: 'nowrap' }}>{u.phone || '—'}</td>
+                    <td style={{ padding: '14px 18px', whiteSpace: 'nowrap' }}>
                       <span style={{ 
                         background: u.role === 'chief_monk' ? '#FEF3C7' : u.role === 'admin' ? '#EFF6FF' : '#ECFDF5', 
                         border: `1px solid ${u.role === 'chief_monk' ? '#FDE68A' : u.role === 'admin' ? '#BFDBFE' : '#A7F3D0'}`, 
@@ -429,17 +429,19 @@ export default function SettingsPage() {
                         padding: '4px 12px', 
                         borderRadius: '10px', 
                         fontSize: '0.75rem', 
-                        fontWeight: 800 
+                        fontWeight: 800,
+                        whiteSpace: 'nowrap',
+                        display: 'inline-block'
                       }}>
                         {USER_ROLE_LABELS[u.role]?.kh || u.role}
                       </span>
                     </td>
-                    <td style={{ padding: '16px 20px' }}>
-                      <span style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', color: '#475569', padding: '3px 10px', borderRadius: '8px', fontSize: '0.72rem', fontWeight: 600 }}>
+                    <td style={{ padding: '14px 18px', whiteSpace: 'nowrap' }}>
+                      <span style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', color: '#475569', padding: '4px 10px', borderRadius: '8px', fontSize: '0.72rem', fontWeight: 600, whiteSpace: 'nowrap', display: 'inline-block' }}>
                         {u.created_by_label || 'ព្រះមេកុដិ'}
                       </span>
                     </td>
-                    <td style={{ padding: '16px 20px', textAlign: 'center' }}>
+                    <td style={{ padding: '14px 18px', textAlign: 'center', whiteSpace: 'nowrap' }}>
                       {u.role !== 'chief_monk' ? (
                         <button 
                           onClick={() => handleDeleteUser(u.id)}
@@ -472,15 +474,15 @@ export default function SettingsPage() {
             <span style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', color: '#065F46', padding: '4px 12px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 800 }}>RBAC Active</span>
           </div>
 
-          <div className="table-wrapper" style={{ border: 'none' }}>
-            <table className="table">
+          <div className="table-wrapper" style={{ border: 'none', overflowX: 'auto', width: '100%' }}>
+            <table className="table" style={{ width: '100%', minWidth: '650px' }}>
               <thead>
                 <tr style={{ background: '#F8FAFC' }}>
-                  <th style={{ padding: '16px 20px', fontWeight: 800 }}>តួនាទី (Role)</th>
-                  <th style={{ padding: '16px 20px', fontWeight: 800 }}>គ្រប់គ្រងព្រះសង្ឃ</th>
-                  <th style={{ padding: '16px 20px', fontWeight: 800 }}>គ្រប់គ្រងហិរញ្ញវត្ថុ</th>
-                  <th style={{ padding: '16px 20px', fontWeight: 800 }}>កត់វត្តមាន</th>
-                  <th style={{ padding: '16px 20px', fontWeight: 800 }}>គ្រប់គ្រង User</th>
+                  <th style={{ padding: '14px 18px', fontWeight: 800, whiteSpace: 'nowrap' }}>តួនាទី (Role)</th>
+                  <th style={{ padding: '14px 18px', fontWeight: 800, whiteSpace: 'nowrap' }}>គ្រប់គ្រងព្រះសង្ឃ</th>
+                  <th style={{ padding: '14px 18px', fontWeight: 800, whiteSpace: 'nowrap' }}>គ្រប់គ្រងហិរញ្ញវត្ថុ</th>
+                  <th style={{ padding: '14px 18px', fontWeight: 800, whiteSpace: 'nowrap' }}>កត់វត្តមាន</th>
+                  <th style={{ padding: '14px 18px', fontWeight: 800, whiteSpace: 'nowrap' }}>គ្រប់គ្រង User</th>
                 </tr>
               </thead>
               <tbody>
@@ -491,15 +493,15 @@ export default function SettingsPage() {
                   { role: 'ភ្ញៀវ/សិស្ស (Guest)', monks: 'មើលបាន', fin: 'គ្មានសិទ្ធិ (None)', att: 'មើលបាន', usr: 'គ្មានសិទ្ធិ (None)', bg: '#F1F5F9', color: '#475569', border: '#E2E8F0' },
                 ].map((r, i) => (
                   <tr key={i} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                    <td style={{ padding: '16px 20px' }}>
-                      <span style={{ background: r.bg, border: `1px solid ${r.border}`, color: r.color, padding: '4px 12px', borderRadius: '10px', fontSize: '0.8rem', fontWeight: 800 }}>
+                    <td style={{ padding: '14px 18px', whiteSpace: 'nowrap' }}>
+                      <span style={{ background: r.bg, border: `1px solid ${r.border}`, color: r.color, padding: '4px 12px', borderRadius: '10px', fontSize: '0.8rem', fontWeight: 800, whiteSpace: 'nowrap', display: 'inline-block' }}>
                         {r.role}
                       </span>
                     </td>
-                    <td style={{ padding: '16px 20px', fontWeight: 700, color: '#059669' }}>{r.monks}</td>
-                    <td style={{ padding: '16px 20px', fontWeight: 700, color: '#059669' }}>{r.fin}</td>
-                    <td style={{ padding: '16px 20px', fontWeight: 700, color: '#059669' }}>{r.att}</td>
-                    <td style={{ padding: '16px 20px', fontWeight: 700, color: r.usr.includes('None') ? '#94A3B8' : '#059669' }}>{r.usr}</td>
+                    <td style={{ padding: '14px 18px', fontWeight: 700, color: '#059669', whiteSpace: 'nowrap' }}>{r.monks}</td>
+                    <td style={{ padding: '14px 18px', fontWeight: 700, color: '#059669', whiteSpace: 'nowrap' }}>{r.fin}</td>
+                    <td style={{ padding: '14px 18px', fontWeight: 700, color: '#059669', whiteSpace: 'nowrap' }}>{r.att}</td>
+                    <td style={{ padding: '14px 18px', fontWeight: 700, color: r.usr.includes('None') ? '#94A3B8' : '#059669', whiteSpace: 'nowrap' }}>{r.usr}</td>
                   </tr>
                 ))}
               </tbody>
