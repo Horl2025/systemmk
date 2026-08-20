@@ -288,10 +288,10 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
     }
   }
 
-  // Initialize theme from localStorage or system preference
+  // Initialize theme from localStorage (Default to Clean Light Mode)
   useEffect(() => {
     const savedTheme = localStorage.getItem('systemmk-theme')
-    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    if (savedTheme === 'dark') {
       setIsDark(true)
       document.documentElement.setAttribute('data-theme', 'dark')
     } else {
