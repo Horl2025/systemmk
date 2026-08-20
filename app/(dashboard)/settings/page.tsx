@@ -122,11 +122,39 @@ export default function SettingsPage() {
   return (
     <div className="space-y-7 animate-fadeIn" style={{ paddingBottom: 'var(--space-8)' }}>
       
-      {/* 🌟 Header Section */}
-      <div className="page-header">
+      {/* 🌟 Header Section with SystemMK v1.0 Official Badge */}
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
         <div>
+          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+            <span style={{ 
+              background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.25) 100%)', 
+              border: '1.5px solid rgba(245, 158, 11, 0.45)', 
+              color: '#B45309', 
+              padding: '4px 14px', 
+              borderRadius: '20px', 
+              fontSize: '0.78rem', 
+              fontWeight: 800, 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '6px',
+              boxShadow: '0 2px 8px rgba(217, 119, 6, 0.12)'
+            }}>
+              <img 
+                src="/app-logo.png" 
+                alt="SystemMK Logo" 
+                style={{ width: '16px', height: '16px', borderRadius: '4px', objectFit: 'cover' }} 
+              />
+              SystemMK v1.0
+            </span>
+            <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>• Monastery Configuration & RBAC</span>
+          </div>
           <h1 className="page-title">ការកំណត់ប្រព័ន្ធ (System Settings)</h1>
           <p className="page-subtitle">គ្រប់គ្រងគណនី បង្កើត Admin ទូទៅ និងកំណត់សិទ្ធិប្រើប្រាស់ក្នុងវត្ត</p>
+        </div>
+
+        <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '6px 14px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.78rem', color: '#334155', fontWeight: 700 }}>
+          <Sparkles size={15} color="#D97706" />
+          <span>កំណែប្រព័ន្ធផ្លូវការ៖ ២០២៦</span>
         </div>
       </div>
 
