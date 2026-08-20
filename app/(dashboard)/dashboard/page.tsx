@@ -121,15 +121,6 @@ export default function DashboardPage() {
             
             {/* Top Badges & Real-time Date Badge */}
             <div className="flex items-center gap-2 mb-2.5 flex-wrap">
-              <span style={{ background: 'rgba(245, 158, 11, 0.2)', border: '1px solid rgba(245, 158, 11, 0.4)', color: '#FDE68A', padding: '4px 14px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                <img 
-                  src="/app-logo.png" 
-                  alt="SystemMK Logo" 
-                  style={{ width: '16px', height: '16px', borderRadius: '4px', objectFit: 'cover' }} 
-                />
-                SystemMK v1.0
-              </span>
-              <span style={{ fontSize: '0.75rem', color: '#94A3B8' }} className="font-latin">• Monastery Dashboard</span>
 
               {/* 📅 LIVE DATE BADGE */}
               <div 
