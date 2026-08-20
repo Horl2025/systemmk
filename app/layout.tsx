@@ -2,13 +2,19 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'SystemMK — ប្រព័ន្ធគ្រប់គ្រងព្រះសង្ឃ',
+  title: 'SystemMK',
   description: 'Monastery Management System for tracking monks, rooms, finance, inventory, and more.',
-  keywords: ['monastery', 'monks', 'khmer', 'buddhist', 'management'],
+  keywords: ['monastery', 'monks', 'khmer', 'buddhist', 'management', 'systemmk'],
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'SystemMK',
+  },
   icons: {
-    icon: '/app-logo.png?v=2',
-    shortcut: '/app-logo.png?v=2',
-    apple: '/app-logo.png?v=2',
+    icon: '/app-logo.png?v=3',
+    shortcut: '/app-logo.png?v=3',
+    apple: '/app-logo.png?v=3',
   },
 }
 
