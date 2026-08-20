@@ -2,11 +2,11 @@
 
 export const dynamic = 'force-dynamic'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { USER_ROLE_LABELS } from '@/lib/utils'
 import { UserRole, Profile } from '@/lib/database.types'
-import { Settings, Shield, User, Database, Bell, Lock, Save, CheckCircle, ShieldCheck, Key, RefreshCw, Sparkles, Smartphone, Mail, Phone, UserCheck, UserPlus, Trash2, Edit3, Share2, Download, QrCode } from 'lucide-react'
+import { Settings, Shield, User, Database, Bell, Lock, Save, CheckCircle, ShieldCheck, Key, RefreshCw, Sparkles, Smartphone, Mail, Phone, UserCheck, UserPlus, Trash2, Edit3, Share2, Download, QrCode, Camera } from 'lucide-react'
 
 // Initial Root Users
 const INITIAL_USERS: (Profile & { created_by_label?: string })[] = [
@@ -108,6 +108,232 @@ export default function SettingsPage() {
       } catch {}
       return updated
     })
+  }
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const { customAvatar, setCustomAvatar } = useAuth()
+  const [password, setPassword] = useState('••••••••••••')
+  const [birthDate, setBirthDate] = useState('1995-05-23')
+  const [province, setProvince] = useState('ភ្នំពេញ (Phnom Penh)')
+
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = () => {
+        if (reader.result) {
+          setCustomAvatar(reader.result as string)
+        }
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  // 🌟 If the user is Guest, Student, or Recorder, display the Gorgeous App Edit Profile UI directly!
+  if (!canViewUsers) {
+    return (
+      <div className="animate-fadeIn" style={{ maxWidth: '440px', margin: '0 auto', paddingBottom: '30px' }}>
+        
+        {/* Hidden File Input for Avatar */}
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          onChange={handleAvatarUpload} 
+          accept="image/*" 
+          style={{ display: 'none' }} 
+        />
+
+        {/* 📱 Elegant Smartphone Edit Profile Container matching user's design */}
+        <div 
+          style={{ 
+            background: 'linear-gradient(180deg, #09122C 0%, #111E48 50%, #0A122E 100%)', 
+            borderRadius: '32px', 
+            padding: '28px 22px', 
+            color: '#FFFFFF',
+            boxShadow: '0 25px 60px -12px rgba(10, 18, 46, 0.6)',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            position: 'relative'
+          }}
+        >
+          {/* Top Bar with Title */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', marginBottom: '24px' }}>
+            <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#FFFFFF', margin: 0, letterSpacing: '0.02em' }}>
+              Edit Profile
+            </h2>
+          </div>
+
+          {/* Profile Avatar with Camera Badge */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '24px' }}>
+            <div 
+              onClick={() => fileInputRef.current?.click()}
+              className="hover-lift"
+              style={{ 
+                width: '105px', 
+                height: '105px', 
+                borderRadius: '50%', 
+                padding: '4px', 
+                background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)', 
+                position: 'relative',
+                cursor: 'pointer',
+                boxShadow: '0 8px 25px rgba(59, 130, 246, 0.35)'
+              }}
+            >
+              <div style={{ width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', background: '#1E293B', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {customAvatar ? (
+                  <img src={customAvatar} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <div style={{ fontSize: '2rem', fontWeight: 900, color: '#93C5FD' }}>
+                    {fullName ? fullName.charAt(0) : 'U'}
+                  </div>
+                )}
+              </div>
+
+              {/* Camera Badge Icon */}
+              <div 
+                style={{ 
+                  position: 'absolute', 
+                  bottom: '2px', 
+                  right: '2px', 
+                  width: '32px', 
+                  height: '32px', 
+                  borderRadius: '50%', 
+                  background: '#FFFFFF', 
+                  color: '#0F172A', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  boxShadow: '0 4px 10px rgba(0,0,0,0.35)',
+                  border: '2px solid #09122C'
+                }}
+              >
+                <Camera size={16} />
+              </div>
+            </div>
+
+            <div style={{ marginTop: '10px', textAlign: 'center' }}>
+              <span style={{ fontSize: '0.78rem', color: '#93C5FD', fontWeight: 700, background: 'rgba(59, 130, 246, 0.15)', padding: '3px 12px', borderRadius: '20px', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+                {USER_ROLE_LABELS[role]?.kh || 'អ្នកប្រើប្រាស់'}
+              </span>
+            </div>
+          </div>
+
+          {/* Edit Profile Form Inputs */}
+          <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            
+            {/* Name Input */}
+            <div>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#94A3B8', marginBottom: '6px' }}>
+                Name
+              </label>
+              <div style={{ background: '#0F1A3A', border: '1.5px solid #1E2E5D', borderRadius: '14px', padding: '12px 16px', display: 'flex', alignItems: 'center' }}>
+                <input 
+                  type="text" 
+                  value={fullName}
+                  onChange={e => setFullName(e.target.value)}
+                  placeholder="ឈ្មោះអ្នកប្រើប្រាស់"
+                  style={{ width: '100%', background: 'transparent', border: 'none', color: '#FFFFFF', fontSize: '0.92rem', fontWeight: 600, outline: 'none' }}
+                />
+              </div>
+            </div>
+
+            {/* Email Input */}
+            <div>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#94A3B8', marginBottom: '6px' }}>
+                Email
+              </label>
+              <div style={{ background: '#0F1A3A', border: '1.5px solid #1E2E5D', borderRadius: '14px', padding: '12px 16px', display: 'flex', alignItems: 'center' }}>
+                <input 
+                  type="email" 
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="user@systemmk.org"
+                  style={{ width: '100%', background: 'transparent', border: 'none', color: '#FFFFFF', fontSize: '0.92rem', fontWeight: 600, outline: 'none' }}
+                />
+              </div>
+            </div>
+
+            {/* Password Input */}
+            <div>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#94A3B8', marginBottom: '6px' }}>
+                Password
+              </label>
+              <div style={{ background: '#0F1A3A', border: '1.5px solid #1E2E5D', borderRadius: '14px', padding: '12px 16px', display: 'flex', alignItems: 'center' }}>
+                <input 
+                  type="password" 
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="••••••••••••"
+                  style={{ width: '100%', background: 'transparent', border: 'none', color: '#FFFFFF', fontSize: '0.92rem', fontWeight: 600, outline: 'none', letterSpacing: '0.1em' }}
+                />
+              </div>
+            </div>
+
+            {/* Date of Birth Input */}
+            <div>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#94A3B8', marginBottom: '6px' }}>
+                Date of Birth
+              </label>
+              <div style={{ background: '#0F1A3A', border: '1.5px solid #1E2E5D', borderRadius: '14px', padding: '12px 16px', display: 'flex', alignItems: 'center' }}>
+                <input 
+                  type="date" 
+                  value={birthDate}
+                  onChange={e => setBirthDate(e.target.value)}
+                  style={{ width: '100%', background: 'transparent', border: 'none', color: '#FFFFFF', fontSize: '0.92rem', fontWeight: 600, outline: 'none', colorScheme: 'dark' }}
+                />
+              </div>
+            </div>
+
+            {/* Country/Region Selector */}
+            <div>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#94A3B8', marginBottom: '6px' }}>
+                Country / Region
+              </label>
+              <div style={{ background: '#0F1A3A', border: '1.5px solid #1E2E5D', borderRadius: '14px', padding: '12px 16px', display: 'flex', alignItems: 'center' }}>
+                <select
+                  value={province}
+                  onChange={e => setProvince(e.target.value)}
+                  style={{ width: '100%', background: 'transparent', border: 'none', color: '#FFFFFF', fontSize: '0.92rem', fontWeight: 600, outline: 'none', colorScheme: 'dark' }}
+                >
+                  <option value="ភ្នំពេញ (Phnom Penh)" style={{ background: '#0F172A', color: '#FFF' }}>កម្ពុជា - ភ្នំពេញ (Phnom Penh)</option>
+                  <option value="កណ្តាល (Kandal)" style={{ background: '#0F172A', color: '#FFF' }}>កម្ពុជា - កណ្តាល (Kandal)</option>
+                  <option value="កំពង់ចាម (Kampong Cham)" style={{ background: '#0F172A', color: '#FFF' }}>កម្ពុជា - កំពង់ចាម (Kampong Cham)</option>
+                  <option value="សៀមរាប (Siem Reap)" style={{ background: '#0F172A', color: '#FFF' }}>កម្ពុជា - សៀមរាប (Siem Reap)</option>
+                  <option value="បាត់ដំបង (Battambang)" style={{ background: '#0F172A', color: '#FFF' }}>កម្ពុជា - បាត់ដំបង (Battambang)</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Save Changes Button */}
+            <div style={{ marginTop: '10px' }}>
+              <button
+                type="submit"
+                className="hover-lift"
+                style={{
+                  width: '100%',
+                  background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
+                  color: '#FFFFFF',
+                  padding: '14px',
+                  borderRadius: '16px',
+                  fontWeight: 800,
+                  fontSize: '0.95rem',
+                  border: 'none',
+                  cursor: 'pointer',
+                  boxShadow: '0 8px 24px rgba(37, 99, 235, 0.45)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px'
+                }}
+              >
+                <span>{saved ? 'Saved Changes ✓' : 'Save changes'}</span>
+              </button>
+            </div>
+
+          </form>
+
+        </div>
+      </div>
+    )
   }
 
   return (
