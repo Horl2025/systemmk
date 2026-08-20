@@ -12,7 +12,7 @@ import {
   LayoutDashboard, Users, Building2, GraduationCap, CalendarCheck,
   Calendar, DollarSign, Package, BarChart3, MessageSquare,
   Settings, LogOut, ChevronLeft, ChevronRight, Menu, X, Bell, CheckCircle2, Sparkles,
-  QrCode, Home, Search, User, Moon, Sun, Camera, Upload, Image as ImageIcon
+  QrCode, Home, Search, User, Moon, Sun, Camera, Upload, Image as ImageIcon, Smartphone, Download, Share2
 } from 'lucide-react'
 
 const navItems = [
@@ -816,10 +816,15 @@ function MobileBottomNav({ onOpenQR }: { onOpenQR: () => void }) {
 }
 
 function GlobalScanQRModal({ onClose }: { onClose: () => void }) {
+  const [modalTab, setModalTab] = useState<'app_qr' | 'scan_camera'>('app_qr')
   const [scanning, setScanning] = useState(true)
   const [scanResult, setScanResult] = useState<string | null>(null)
   const [hasCamera, setHasCamera] = useState(false)
+  const [copied, setCopied] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
+
+  const appUrl = 'https://systemmk.vercel.app'
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(appUrl)}&color=0F172A&bgcolor=FFFFFF&margin=10`
 
   // Request actual camera stream for fast live scanning
   useEffect(() => {
@@ -843,7 +848,7 @@ function GlobalScanQRModal({ onClose }: { onClose: () => void }) {
       }
     }
 
-    if (scanning) {
+    if (modalTab === 'scan_camera' && scanning) {
       startCamera()
     }
 
@@ -852,29 +857,35 @@ function GlobalScanQRModal({ onClose }: { onClose: () => void }) {
         stream.getTracks().forEach(track => track.stop())
       }
     }
-  }, [scanning])
+  }, [modalTab, scanning])
 
   const handleInstantScan = (monkName: string, role: string) => {
     setScanning(false)
     setScanResult(`វត្តមានបានកត់ត្រាជោគជ័យ ៖ ${monkName} (${role})`)
   }
 
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(appUrl)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="modal modal-md animate-fadeIn" style={{ maxWidth: '440px', maxHeight: '85vh', borderRadius: '28px', overflow: 'hidden', border: '1.5px solid #FDE68A', boxShadow: '0 25px 50px -12px rgba(217, 119, 6, 0.4)', padding: 0, display: 'flex', flexDirection: 'column' }}>
+      <div className="modal modal-md animate-scaleUp" style={{ maxWidth: '440px', maxHeight: '90vh', borderRadius: '28px', overflow: 'hidden', border: '1.5px solid #FDE68A', boxShadow: '0 25px 60px -12px rgba(15, 23, 42, 0.45)', padding: 0, display: 'flex', flexDirection: 'column', background: '#FFFFFF' }}>
         
         {/* Luxury Header */}
         <div style={{ background: 'linear-gradient(135deg, #1E1B18 0%, #2D2013 100%)', padding: '16px 20px', color: '#FFFFFF', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid rgba(245, 158, 11, 0.3)', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '34px', height: '34px', borderRadius: '12px', background: 'linear-gradient(135deg, #FDE68A 0%, #F59E0B 100%)', color: '#78350F', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(245, 158, 11, 0.35)' }}>
-              <QrCode size={18} />
+            <div style={{ width: '36px', height: '36px', borderRadius: '12px', background: 'linear-gradient(135deg, #FDE68A 0%, #F59E0B 100%)', color: '#78350F', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(245, 158, 11, 0.35)' }}>
+              <QrCode size={20} />
             </div>
             <div>
-              <h3 style={{ fontSize: '0.96rem', fontWeight: 800, color: '#FEF3C7', margin: 0 }}>
-                ស្កេន QR កាតសង្ឃ (Live Camera)
+              <h3 style={{ fontSize: '0.98rem', fontWeight: 800, color: '#FEF3C7', margin: 0 }}>
+                {modalTab === 'app_qr' ? 'QR Code សម្រាប់តំឡើង App' : 'ស្កេន QR វត្តមានសង្ឃ'}
               </h3>
               <p style={{ fontSize: '0.64rem', color: '#D1D5DB', margin: 0, marginTop: '1px' }}>
-                Ultra-Fast Monk QR Attendance Scanner
+                SystemMK — Official Monastery App
               </p>
             </div>
           </div>
@@ -886,141 +897,300 @@ function GlobalScanQRModal({ onClose }: { onClose: () => void }) {
           </button>
         </div>
 
-        <div style={{ padding: '18px 20px', textAlign: 'center', background: '#FAFAFA', overflowY: 'auto' }}>
-          {scanning ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+        {/* Modal Switch Tabs */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', background: '#F1F5F9', padding: '6px', borderBottom: '1px solid #E2E8F0', gap: '6px' }}>
+          <button
+            type="button"
+            onClick={() => setModalTab('app_qr')}
+            style={{
+              padding: '8px 12px',
+              borderRadius: '12px',
+              border: 'none',
+              fontWeight: 800,
+              fontSize: '0.78rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              background: modalTab === 'app_qr' ? '#FFFFFF' : 'transparent',
+              color: modalTab === 'app_qr' ? '#B45309' : '#64748B',
+              boxShadow: modalTab === 'app_qr' ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <Smartphone size={15} />
+            <span>តំឡើង & ចូលប្រើ App</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setModalTab('scan_camera')}
+            style={{
+              padding: '8px 12px',
+              borderRadius: '12px',
+              border: 'none',
+              fontWeight: 800,
+              fontSize: '0.78rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              background: modalTab === 'scan_camera' ? '#FFFFFF' : 'transparent',
+              color: modalTab === 'scan_camera' ? '#2563EB' : '#64748B',
+              boxShadow: modalTab === 'scan_camera' ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <Camera size={15} />
+            <span>កាមេរ៉ាស្កេនវត្តមាន</span>
+          </button>
+        </div>
+
+        {/* 🌟 Tab 1: Official App QR Code for Install & Share */}
+        {modalTab === 'app_qr' && (
+          <div style={{ padding: '22px 20px', textAlign: 'center', background: '#FAFAFA', overflowY: 'auto' }} className="animate-fadeIn">
+            
+            {/* Luxury Golden Frame for QR Code */}
+            <div 
+              className="hover-lift"
+              style={{
+                display: 'inline-block',
+                padding: '14px',
+                background: '#FFFFFF',
+                borderRadius: '24px',
+                boxShadow: '0 12px 32px rgba(217, 119, 6, 0.15)',
+                border: '2.5px solid #FDE68A',
+                position: 'relative'
+              }}
+            >
+              <img 
+                src={qrCodeUrl} 
+                alt="SystemMK App Official QR Code" 
+                style={{ width: '190px', height: '190px', borderRadius: '14px', display: 'block', margin: '0 auto' }} 
+              />
               
-              {/* Ultra-Fast Live Camera Viewport with Red Laser Bar */}
+              {/* Center App Badge */}
               <div 
-                style={{ 
-                  width: '210px', 
-                  height: '210px', 
-                  borderRadius: '24px', 
-                  background: '#0F172A', 
-                  border: '3px solid #F59E0B', 
-                  display: 'flex', 
-                  flexDirection: 'column',
-                  alignItems: 'center', 
-                  justifyContent: 'center', 
-                  position: 'relative',
-                  overflow: 'hidden',
-                  boxShadow: '0 12px 28px rgba(0,0,0,0.25)'
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: '42px',
+                  height: '42px',
+                  borderRadius: '10px',
+                  background: '#FFFFFF',
+                  padding: '3px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}
               >
-                {/* Real Camera Video Stream */}
-                <video 
-                  ref={videoRef} 
-                  playsInline 
-                  autoPlay
-                  muted 
-                  style={{ 
-                    width: '100%', 
-                    height: '100%', 
-                    objectFit: 'cover',
-                    display: hasCamera ? 'block' : 'none'
-                  }} 
-                />
+                <img src="/app-logo.png" alt="App Logo" style={{ width: '100%', height: '100%', borderRadius: '8px', objectFit: 'cover' }} />
+              </div>
+            </div>
 
-                {/* Animated Fallback if camera stream is pending/simulated */}
-                {!hasCamera && (
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                    <QrCode size={80} color="#FDE68A" style={{ opacity: 0.85 }} />
-                    <span style={{ fontSize: '0.72rem', color: '#CBD5E1', fontWeight: 700 }}>កំពុងដំណើរការកាមេរ៉ាស្កេន...</span>
-                  </div>
-                )}
+            <div style={{ marginTop: '14px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#FEF3C7', border: '1px solid #FDE68A', color: '#92400E', padding: '4px 12px', borderRadius: '20px', fontSize: '0.74rem', fontWeight: 800 }}>
+                <Sparkles size={13} color="#D97706" />
+                <span>ស្កេនភ្លាម ចូលប្រើ & Install ភ្លែត!</span>
+              </div>
+              <p style={{ fontSize: '0.78rem', color: '#475569', marginTop: '8px', lineHeight: 1.5, margin: '8px 0' }}>
+                លោកអ្នកគ្រាន់តែបើក <strong>Camera ទូរស័ព្ទ</strong> រួចស្កេនលើរូប QR Code នេះ នោះវានឹងនាំលោកអ្នកទៅកាន់កម្មវិធី <strong>SystemMK</strong> ភ្លាមៗតែម្ដង។
+              </p>
+            </div>
 
-                {/* 🔴 High-Speed Laser Bar Scanning Animation */}
+            {/* Quick Action Buttons */}
+            <div style={{ display: 'flex', gap: '8px', marginTop: '14px', justifyContent: 'center' }}>
+              <button
+                type="button"
+                className="hover-lift"
+                onClick={handleCopyLink}
+                style={{
+                  flex: 1,
+                  background: '#FFFFFF',
+                  border: '1.5px solid #CBD5E1',
+                  color: '#1E293B',
+                  padding: '10px 14px',
+                  borderRadius: '12px',
+                  fontWeight: 800,
+                  fontSize: '0.78rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px'
+                }}
+              >
+                <Share2 size={15} />
+                <span>{copied ? '✓ បានចម្លង Link' : 'ចម្លង Link App'}</span>
+              </button>
+
+              <a
+                href={qrCodeUrl}
+                download="SystemMK_Official_QR.png"
+                target="_blank"
+                rel="noreferrer"
+                className="hover-lift"
+                style={{
+                  flex: 1,
+                  background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                  border: 'none',
+                  color: '#1C1917',
+                  padding: '10px 14px',
+                  borderRadius: '12px',
+                  fontWeight: 800,
+                  fontSize: '0.78rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  textDecoration: 'none',
+                  boxShadow: '0 4px 12px rgba(217, 119, 6, 0.35)'
+                }}
+              >
+                <Download size={15} />
+                <span>ទាញយក QR</span>
+              </a>
+            </div>
+          </div>
+        )}
+
+        {/* 🌟 Tab 2: Live Camera Monk Attendance Scanner */}
+        {modalTab === 'scan_camera' && (
+          <div style={{ padding: '18px 20px', textAlign: 'center', background: '#FAFAFA', overflowY: 'auto' }} className="animate-fadeIn">
+            {scanning ? (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                
+                {/* Ultra-Fast Live Camera Viewport with Red Laser Bar */}
                 <div 
                   style={{ 
-                    position: 'absolute', 
-                    left: 0, 
-                    right: 0, 
-                    height: '3px', 
-                    background: 'linear-gradient(90deg, transparent, #EF4444, #F59E0B, #EF4444, transparent)', 
-                    boxShadow: '0 0 14px #EF4444',
-                    animation: 'scannerLaser 1.2s ease-in-out infinite alternate',
-                    zIndex: 10
-                  }} 
-                />
+                    width: '210px', 
+                    height: '210px', 
+                    borderRadius: '24px', 
+                    background: '#0F172A', 
+                    border: '3px solid #F59E0B', 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    position: 'relative', 
+                    overflow: 'hidden', 
+                    boxShadow: '0 12px 28px rgba(0,0,0,0.25)' 
+                  }}
+                >
+                  <video 
+                    ref={videoRef} 
+                    playsInline 
+                    autoPlay 
+                    muted 
+                    style={{ 
+                      width: '100%', 
+                      height: '100%', 
+                      objectFit: 'cover', 
+                      display: hasCamera ? 'block' : 'none' 
+                    }} 
+                  />
 
-                {/* 4 Corner Viewfinder Reticles */}
-                <div style={{ position: 'absolute', top: '10px', left: '10px', width: '18px', height: '18px', borderTop: '3px solid #10B981', borderLeft: '3px solid #10B981', borderRadius: '4px 0 0 0' }} />
-                <div style={{ position: 'absolute', top: '10px', right: '10px', width: '18px', height: '18px', borderTop: '3px solid #10B981', borderRight: '3px solid #10B981', borderRadius: '0 4px 0 0' }} />
-                <div style={{ position: 'absolute', bottom: '10px', left: '10px', width: '18px', height: '18px', borderBottom: '3px solid #10B981', borderLeft: '3px solid #10B981', borderRadius: '0 0 0 4px' }} />
-                <div style={{ position: 'absolute', bottom: '10px', right: '10px', width: '18px', height: '18px', borderBottom: '3px solid #10B981', borderRight: '3px solid #10B981', borderRadius: '0 0 4px 0' }} />
+                  {!hasCamera && (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                      <QrCode size={80} color="#FDE68A" style={{ opacity: 0.85 }} />
+                      <span style={{ fontSize: '0.72rem', color: '#CBD5E1', fontWeight: 700 }}>កំពុងដំណើរការកាមេរ៉ាស្កេន...</span>
+                    </div>
+                  )}
+
+                  <div 
+                    style={{ 
+                      position: 'absolute', 
+                      left: 0, 
+                      right: 0, 
+                      height: '3px', 
+                      background: 'linear-gradient(90deg, transparent, #EF4444, #F59E0B, #EF4444, transparent)', 
+                      boxShadow: '0 0 14px #EF4444', 
+                      animation: 'scannerLaser 1.2s ease-in-out infinite alternate', 
+                      zIndex: 10 
+                    }} 
+                  />
+
+                  <div style={{ position: 'absolute', top: '10px', left: '10px', width: '18px', height: '18px', borderTop: '3px solid #10B981', borderLeft: '3px solid #10B981', borderRadius: '4px 0 0 0' }} />
+                  <div style={{ position: 'absolute', top: '10px', right: '10px', width: '18px', height: '18px', borderTop: '3px solid #10B981', borderRight: '3px solid #10B981', borderRadius: '0 4px 0 0' }} />
+                  <div style={{ position: 'absolute', bottom: '10px', left: '10px', width: '18px', height: '18px', borderBottom: '3px solid #10B981', borderLeft: '3px solid #10B981', borderRadius: '0 0 0 4px' }} />
+                  <div style={{ position: 'absolute', bottom: '10px', right: '10px', width: '18px', height: '18px', borderBottom: '3px solid #10B981', borderRight: '3px solid #10B981', borderRadius: '0 0 4px 0' }} />
+                </div>
+
+                <style jsx>{`
+                  @keyframes scannerLaser {
+                    0% { top: 10px; }
+                    100% { top: 195px; }
+                  }
+                `}</style>
+
+                <p style={{ fontSize: '0.76rem', color: '#475569', maxWidth: '290px', lineHeight: 1.4, margin: 0 }}>
+                  ⚡ តម្រង់កាមេរ៉ាទៅលើ <strong>QR Code លើកាតព្រះសង្ឃ</strong> ដើម្បីកត់ត្រាវត្តមានភ្លាមៗ
+                </p>
+
+                <div style={{ width: '100%', background: '#FFFFFF', padding: '9px 12px', borderRadius: '16px', border: '1.5px solid #E2E8F0', marginTop: '2px' }}>
+                  <span style={{ fontSize: '0.66rem', color: '#64748B', fontWeight: 800, display: 'block', marginBottom: '6px' }}>
+                    ⚡ ស្កេនរហ័សគំរូ (Quick Instant Attendance Tap):
+                  </span>
+                  <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                    <button
+                      onClick={() => handleInstantScan('ព្រះមហា សុខ វិបុល', 'ភិក្ខុ')}
+                      className="hover-lift"
+                      style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', color: '#065F46', padding: '5px 10px', borderRadius: '9px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer' }}
+                    >
+                      ✓ ព្រះមហា សុខ វិបុល
+                    </button>
+                    <button
+                      onClick={() => handleInstantScan('ព្រះគ្រូ ឡុង សារ៉េត', 'ព្រះមេកុដិ')}
+                      className="hover-lift"
+                      style={{ background: '#FFFBEB', border: '1px solid #FDE68A', color: '#92400E', padding: '5px 10px', borderRadius: '9px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer' }}
+                    >
+                      ✓ ព្រះគ្រូ ឡុង សារ៉េត
+                    </button>
+                  </div>
+                </div>
               </div>
+            ) : (
+              <div className="animate-fadeIn" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', padding: '10px 0' }}>
+                <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#ECFDF5', border: '2.5px solid #10B981', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px rgba(16, 185, 129, 0.25)' }}>
+                  <CheckCircle2 size={40} />
+                </div>
+                <div>
+                  <h4 style={{ fontWeight: 800, fontSize: '1.1rem', color: '#065F46', margin: '0 0 4px 0' }}>
+                    ⚡ ស្កេនកត់ត្រាបានជោគជ័យ!
+                  </h4>
+                  <p style={{ fontSize: '0.86rem', color: '#1E293B', fontWeight: 700, margin: 0 }}>
+                    {scanResult}
+                  </p>
+                  <span style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 700, marginTop: '4px', display: 'block' }}>
+                    ✓ ម៉ោងស្កេន: {new Date().toLocaleTimeString('km-KH', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                  </span>
+                </div>
 
-              {/* Laser Animation Keyframe Injection */}
-              <style jsx>{`
-                @keyframes scannerLaser {
-                  0% { top: 10px; }
-                  100% { top: 195px; }
-                }
-              `}</style>
-
-              <p style={{ fontSize: '0.76rem', color: '#475569', maxWidth: '290px', lineHeight: 1.4, margin: 0 }}>
-                ⚡ តម្រង់កាមេរ៉ាទៅលើ <strong>QR Code លើកាតព្រះសង្ឃ</strong> ដើម្បីកត់ត្រាវត្តមានភ្លាមៗ
-              </p>
-
-              {/* Fast Instant Quick Scan Buttons */}
-              <div style={{ width: '100%', background: '#FFFFFF', padding: '9px 12px', borderRadius: '16px', border: '1.5px solid #E2E8F0', marginTop: '2px' }}>
-                <span style={{ fontSize: '0.66rem', color: '#64748B', fontWeight: 800, display: 'block', marginBottom: '6px' }}>
-                  ⚡ ស្កេនរហ័សគំរូ (Quick Instant Attendance Tap):
-                </span>
-                <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
                   <button
-                    onClick={() => handleInstantScan('ព្រះមហា សុខ វិបុល', 'ភិក្ខុ')}
+                    onClick={() => setScanning(true)}
                     className="hover-lift"
-                    style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', color: '#065F46', padding: '5px 10px', borderRadius: '9px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer' }}
+                    style={{ background: '#F1F5F9', border: '1.5px solid #CBD5E1', padding: '9px 18px', borderRadius: '12px', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer' }}
                   >
-                    ✓ ព្រះមហា សុខ វិបុល
+                    ⚡ ស្កេនអង្គបន្ទាប់
                   </button>
                   <button
-                    onClick={() => handleInstantScan('ព្រះគ្រូ ឡុង សារ៉េត', 'ព្រះមេកុដិ')}
+                    onClick={onClose}
                     className="hover-lift"
-                    style={{ background: '#FFFBEB', border: '1px solid #FDE68A', color: '#92400E', padding: '5px 10px', borderRadius: '9px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer' }}
+                    style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)', color: '#1C1917', border: 'none', padding: '9px 22px', borderRadius: '12px', fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer', boxShadow: '0 6px 16px rgba(217, 119, 6, 0.35)' }}
                   >
-                    ✓ ព្រះគ្រូ ឡុង សារ៉េត
+                    រួចរាល់ / Done
                   </button>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className="animate-fadeIn" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', padding: '10px 0' }}>
-              <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#ECFDF5', border: '2.5px solid #10B981', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px rgba(16, 185, 129, 0.25)' }}>
-                <CheckCircle2 size={40} />
-              </div>
-              <div>
-                <h4 style={{ fontWeight: 800, fontSize: '1.1rem', color: '#065F46', margin: '0 0 4px 0' }}>
-                  ⚡ ស្កេនកត់ត្រាបានជោគជ័យ!
-                </h4>
-                <p style={{ fontSize: '0.86rem', color: '#1E293B', fontWeight: 700, margin: 0 }}>
-                  {scanResult}
-                </p>
-                <span style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 700, marginTop: '4px', display: 'block' }}>
-                  ✓ ម៉ោងស្កេន: {new Date().toLocaleTimeString('km-KH', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                </span>
-              </div>
-
-              <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-                <button
-                  onClick={() => setScanning(true)}
-                  className="hover-lift"
-                  style={{ background: '#F1F5F9', border: '1.5px solid #CBD5E1', padding: '9px 18px', borderRadius: '12px', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer' }}
-                >
-                  ⚡ ស្កេនអង្គបន្ទាប់
-                </button>
-                <button
-                  onClick={onClose}
-                  className="hover-lift"
-                  style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)', color: '#1C1917', border: 'none', padding: '9px 22px', borderRadius: '12px', fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer', boxShadow: '0 6px 16px rgba(217, 119, 6, 0.35)' }}
-                >
-                  រួចរាល់ / Done
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
 
       </div>
     </div>

@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { USER_ROLE_LABELS } from '@/lib/utils'
 import { UserRole, Profile } from '@/lib/database.types'
-import { Settings, Shield, User, Database, Bell, Lock, Save, CheckCircle, ShieldCheck, Key, RefreshCw, Sparkles, Smartphone, Mail, Phone, UserCheck, UserPlus, Trash2, Edit3 } from 'lucide-react'
+import { Settings, Shield, User, Database, Bell, Lock, Save, CheckCircle, ShieldCheck, Key, RefreshCw, Sparkles, Smartphone, Mail, Phone, UserCheck, UserPlus, Trash2, Edit3, Share2, Download, QrCode } from 'lucide-react'
 
 // Demo Initial Users
 const INITIAL_USERS: (Profile & { created_by_label?: string })[] = [
@@ -572,6 +572,70 @@ export default function SettingsPage() {
                 <Database size={16} />
                 <span>Backup Now (.json)</span>
               </button>
+            </div>
+
+            {/* 📱 Official App QR Code Download & Share Card */}
+            <div className="hover-lift" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 22px', background: 'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)', borderRadius: '16px', border: '1.5px solid #FDE68A', flexWrap: 'wrap', gap: '14px' }}>
+              <div className="flex items-center gap-3">
+                <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#FFFFFF', border: '1px solid #FDE68A', padding: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fsystemmk.vercel.app&color=0F172A&bgcolor=FFFFFF" alt="SystemMK App QR" style={{ width: '100%', height: '100%', borderRadius: '8px' }} />
+                </div>
+                <div>
+                  <h4 style={{ fontWeight: 800, color: '#92400E', fontSize: '0.96rem' }}>QR Code សម្រាប់ចែករំលែក & តំឡើង App</h4>
+                  <p style={{ fontSize: '0.75rem', color: '#B45309', marginTop: '2px' }}>ស្កេនពីទូរស័ព្ទដៃដើម្បីចូលប្រើ ឬទាញយក App SystemMK ភ្លាមៗ</p>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  type="button"
+                  className="hover-lift"
+                  onClick={() => {
+                    navigator.clipboard.writeText('https://systemmk.vercel.app')
+                    alert('បានចម្លង Link វេបសាយជោគជ័យ!')
+                  }}
+                  style={{
+                    background: '#FFFFFF',
+                    color: '#92400E',
+                    border: '1.5px solid #FDE68A',
+                    fontWeight: 800,
+                    padding: '8px 14px',
+                    borderRadius: '10px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >
+                  <Share2 size={14} />
+                  <span>ចម្លង Link</span>
+                </button>
+                <a
+                  href="https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=https%3A%2F%2Fsystemmk.vercel.app&color=0F172A&bgcolor=FFFFFF"
+                  download="SystemMK_App_QR.png"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover-lift"
+                  style={{
+                    background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                    color: '#1C1917',
+                    border: 'none',
+                    fontWeight: 800,
+                    padding: '8px 16px',
+                    borderRadius: '10px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    textDecoration: 'none',
+                    boxShadow: '0 4px 12px rgba(217, 119, 6, 0.3)'
+                  }}
+                >
+                  <Download size={14} />
+                  <span>ទាញយក QR (.png)</span>
+                </a>
+              </div>
             </div>
 
             <div className="hover-lift" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 22px', background: '#ECFDF5', borderRadius: '16px', border: '1.5px solid #A7F3D0', flexWrap: 'wrap', gap: '12px' }}>
