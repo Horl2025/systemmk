@@ -364,81 +364,89 @@ export default function RoomsPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 flex-wrap">
-                <span style={{ background: '#F1F5F9', color: '#475569', padding: '4px 10px', borderRadius: '10px', fontSize: '0.72rem', fontWeight: 800 }}>
-                  {k.rooms.length} បន្ទប់
-                </span>
-                <span style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', color: '#065F46', padding: '4px 10px', borderRadius: '10px', fontSize: '0.72rem', fontWeight: 800 }}>
-                  {k.rooms.filter(r => r.status === 'available').length} ទំនេរ
-                </span>
-                <button
-                  className="hover-lift"
-                  style={{
-                    background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
-                    color: '#1C1917',
-                    fontWeight: 800,
-                    padding: '7px 12px',
-                    borderRadius: '10px',
-                    border: 'none',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    cursor: 'pointer',
-                    fontSize: '0.76rem',
-                    boxShadow: '0 4px 12px rgba(217,119,6,0.25)'
-                  }}
-                  onClick={e => { e.stopPropagation(); setEditingRoom(null); setShowRoomModal(k.id) }}
-                >
-                  <Plus size={14} />
-                  <span>បន្ថែមបន្ទប់</span>
-                </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ background: '#F1F5F9', color: '#475569', padding: '5px 10px', borderRadius: '8px', fontSize: '0.74rem', fontWeight: 800, whiteSpace: 'nowrap' }}>
+                    {k.rooms.length} បន្ទប់
+                  </span>
+                  <span style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', color: '#065F46', padding: '5px 10px', borderRadius: '8px', fontSize: '0.74rem', fontWeight: 800, whiteSpace: 'nowrap' }}>
+                    {k.rooms.filter(r => r.status === 'available').length} ទំនេរ
+                  </span>
+                </div>
 
-                {/* 🌟 Kuthi Action Buttons: Edit & Delete */}
-                <button
-                  type="button"
-                  className="hover-lift"
-                  title="កែប្រែកុដិ / Edit Kuthi"
-                  onClick={e => { e.stopPropagation(); setEditingKuthi(k); setShowKuthiModal(true) }}
-                  style={{
-                    background: '#EFF6FF',
-                    border: '1px solid #BFDBFE',
-                    color: '#2563EB',
-                    padding: '7px 10px',
-                    borderRadius: '10px',
-                    fontSize: '0.74rem',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '4px'
-                  }}
-                >
-                  <Edit size={13} />
-                  <span>កែប្រែ</span>
-                </button>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  <button
+                    type="button"
+                    className="hover-lift"
+                    style={{
+                      background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                      color: '#1C1917',
+                      fontWeight: 800,
+                      padding: '5px 10px',
+                      borderRadius: '8px',
+                      border: 'none',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      cursor: 'pointer',
+                      fontSize: '0.74rem',
+                      boxShadow: '0 3px 8px rgba(217,119,6,0.2)',
+                      whiteSpace: 'nowrap'
+                    }}
+                    onClick={e => { e.stopPropagation(); setEditingRoom(null); setShowRoomModal(k.id) }}
+                  >
+                    <Plus size={13} />
+                    <span>+ បន្ទប់</span>
+                  </button>
 
-                <button
-                  type="button"
-                  className="hover-lift"
-                  title="លុបកុដិ / Delete Kuthi"
-                  onClick={e => { e.stopPropagation(); setDeleteConfirmItem({ type: 'kuthi', id: k.id, name: k.name }) }}
-                  style={{
-                    background: '#FEF2F2',
-                    border: '1px solid #FECACA',
-                    color: '#DC2626',
-                    padding: '7px 10px',
-                    borderRadius: '10px',
-                    fontSize: '0.74rem',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '4px'
-                  }}
-                >
-                  <Trash2 size={13} />
-                  <span>លុប</span>
-                </button>
+                  <button
+                    type="button"
+                    className="hover-lift"
+                    title="កែប្រែកុដិ / Edit Kuthi"
+                    onClick={e => { e.stopPropagation(); setEditingKuthi(k); setShowKuthiModal(true) }}
+                    style={{
+                      background: '#EFF6FF',
+                      border: '1px solid #BFDBFE',
+                      color: '#2563EB',
+                      padding: '5px 9px',
+                      borderRadius: '8px',
+                      fontSize: '0.74rem',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '3px',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    <Edit size={12} />
+                    <span>កែប្រែ</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="hover-lift"
+                    title="លុបកុដិ / Delete Kuthi"
+                    onClick={e => { e.stopPropagation(); setDeleteConfirmItem({ type: 'kuthi', id: k.id, name: k.name }) }}
+                    style={{
+                      background: '#FEF2F2',
+                      border: '1px solid #FECACA',
+                      color: '#DC2626',
+                      padding: '5px 9px',
+                      borderRadius: '8px',
+                      fontSize: '0.74rem',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '3px',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    <Trash2 size={12} />
+                    <span>លុប</span>
+                  </button>
+                </div>
               </div>
             </div>
 
