@@ -8,7 +8,7 @@ import { USER_ROLE_LABELS } from '@/lib/utils'
 import { UserRole, Profile } from '@/lib/database.types'
 import { Settings, Shield, User, Database, Bell, Lock, Save, CheckCircle, ShieldCheck, Key, RefreshCw, Sparkles, Smartphone, Mail, Phone, UserCheck, UserPlus, Trash2, Edit3, Share2, Download, QrCode } from 'lucide-react'
 
-// Demo Initial Users
+// Initial Root Users
 const INITIAL_USERS: (Profile & { created_by_label?: string })[] = [
   {
     id: 'u1',
@@ -21,33 +21,7 @@ const INITIAL_USERS: (Profile & { created_by_label?: string })[] = [
     email: 'admin@systemmk.org',
     created_at: '2026-01-01',
     updated_at: '2026-01-01',
-    created_by_label: 'ម្ចាស់ប្រព័ន្ធមេ (Root)'
-  },
-  {
-    id: 'u2',
-    full_name: 'លោក គង់ វិរៈ (Admin ទូទៅ)',
-    display_name: 'វិរៈ',
-    avatar_url: null,
-    role: 'admin',
-    is_active: true,
-    phone: '012 889 900',
-    email: 'general.admin@systemmk.org',
-    created_at: '2026-02-10',
-    updated_at: '2026-02-10',
-    created_by_label: 'បង្កើតដោយ ព្រះមេកុដិ'
-  },
-  {
-    id: 'u3',
-    full_name: 'ឧបាសក ចាន់ សុខ (អ្នកកត់ត្រា)',
-    display_name: 'សុខ',
-    avatar_url: null,
-    role: 'recorder',
-    is_active: true,
-    phone: '098 765 432',
-    email: 'recorder@systemmk.org',
-    created_at: '2026-02-15',
-    updated_at: '2026-02-15',
-    created_by_label: 'បង្កើតដោយ ព្រះមេកុដិ'
+    created_by_label: 'ម្ចាស់ប្រព័ន្ធមេ (Root Admin)'
   }
 ]
 

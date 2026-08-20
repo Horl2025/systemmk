@@ -3,73 +3,16 @@
 export const dynamic = 'force-dynamic'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Student } from '@/lib/database.types'
 import { Plus, Search, Edit, Trash2, GraduationCap, Phone, MapPin, Building } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 
-const INITIAL_DEMO_STUDENTS: Student[] = [
-  { 
-    id: '1', 
-    khmer_name: 'ជា វណ្ណា', 
-    latin_name: 'Chea Vanna', 
-    date_of_birth: '2005-04-12', 
-    gender: 'male', 
-    school_name: 'សាកលវិទ្យាល័យភូមិន្ទភ្នំពេញ (RUPP)', 
-    grade_level: 'ឆ្នាំទី ២ (ព័ត៌មានវិទ្យា)', 
-    room_id: null, 
-    home_province: 'កំពង់ចាម', 
-    phone: '098 765 432', 
-    parent_phone: '012 998 877', 
-    photo_url: null, 
-    is_active: true, 
-    joined_date: '2024-10-01', 
-    notes: 'ស្នាក់នៅកុដិមេត្តា បន្ទប់ A-01', 
-    created_at: new Date().toISOString(), 
-    updated_at: new Date().toISOString() 
-  },
-  { 
-    id: '2', 
-    khmer_name: 'សុខ ពិសិដ្ឋ', 
-    latin_name: 'Sok Piseth', 
-    date_of_birth: '2006-08-20', 
-    gender: 'male', 
-    school_name: 'វិទ្យាល័យព្រះស៊ីសុវត្ថិ', 
-    grade_level: 'ថ្នាក់ទី ១២', 
-    room_id: null, 
-    home_province: 'ព្រៃវែង', 
-    phone: '088 123 4567', 
-    parent_phone: '097 554 433', 
-    photo_url: null, 
-    is_active: true, 
-    joined_date: '2023-11-15', 
-    notes: 'សិស្សអាហារូបករណ៍', 
-    created_at: new Date().toISOString(), 
-    updated_at: new Date().toISOString() 
-  },
-  { 
-    id: '3', 
-    khmer_name: 'ហេង សុជាតិ', 
-    latin_name: 'Heng Socheat', 
-    date_of_birth: '2004-11-05', 
-    gender: 'male', 
-    school_name: 'វិទ្យាស្ថានបច្ចេកវិទ្យាកម្ពុជា (ITC)', 
-    grade_level: 'ឆ្នាំទី ៣', 
-    room_id: null, 
-    home_province: 'បាត់ដំបង', 
-    phone: '010 445 566', 
-    parent_phone: '012 332 211', 
-    photo_url: null, 
-    is_active: true, 
-    joined_date: '2022-10-01', 
-    notes: 'ជំនួយការបច្ចេកវិទ្យាក្នុងវត្ត', 
-    created_at: new Date().toISOString(), 
-    updated_at: new Date().toISOString() 
-  },
-]
+const INITIAL_STUDENTS: Student[] = []
 
 export default function StudentsPage() {
-  const [students, setStudents] = useState<Student[]>(INITIAL_DEMO_STUDENTS)
+  const [students, setStudents] = useState<Student[]>(INITIAL_STUDENTS)
   const [search, setSearch] = useState('')
   const [showModal, setShowModal] = useState(false)
 

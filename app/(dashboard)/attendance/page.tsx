@@ -12,26 +12,12 @@ import { CheckCircle, XCircle, Clock, AlertCircle, Save, Calendar, Check, Users,
 type Session = 'morning' | 'afternoon' | 'evening'
 type Status = 'present' | 'absent' | 'leave' | 'sick'
 
-const INITIAL_DEMO_MONKS: Monk[] = [
-  { id: '1', khmer_name: 'ព្រះមហា សុខ វិបុល', latin_name: 'Ven. Sok Vibul', rank: 'bhikkhu', photo_url: null } as any,
-  { id: '2', khmer_name: 'សាមណេរ ចាន់ រ៉ា', latin_name: 'Novice Chan Ra', rank: 'samanera', photo_url: null } as any,
-  { id: '3', khmer_name: 'ព្រះគ្រូ ឡុង សារ៉េត', latin_name: 'Ven. Long Sareth', rank: 'chief_monk', photo_url: null } as any,
-  { id: '4', khmer_name: 'ភិក្ខុ ឌុក សម្បត្តិ', latin_name: 'Ven. Duk Sambath', rank: 'bhikkhu', photo_url: null } as any,
-  { id: '5', khmer_name: 'សាមណេរ ហេង វុទ្ធី', latin_name: 'Novice Heng Vutha', rank: 'samanera', photo_url: null } as any,
-  { id: '6', khmer_name: 'ភិក្ខុ សេង សុវណ្ណារ៉ា', latin_name: 'Ven. Seng Sovannara', rank: 'teacher', photo_url: null } as any,
-]
+const INITIAL_MONKS: Monk[] = []
 
 export default function AttendancePage() {
   const router = useRouter()
-  const [monks, setMonks] = useState<Monk[]>(INITIAL_DEMO_MONKS)
-  const [records, setRecords] = useState<Record<string, Status>>({
-    '1': 'present',
-    '2': 'present',
-    '3': 'present',
-    '4': 'leave',
-    '5': 'present',
-    '6': 'present',
-  })
+  const [monks, setMonks] = useState<Monk[]>(INITIAL_MONKS)
+  const [records, setRecords] = useState<Record<string, Status>>({})
   const [session, setSession] = useState<Session>('morning')
   const [date, setDate] = useState(today())
   const [searchTerm, setSearchTerm] = useState('')

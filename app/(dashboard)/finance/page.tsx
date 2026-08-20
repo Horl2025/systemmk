@@ -10,24 +10,13 @@ import { INCOME_TYPE_LABELS, EXPENSE_TYPE_LABELS, formatCurrency, today } from '
 import { Plus, DollarSign, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Wallet, Check, Sparkles, ArrowLeft } from 'lucide-react'
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts'
 
-const DEMO_INCOMES: Income[] = [
-  { id: '1', title: 'បច្ច័យបូជាបុណ្យមាឃបូជា', income_type: 'merit', amount: 3500000, currency: 'KHR', income_date: '2026-02-15', donor_name: 'ពុទ្ធបរិស័ទជិតឆ្ងាយ', description: '', receipt_url: null, event_id: null, recorded_by: null, created_at: '', updated_at: '' },
-  { id: '2', title: 'សប្បុរសជនឧបត្ថម្ភថ្លៃទឹកភ្លើង', income_type: 'donation', amount: 1200000, currency: 'KHR', income_date: '2026-03-01', donor_name: 'ឧបាសិកា គឹម ហួរ', description: '', receipt_url: null, event_id: null, recorded_by: null, created_at: '', updated_at: '' },
-  { id: '3', title: 'បច្ច័យសង្ឃទាន និងចង្ហាន់', income_type: 'offering', amount: 2800000, currency: 'KHR', income_date: '2026-03-08', donor_name: 'លោក គង់ វិរៈ និងគ្រួសារ', description: '', receipt_url: null, event_id: null, recorded_by: null, created_at: '', updated_at: '' },
-  { id: '4', title: 'ថវិកាឧបត្ថម្ភសាលាបាលី', income_type: 'grant', amount: 2300000, currency: 'KHR', income_date: '2026-03-12', donor_name: 'សមាគមពុទ្ធសាសនិក', description: '', receipt_url: null, event_id: null, recorded_by: null, created_at: '', updated_at: '' },
-]
-
-const DEMO_EXPENSES: Expense[] = [
-  { id: '1', title: 'ទូទាត់ថ្លៃអគ្គិសនីប្រចាំខែ', expense_type: 'electricity', amount: 850000, currency: 'KHR', expense_date: '2026-03-05', vendor_name: 'EDC', description: '', receipt_url: null, event_id: null, kuthi_id: null, recorded_by: null, created_at: '', updated_at: '' },
-  { id: '2', title: 'ថ្លៃចង្ហាន់ និងគ្រឿងឧបភោគ', expense_type: 'food', amount: 1400000, currency: 'KHR', expense_date: '2026-03-10', vendor_name: 'ផ្សារលើ', description: '', receipt_url: null, event_id: null, kuthi_id: null, recorded_by: null, created_at: '', updated_at: '' },
-  { id: '3', title: 'ជួសជុលដំបូលកុដិលេខ ៣', expense_type: 'repair', amount: 2100000, currency: 'KHR', expense_date: '2026-03-14', vendor_name: 'ជាង សុខា', description: '', receipt_url: null, event_id: null, kuthi_id: null, recorded_by: null, created_at: '', updated_at: '' },
-  { id: '4', title: 'ទិញសៀវភៅពុទ្ធសាសនាសិក្សា', expense_type: 'education', amount: 650000, currency: 'KHR', expense_date: '2026-03-16', vendor_name: 'បណ្ណាគារអង្គរ', description: '', receipt_url: null, event_id: null, kuthi_id: null, recorded_by: null, created_at: '', updated_at: '' },
-]
+const INITIAL_INCOMES: Income[] = []
+const INITIAL_EXPENSES: Expense[] = []
 
 export default function FinancePage() {
   const router = useRouter()
-  const [incomes, setIncomes] = useState<Income[]>(DEMO_INCOMES)
-  const [expenses, setExpenses] = useState<Expense[]>(DEMO_EXPENSES)
+  const [incomes, setIncomes] = useState<Income[]>(INITIAL_INCOMES)
+  const [expenses, setExpenses] = useState<Expense[]>(INITIAL_EXPENSES)
   const [tab, setTab] = useState<'overview' | 'income' | 'expense'>('overview')
   const [showIncomeModal, setShowIncomeModal] = useState(false)
   const [showExpenseModal, setShowExpenseModal] = useState(false)

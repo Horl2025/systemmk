@@ -20,32 +20,7 @@ interface MessageItem {
 export default function ChatPage() {
   const router = useRouter()
   const { user } = useAuth()
-  const [messages, setMessages] = useState<MessageItem[]>([
-    { 
-      id: '1', 
-      sender_name: 'ព្រះគ្រូចៅអធិការ ឡុង សារ៉េត', 
-      content: 'សូមថ្វាយបង្គំ និងជម្រាបសួរព្រះសង្ឃ និងគណៈកម្មការវត្តគ្រប់អង្គ/រូប 🙏 សូមពិនិត្យកាលវិភាគសូត្រធម៌រសៀលនេះ។', 
-      created_at: '០៨:០០ ព្រឹក', 
-      avatar_color: 'linear-gradient(135deg, #FDE68A 0%, #F59E0B 100%)',
-      is_self: false 
-    },
-    { 
-      id: '2', 
-      sender_name: 'ព្រះមហា សុខ វិបុល', 
-      content: 'ករុណាគុណម្ចាស់! ថ្ងៃនេះម៉ោង ២ រសៀលមានកម្មវិធីសូត្រធម៌ និងថ្វាយបង្គំនៅសាលាឆាន់។ ព្រះសង្ឃបានត្រៀមរួចរាល់ហើយ។', 
-      created_at: '០៨:១៥ ព្រឹក', 
-      avatar_color: 'linear-gradient(135deg, #93C5FD 0%, #2563EB 100%)',
-      is_self: false 
-    },
-    { 
-      id: '3', 
-      sender_name: 'អ្នកកត់ត្រាវត្ត', 
-      content: 'ខ្ញុំករុណាបានកត់ត្រាវត្តមានព្រឹកនេះរួចរាល់ និងបានបញ្ចូលទិន្នន័យបច្ច័យបូជាចូលក្នុងប្រព័ន្ធហើយ។', 
-      created_at: '០៨:៣០ ព្រឹក', 
-      avatar_color: 'linear-gradient(135deg, #6EE7B7 0%, #059669 100%)',
-      is_self: true 
-    },
-  ])
+  const [messages, setMessages] = useState<MessageItem[]>([])
   const [inputText, setInputText] = useState('')
   const [currentChannel, setCurrentChannel] = useState('general')
   const messagesEndRef = useRef<HTMLDivElement>(null)

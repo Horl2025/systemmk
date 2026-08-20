@@ -13,47 +13,13 @@ interface KuthiWithRooms extends Kuthi {
   rooms: (Room & { monks?: any[] })[]
 }
 
-const INITIAL_DEMO_KUTHI: KuthiWithRooms[] = [
-  {
-    id: 'k1',
-    name: 'កុដិសន្តិភាព (កុដិលេខ ១)',
-    name_en: 'Peace Kuthi (Building 1)',
-    description: 'កុដិស្នាក់នៅរបស់ព្រះថេរៈ និងភិក្ខុសង្ឃ',
-    floor_count: 2,
-    built_year: 2018,
-    is_active: true,
-    created_at: '',
-    updated_at: '',
-    rooms: [
-      { id: 'r1', kuthi_id: 'k1', room_number: '១០១', room_name: 'បន្ទប់សមាធិ', room_type: 'bhikkhu', floor: 1, capacity: 2, status: 'occupied', notes: '', is_active: true, created_at: '', updated_at: '', monks: [{ id: 'm1', khmer_name: 'ព្រះមហា សុខ វិបុល', rank: 'bhikkhu', vassa: 5, dhamma_name: 'ញាណវង្សោ' }] } as any,
-      { id: 'r2', kuthi_id: 'k1', room_number: '១០២', room_name: null, room_type: 'bhikkhu', floor: 1, capacity: 2, status: 'available', notes: '', is_active: true, created_at: '', updated_at: '', monks: [] } as any,
-      { id: 'r3', kuthi_id: 'k1', room_number: '២០១', room_name: null, room_type: 'bhikkhu', floor: 2, capacity: 2, status: 'available', notes: '', is_active: true, created_at: '', updated_at: '', monks: [] } as any,
-      { id: 'r4', kuthi_id: 'k1', room_number: '២០២', room_name: null, room_type: 'bhikkhu', floor: 2, capacity: 2, status: 'maintenance', notes: '', is_active: true, created_at: '', updated_at: '', monks: [] } as any,
-    ]
-  },
-  {
-    id: 'k2',
-    name: 'កុដិមេត្តា (កុដិលេខ ២)',
-    name_en: 'Metta Kuthi (Building 2)',
-    description: 'កុដិសម្រាប់សាមណេរ និងសិស្សនិស្សិត',
-    floor_count: 1,
-    built_year: 2021,
-    is_active: true,
-    created_at: '',
-    updated_at: '',
-    rooms: [
-      { id: 'r5', kuthi_id: 'k2', room_number: 'A-01', room_name: null, room_type: 'samanera', floor: 1, capacity: 4, status: 'occupied', notes: '', is_active: true, created_at: '', updated_at: '', monks: [{ id: 'm2', khmer_name: 'សាមណេរ ចាន់ រ៉ា', rank: 'samanera', vassa: 2, dhamma_name: 'បញ្ញាវុឌ្ឍោ' }] } as any,
-      { id: 'r6', kuthi_id: 'k2', room_number: 'A-02', room_name: null, room_type: 'samanera', floor: 1, capacity: 4, status: 'available', notes: '', is_active: true, created_at: '', updated_at: '', monks: [] } as any,
-      { id: 'r7', kuthi_id: 'k2', room_number: 'A-03', room_name: 'បន្ទប់ភ្ញៀវ', room_type: 'guest', floor: 1, capacity: 2, status: 'available', notes: '', is_active: true, created_at: '', updated_at: '', monks: [] } as any,
-    ]
-  }
-]
+const INITIAL_KUTHI: KuthiWithRooms[] = []
 
 export default function RoomsPage() {
   const router = useRouter()
-  const [kuthi, setKuthi] = useState<KuthiWithRooms[]>(INITIAL_DEMO_KUTHI)
+  const [kuthi, setKuthi] = useState<KuthiWithRooms[]>(INITIAL_KUTHI)
   const [loading, setLoading] = useState(false)
-  const [expandedKuthi, setExpandedKuthi] = useState<Set<string>>(new Set(['k1', 'k2']))
+  const [expandedKuthi, setExpandedKuthi] = useState<Set<string>>(new Set())
   const [showKuthiModal, setShowKuthiModal] = useState(false)
   const [editingKuthi, setEditingKuthi] = useState<KuthiWithRooms | null>(null)
   const [showRoomModal, setShowRoomModal] = useState<string | null>(null)

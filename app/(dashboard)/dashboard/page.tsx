@@ -56,34 +56,22 @@ export default function DashboardPage() {
   }, [])
 
   const [stats] = useState({
-    monksCount: 28,
-    roomsCount: 24,
-    availableRooms: 7,
-    occupiedRooms: 17,
-    studentsCount: 12,
-    inventoryCount: 56,
-    goodItems: 48,
-    damagedItems: 5,
-    lostItems: 3,
-    monthlyIncome: 9800000,
-    monthlyExpense: 6400000,
+    monksCount: 0,
+    roomsCount: 0,
+    availableRooms: 0,
+    occupiedRooms: 0,
+    studentsCount: 0,
+    inventoryCount: 0,
+    goodItems: 0,
+    damagedItems: 0,
+    lostItems: 0,
+    monthlyIncome: 0,
+    monthlyExpense: 0,
   })
 
-  const [rankDistribution] = useState<{ name: string; value: number }[]>([
-    { name: 'ភិក្ខុ (Bhikkhu)', value: 16 },
-    { name: 'សាមណេរ (Samanera)', value: 9 },
-    { name: 'ព្រះមេកុដិ (Leader)', value: 1 },
-    { name: 'គ្រូពូកែ (Teacher)', value: 2 },
-  ])
+  const [rankDistribution] = useState<{ name: string; value: number }[]>([])
 
-  const [financeData] = useState<{ month: string; income: number; expense: number }[]>([
-    { month: 'មករា', income: 5200000, expense: 3800000 },
-    { month: 'កុម្ភៈ', income: 6400000, expense: 4200000 },
-    { month: 'មីនា', income: 7800000, expense: 5100000 },
-    { month: 'មេសា', income: 11500000, expense: 7600000 },
-    { month: 'ឧសភា', income: 8900000, expense: 5900000 },
-    { month: 'មិថុនា', income: 9800000, expense: 6400000 },
-  ])
+  const [financeData] = useState<{ month: string; income: number; expense: number }[]>([])
 
   return (
     <div className="space-y-7 animate-fadeIn" style={{ paddingBottom: 'var(--space-8)' }}>

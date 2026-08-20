@@ -958,32 +958,9 @@ function GlobalScanQRModal({ onClose }: { onClose: () => void }) {
                 }
               `}</style>
 
-              <p style={{ fontSize: '0.76rem', color: '#475569', maxWidth: '290px', lineHeight: 1.4, margin: 0 }}>
-                ⚡ តម្រង់កាមេរ៉ាទៅលើ <strong>QR Code លើកាតព្រះសង្ឃ</strong> ដើម្បីកត់ត្រាវត្តមានភ្លាមៗ
+              <p style={{ fontSize: '0.76rem', color: '#475569', maxWidth: '290px', lineHeight: 1.4, margin: '8px 0 0 0' }}>
+                ⚡ សូមតម្រង់កាមេរ៉ាទៅលើ <strong>QR Code លើកាតព្រះសង្ឃ</strong> ដើម្បីកត់ត្រាវត្តមានភ្លាមៗ
               </p>
-
-              {/* Fast Instant Quick Scan Buttons */}
-              <div style={{ width: '100%', background: '#FFFFFF', padding: '9px 12px', borderRadius: '16px', border: '1.5px solid #E2E8F0', marginTop: '2px' }}>
-                <span style={{ fontSize: '0.66rem', color: '#64748B', fontWeight: 800, display: 'block', marginBottom: '6px' }}>
-                  ⚡ ស្កេនរហ័សគំរូ (Quick Instant Attendance Tap):
-                </span>
-                <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <button
-                    onClick={() => handleInstantScan('ព្រះមហា សុខ វិបុល', 'ភិក្ខុ')}
-                    className="hover-lift"
-                    style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', color: '#065F46', padding: '5px 10px', borderRadius: '9px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer' }}
-                  >
-                    ✓ ព្រះមហា សុខ វិបុល
-                  </button>
-                  <button
-                    onClick={() => handleInstantScan('ព្រះគ្រូ ឡុង សារ៉េត', 'ព្រះមេកុដិ')}
-                    className="hover-lift"
-                    style={{ background: '#FFFBEB', border: '1px solid #FDE68A', color: '#92400E', padding: '5px 10px', borderRadius: '9px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer' }}
-                  >
-                    ✓ ព្រះគ្រូ ឡុង សារ៉េត
-                  </button>
-                </div>
-              </div>
             </div>
           ) : (
             <div className="animate-fadeIn" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', padding: '10px 0' }}>

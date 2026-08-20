@@ -8,18 +8,11 @@ import { supabase } from '@/lib/supabase'
 import { InventoryItem } from '@/lib/database.types'
 import { Package, Plus, Edit, Trash2, Search, CheckCircle, AlertTriangle, XCircle, Box, MapPin, Calendar, Tag, ArrowLeft } from 'lucide-react'
 
-const INITIAL_DEMO_ITEMS: InventoryItem[] = [
-  { id: '1', category_id: null, name: 'កង្ហារជញ្ជាំង Panasonic 16"', name_en: 'Wall Fan Panasonic 16"', serial_number: 'PSN-0012', quantity: 6, unit: 'គ្រឿង', status: 'good', location: 'កុដិសន្តិភាព', purchase_date: '2024-01-15', purchase_price: 180000, warranty_expiry: null, photo_url: null, notes: '', is_active: true, created_at: '', updated_at: '' },
-  { id: '2', category_id: null, name: 'តុធ្វើការឈើប្រណិត', name_en: 'Wooden Executive Desk', serial_number: 'DSK-004', quantity: 2, unit: 'គ្រឿង', status: 'good', location: 'ការិយាល័យចៅអធិការ', purchase_date: '2023-06-20', purchase_price: 650000, warranty_expiry: null, photo_url: null, notes: '', is_active: true, created_at: '', updated_at: '' },
-  { id: '3', category_id: null, name: 'អំពូលសូឡាពន្លឺព្រះអាទិត្យ 100W', name_en: 'Solar Flood Light 100W', serial_number: 'SLR-09', quantity: 4, unit: 'គ្រឿង', status: 'damaged', location: 'បរិវេណវត្ត', purchase_date: '2023-11-05', purchase_price: 240000, warranty_expiry: null, photo_url: null, notes: 'ត្រូវការជួសជុលអាគុយ', is_active: true, created_at: '', updated_at: '' },
-  { id: '4', category_id: null, name: 'ម៉ាស៊ីនបំពងសំឡេងចល័ត JBL', name_en: 'JBL Portable Speaker & Mic', serial_number: 'JBL-880', quantity: 2, unit: 'ឈុត', status: 'good', location: 'សាលាឆាន់', purchase_date: '2024-02-10', purchase_price: 1200000, warranty_expiry: null, photo_url: null, notes: '', is_active: true, created_at: '', updated_at: '' },
-  { id: '5', category_id: null, name: 'កម្រាលព្រំក្រហមប្រវែង ២០ម', name_en: 'Red Carpet 20m', serial_number: 'CPT-20', quantity: 3, unit: 'ដុំ', status: 'good', location: 'ព្រះវិហារ', purchase_date: '2023-08-12', purchase_price: 450000, warranty_expiry: null, photo_url: null, notes: '', is_active: true, created_at: '', updated_at: '' },
-  { id: '6', category_id: null, name: 'កៅអីជ័រពណ៌ក្រហម Superware', name_en: 'Plastic Chairs Red', serial_number: 'CHR-100', quantity: 50, unit: 'កៅអី', status: 'lost', location: 'រោងបុណ្យ', purchase_date: '2022-05-18', purchase_price: 35000, warranty_expiry: null, photo_url: null, notes: 'បាត់កាលពីបុណ្យចូលឆ្នាំ', is_active: true, created_at: '', updated_at: '' },
-]
+const INITIAL_ITEMS: InventoryItem[] = []
 
 export default function InventoryPage() {
   const router = useRouter()
-  const [items, setItems] = useState<InventoryItem[]>(INITIAL_DEMO_ITEMS)
+  const [items, setItems] = useState<InventoryItem[]>(INITIAL_ITEMS)
   const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
   const [showModal, setShowModal] = useState(false)
