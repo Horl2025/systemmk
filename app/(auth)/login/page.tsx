@@ -2,8 +2,8 @@
 
 export const dynamic = 'force-dynamic'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn } from '@/lib/auth'
 import { ShieldAlert, Sparkles, KeyRound, Eye, EyeOff } from 'lucide-react'
 
@@ -13,13 +13,22 @@ const KUTHI_LEADER_CREDENTIALS = {
   password: 'Adminsytemmk2026',
 }
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  // Prefill email if scanned via User Login QR Code
+  useEffect(() => {
+    const emailParam = searchParams.get('email')
+    if (emailParam) {
+      setEmail(emailParam)
+    }
+  }, [searchParams])
 
   // Check if current input matches the official Kuthi Leader email
   const isKuthiLeader = email.trim().toLowerCase() === KUTHI_LEADER_CREDENTIALS.email.toLowerCase()
@@ -304,5 +313,13 @@ export default function LoginPage() {
         }
       `}</style>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="login-page-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#0F172A', color: '#CBD5E1' }}>កំពុងដំណើរការ...</div>}>
+      <LoginForm />
+    </Suspense>
   )
 }

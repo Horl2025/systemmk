@@ -57,6 +57,7 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false)
   const [usersList, setUsersList] = useState(INITIAL_USERS)
   const [showAddModal, setShowAddModal] = useState(false)
+  const [selectedUserForQR, setSelectedUserForQR] = useState<any | null>(null)
 
   // Load created users from localStorage
   useEffect(() => {
@@ -470,18 +471,43 @@ export default function SettingsPage() {
                       </span>
                     </td>
                     <td style={{ padding: '14px 18px', textAlign: 'center', whiteSpace: 'nowrap' }}>
-                      {u.role !== 'chief_monk' ? (
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                         <button 
-                          onClick={() => handleDeleteUser(u.id)}
+                          onClick={() => setSelectedUserForQR(u)}
                           className="hover-lift" 
-                          style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer' }}
-                          title="លុបគណនីនេះ"
+                          style={{ 
+                            background: 'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)', 
+                            border: '1.5px solid #FDE68A', 
+                            color: '#92400E', 
+                            padding: '6px 12px', 
+                            borderRadius: '10px', 
+                            cursor: 'pointer',
+                            fontSize: '0.74rem',
+                            fontWeight: 800,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            boxShadow: '0 2px 6px rgba(217, 119, 6, 0.15)'
+                          }}
+                          title="បង្កើត QR Code សម្រាប់ឱ្យគណនីនេះស្កេនចូលប្រើ"
                         >
-                          <Trash2 size={15} />
+                          <QrCode size={14} color="#D97706" />
+                          <span>បង្កើត QR ចូលប្រើ</span>
                         </button>
-                      ) : (
-                        <span style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 600 }}>មេប្រព័ន្ធ</span>
-                      )}
+
+                        {u.role !== 'chief_monk' ? (
+                          <button 
+                            onClick={() => handleDeleteUser(u.id)}
+                            className="hover-lift" 
+                            style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer' }}
+                            title="លុបគណនីនេះ"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        ) : (
+                          <span style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 600, padding: '0 4px' }}>មេប្រព័ន្ធ</span>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -660,6 +686,199 @@ export default function SettingsPage() {
         />
       )}
 
+      {/* Modal: Specific User Login & Install QR Code */}
+      {selectedUserForQR && (
+        <UserLoginQRModal 
+          user={selectedUserForQR} 
+          onClose={() => setSelectedUserForQR(null)} 
+        />
+      )}
+
+    </div>
+  )
+}
+
+function UserLoginQRModal({ user, onClose }: { user: any; onClose: () => void }) {
+  const [copied, setCopied] = useState(false)
+  
+  // Custom Login / Access URL with user email prefilled
+  const userAccessUrl = `https://systemmk.vercel.app/login?email=${encodeURIComponent(user.email)}`
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(userAccessUrl)}&color=0F172A&bgcolor=FFFFFF&margin=10`
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(userAccessUrl)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div 
+        className="modal modal-md animate-scaleUp"
+        style={{
+          borderRadius: '26px',
+          overflow: 'hidden',
+          boxShadow: '0 30px 60px -12px rgba(15, 23, 42, 0.45)',
+          maxWidth: '440px',
+          width: '100%',
+          margin: '0 auto',
+          background: '#FFFFFF',
+          textAlign: 'center'
+        }}
+      >
+        {/* Header */}
+        <div 
+          style={{ 
+            background: 'linear-gradient(135deg, #1E1B18 0%, #2D2013 100%)', 
+            padding: '16px 20px', 
+            color: '#FFFFFF',
+            borderBottom: '2px solid rgba(245, 158, 11, 0.3)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'linear-gradient(135deg, #FDE68A 0%, #F59E0B 100%)', color: '#78350F', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <QrCode size={18} />
+            </div>
+            <h3 style={{ fontSize: '0.96rem', fontWeight: 800, color: '#FEF3C7', margin: 0, textAlign: 'left' }}>
+              QR Code ចូលប្រើប្រព័ន្ធ / User Login
+            </h3>
+          </div>
+          <button 
+            onClick={onClose}
+            style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: 'none', color: '#CBD5E1', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Body */}
+        <div style={{ padding: '22px 20px', background: '#F8FAFC' }}>
+          
+          {/* User Card Chip */}
+          <div style={{ background: '#FFFFFF', border: '1.5px solid #E2E8F0', borderRadius: '16px', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px', textAlign: 'left' }}>
+            <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: user.role === 'chief_monk' ? '#FEF3C7' : '#EFF6FF', color: user.role === 'chief_monk' ? '#B45309' : '#1D4ED8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1.1rem', flexShrink: 0 }}>
+              {user.full_name?.charAt(0) || 'U'}
+            </div>
+            <div style={{ overflow: 'hidden' }}>
+              <div style={{ fontWeight: 800, color: '#0F172A', fontSize: '0.95rem' }}>{user.full_name}</div>
+              <div style={{ fontSize: '0.74rem', color: '#64748B', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '1px' }}>
+                <span style={{ color: '#2563EB', fontWeight: 700 }}>{USER_ROLE_LABELS[user.role]?.kh || user.role}</span>
+                <span>•</span>
+                <span className="font-latin">{user.email}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* QR Code Frame */}
+          <div 
+            className="hover-lift"
+            style={{
+              display: 'inline-block',
+              padding: '14px',
+              background: '#FFFFFF',
+              borderRadius: '22px',
+              boxShadow: '0 10px 25px rgba(217, 119, 6, 0.15)',
+              border: '2px solid #FDE68A',
+              position: 'relative'
+            }}
+          >
+            <img 
+              src={qrCodeUrl} 
+              alt={`${user.full_name} Login QR Code`} 
+              style={{ width: '180px', height: '180px', borderRadius: '12px', display: 'block', margin: '0 auto' }} 
+            />
+            {/* Center App Badge */}
+            <div 
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '38px',
+                height: '38px',
+                borderRadius: '10px',
+                background: '#FFFFFF',
+                padding: '2px',
+                boxShadow: '0 4px 10px rgba(0,0,0,0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <img src="/app-logo.png" alt="Logo" style={{ width: '100%', height: '100%', borderRadius: '8px', objectFit: 'cover' }} />
+            </div>
+          </div>
+
+          <div style={{ marginTop: '14px' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#ECFDF5', border: '1px solid #A7F3D0', color: '#065F46', padding: '4px 12px', borderRadius: '20px', fontSize: '0.74rem', fontWeight: 800 }}>
+              <Sparkles size={13} color="#059669" />
+              <span>ស្កេនពីទូរស័ព្ទដើម្បីចូលប្រើ ឬតំឡើង App ភ្លាមៗ</span>
+            </div>
+            <p style={{ fontSize: '0.76rem', color: '#475569', marginTop: '8px', lineHeight: 1.4, margin: '8px 0' }}>
+              <strong>{user.full_name}</strong> គ្រាន់តែបើកកាមេរ៉ាទូរស័ព្ទស្កេនលើ QR នេះ នោះវានឹងនាំចូលទៅកាន់ទំព័រ Login ជាមួយ Email របស់គាត់ដោយស្វ័យប្រវត្ត។
+            </p>
+          </div>
+
+          {/* Action Buttons */}
+          <div style={{ display: 'flex', gap: '8px', marginTop: '14px' }}>
+            <button
+              type="button"
+              className="hover-lift"
+              onClick={handleCopy}
+              style={{
+                flex: 1,
+                background: '#FFFFFF',
+                border: '1.5px solid #CBD5E1',
+                color: '#1E293B',
+                padding: '10px 14px',
+                borderRadius: '12px',
+                fontWeight: 800,
+                fontSize: '0.78rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px'
+              }}
+            >
+              <Share2 size={14} />
+              <span>{copied ? '✓ បានចម្លង Link' : 'ចម្លង Link ចូល'}</span>
+            </button>
+
+            <a
+              href={qrCodeUrl}
+              download={`QR_Login_${user.full_name}.png`}
+              target="_blank"
+              rel="noreferrer"
+              className="hover-lift"
+              style={{
+                flex: 1,
+                background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                border: 'none',
+                color: '#1C1917',
+                padding: '10px 14px',
+                borderRadius: '12px',
+                fontWeight: 800,
+                fontSize: '0.78rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                textDecoration: 'none',
+                boxShadow: '0 4px 12px rgba(217, 119, 6, 0.35)'
+              }}
+            >
+              <Download size={14} />
+              <span>ទាញយក QR</span>
+            </a>
+          </div>
+
+        </div>
+      </div>
     </div>
   )
 }
