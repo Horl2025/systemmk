@@ -289,7 +289,7 @@ export default function MonksPage() {
           </div>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 'var(--space-4)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 'var(--space-4)' }}>
           {displayedMonks.map(monk => {
             const vassa = calculateVassa(monk.date_of_ordination)
             const age = calculateAge(monk.date_of_birth)
