@@ -59,6 +59,22 @@ export default function SettingsPage() {
   const [showAddModal, setShowAddModal] = useState(false)
   const [selectedUserForQR, setSelectedUserForQR] = useState<any | null>(null)
 
+  // Current Role: Defaults to 'chief_monk' for root admin, or actual user.role
+  const currentRole: UserRole = (user?.role as UserRole) || 'chief_monk'
+
+  // Permission Checks:
+  // 1. Only Chief Monk (ព្រះមេកុដិ) and high Admin have access to User Management
+  const canViewUsers = currentRole === 'chief_monk'
+  // 2. Only Chief Monk has access to Role Permissions and Cloud Backup
+  const canViewSystemAndRoles = currentRole === 'chief_monk'
+
+  // If a restricted user lands on an unauthorized tab, force tab back to 'profile'
+  useEffect(() => {
+    if (!canViewUsers && (activeTab === 'users' || activeTab === 'roles' || activeTab === 'system')) {
+      setActiveTab('profile')
+    }
+  }, [canViewUsers, activeTab])
+
   // Load created users from localStorage
   useEffect(() => {
     try {
@@ -226,41 +242,43 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Card 3: Users Total (Purple Gradient) */}
-        <div 
-          className="hover-lift"
-          style={{
-            background: 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 50%, #4C1D95 100%)',
-            borderRadius: '22px',
-            padding: '22px',
-            color: '#FFFFFF',
-            boxShadow: '0 12px 28px -6px rgba(124, 58, 237, 0.45)',
-            border: '1px solid rgba(221, 214, 254, 0.3)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            position: 'relative',
-            overflow: 'hidden'
-          }}
-        >
-          <div style={{ position: 'absolute', right: '-15px', top: '-15px', width: '100px', height: '100px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', pointerEvents: 'none' }} />
-          <div>
-            <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#DDD6FE', letterSpacing: '0.02em' }}>អ្នកប្រើប្រាស់ / USERS</div>
-            <div style={{ fontSize: '1.7rem', fontWeight: 800, color: '#FFFFFF', marginTop: '4px', lineHeight: 1.1 }}>
-              {usersList.length} <span style={{ fontSize: '0.95rem', fontWeight: 600, color: '#DDD6FE' }}>គណនី</span>
+        {/* Card 3: Users Total (Purple Gradient) - ONLY SHOWN TO CHIEF MONK */}
+        {canViewUsers && (
+          <div 
+            className="hover-lift"
+            style={{
+              background: 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 50%, #4C1D95 100%)',
+              borderRadius: '22px',
+              padding: '22px',
+              color: '#FFFFFF',
+              boxShadow: '0 12px 28px -6px rgba(124, 58, 237, 0.45)',
+              border: '1px solid rgba(221, 214, 254, 0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              position: 'relative',
+              overflow: 'hidden'
+            }}
+          >
+            <div style={{ position: 'absolute', right: '-15px', top: '-15px', width: '100px', height: '100px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', pointerEvents: 'none' }} />
+            <div>
+              <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#DDD6FE', letterSpacing: '0.02em' }}>អ្នកប្រើប្រាស់ / USERS</div>
+              <div style={{ fontSize: '1.7rem', fontWeight: 800, color: '#FFFFFF', marginTop: '4px', lineHeight: 1.1 }}>
+                {usersList.length} <span style={{ fontSize: '0.95rem', fontWeight: 600, color: '#DDD6FE' }}>គណនី</span>
+              </div>
+              <div style={{ fontSize: '0.72rem', color: '#C4B5FD', marginTop: '8px', fontWeight: 600 }}>
+                បង្កើត & គ្រប់គ្រងដោយ ព្រះមេកុដិ
+              </div>
             </div>
-            <div style={{ fontSize: '0.72rem', color: '#C4B5FD', marginTop: '8px', fontWeight: 600 }}>
-              បង្កើត & គ្រប់គ្រងដោយ ព្រះមេកុដិ
+            <div style={{ width: '52px', height: '52px', borderRadius: '16px', background: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(10px)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+              <UserPlus size={26} />
             </div>
           </div>
-          <div style={{ width: '52px', height: '52px', borderRadius: '16px', background: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(10px)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
-            <UserPlus size={26} />
-          </div>
-        </div>
+        )}
 
       </div>
 
-      {/* 🌟 Tabs */}
+      {/* 🌟 Tabs (Only Chief Monk sees Admin Management, Roles, and Backup) */}
       <div className="tabs">
         <button 
           className={`tab-item ${activeTab === 'profile' ? 'tab-item--active' : ''}`}
@@ -269,27 +287,36 @@ export default function SettingsPage() {
           <User size={16} />
           <span>ព័ត៌មានគណនី (Profile)</span>
         </button>
-        <button 
-          className={`tab-item ${activeTab === 'users' ? 'tab-item--active' : ''}`}
-          onClick={() => setActiveTab('users')}
-        >
-          <UserPlus size={16} />
-          <span>គ្រប់គ្រង Admin & Users ({usersList.length})</span>
-        </button>
-        <button 
-          className={`tab-item ${activeTab === 'roles' ? 'tab-item--active' : ''}`}
-          onClick={() => setActiveTab('roles')}
-        >
-          <Shield size={16} />
-          <span>តួនាទី និងសិទ្ធិប្រើប្រាស់ (Roles & Permissions)</span>
-        </button>
-        <button 
-          className={`tab-item ${activeTab === 'system' ? 'tab-item--active' : ''}`}
-          onClick={() => setActiveTab('system')}
-        >
-          <Database size={16} />
-          <span>ការបម្រុងទុកទិន្នន័យ (Backup & System)</span>
-        </button>
+
+        {canViewUsers && (
+          <button 
+            className={`tab-item ${activeTab === 'users' ? 'tab-item--active' : ''}`}
+            onClick={() => setActiveTab('users')}
+          >
+            <UserPlus size={16} />
+            <span>គ្រប់គ្រង Admin & Users ({usersList.length})</span>
+          </button>
+        )}
+
+        {canViewSystemAndRoles && (
+          <button 
+            className={`tab-item ${activeTab === 'roles' ? 'tab-item--active' : ''}`}
+            onClick={() => setActiveTab('roles')}
+          >
+            <Shield size={16} />
+            <span>តួនាទី និងសិទ្ធិប្រើប្រាស់ (Roles & Permissions)</span>
+          </button>
+        )}
+
+        {canViewSystemAndRoles && (
+          <button 
+            className={`tab-item ${activeTab === 'system' ? 'tab-item--active' : ''}`}
+            onClick={() => setActiveTab('system')}
+          >
+            <Database size={16} />
+            <span>ការបម្រុងទុកទិន្នន័យ (Backup & System)</span>
+          </button>
+        )}
       </div>
 
       {/* 🌟 Tab 1: Profile */}
