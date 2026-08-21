@@ -115,7 +115,7 @@ function LoginForm() {
           }
           localStorage.setItem('systemmk_current_user', JSON.stringify(rootAdminUser))
         } catch {}
-        router.push('/dashboard')
+        window.location.href = '/dashboard'
         return
       } else {
         setLoading(false)
@@ -150,7 +150,7 @@ function LoginForm() {
 
         signIn(email, password).catch(() => {})
       } catch {}
-      router.push('/dashboard')
+      window.location.href = '/dashboard'
     } else {
       setLoading(false)
       setError('សូមបញ្ចូលអ៊ីមែល និងលេខសម្ងាត់ឱ្យបានត្រឹមត្រូវ!')
@@ -171,9 +171,7 @@ function LoginForm() {
       }
       localStorage.setItem('systemmk_current_user', JSON.stringify(rootAdminUser))
     } catch {}
-    setEmail(KUTHI_LEADER_CREDENTIALS.email)
-    setPassword(KUTHI_LEADER_CREDENTIALS.password)
-    router.push('/dashboard')
+    window.location.href = '/dashboard'
   }
 
   return (
