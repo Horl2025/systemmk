@@ -23,6 +23,16 @@ export async function getSession() {
 }
 
 export async function getCurrentUser(): Promise<Profile | null> {
+  if (typeof window !== 'undefined') {
+    try {
+      const savedUser = localStorage.getItem('systemmk_current_user')
+      if (savedUser) {
+        const parsed = JSON.parse(savedUser)
+        if (parsed && parsed.role) return parsed as Profile
+      }
+    } catch {}
+  }
+
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
 

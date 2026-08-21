@@ -71,7 +71,7 @@ export default function SettingsPage() {
   const [role, setRole] = useState<UserRole>('chief_monk')
 
   useEffect(() => {
-    // If the active logged in user is a custom non-admin role, always use user object directly
+    // If the active logged in user is a custom non-admin role, ALWAYS use user object directly
     if (user && user.role !== 'chief_monk') {
       setFullName(user.full_name || 'អ្នកប្រើប្រាស់')
       setEmail(user.email || '')
@@ -80,28 +80,28 @@ export default function SettingsPage() {
       return
     }
 
-    try {
-      const savedAdmin = localStorage.getItem('systemmk_root_admin_profile')
-      if (savedAdmin) {
-        const parsed = JSON.parse(savedAdmin)
-        if (parsed.full_name) setFullName(parsed.full_name)
-        if (parsed.email) setEmail(parsed.email)
-        if (parsed.phone) setPhone(parsed.phone)
-        if (parsed.role) setRole(parsed.role)
-        return
-      }
-    } catch {}
+    if (user && user.role === 'chief_monk') {
+      try {
+        const savedAdmin = localStorage.getItem('systemmk_root_admin_profile')
+        if (savedAdmin) {
+          const parsed = JSON.parse(savedAdmin)
+          if (parsed.full_name) setFullName(parsed.full_name)
+          if (parsed.email) setEmail(parsed.email)
+          if (parsed.phone) setPhone(parsed.phone)
+          if (parsed.role) setRole(parsed.role)
+          return
+        }
+      } catch {}
 
-    if (user) {
       setFullName(user.full_name || 'អ្នកគ្រប់គ្រងប្រព័ន្ធ (Root Admin)')
       setEmail(user.email || 'admin@systemmk.org')
       setPhone(user.phone || '')
-      setRole(user.role || 'chief_monk')
-    } else {
-      setFullName('អ្នកគ្រប់គ្រងប្រព័ន្ធ (Root Admin)')
-      setEmail('admin@systemmk.org')
-      setPhone('')
       setRole('chief_monk')
+    } else {
+      setFullName('ភ្ញៀវ/អ្នកប្រើប្រាស់')
+      setEmail('')
+      setPhone('')
+      setRole('guest')
     }
   }, [user])
 
