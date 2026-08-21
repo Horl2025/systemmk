@@ -60,6 +60,8 @@ export default function DashboardPage() {
 
   const [stats, setStats] = useState({
     monksCount: 0,
+    bhikkhuCount: 0,
+    samaneraCount: 0,
     roomsCount: 0,
     availableRooms: 0,
     occupiedRooms: 0,
@@ -72,32 +74,115 @@ export default function DashboardPage() {
     monthlyExpense: 0,
   })
 
-  // Load and calculate stats filtered by selectedYear
+  const [rankDistribution, setRankDistribution] = useState<{ name: string; value: number }[]>([])
+  const [financeData, setFinanceData] = useState<{ month: string; income: number; expense: number }[]>([])
+
+  // Load and calculate stats filtered by selectedYear and local persisted data
   useEffect(() => {
-    try {
-      const savedIncomes = localStorage.getItem('systemmk_custom_incomes')
-      const savedExpenses = localStorage.getItem('systemmk_custom_expenses')
+    async function loadDashboardStats() {
+      try {
+        // 1. Monks Data
+        let monksList: any[] = []
+        const savedMonks = localStorage.getItem('systemmk_custom_monks')
+        if (savedMonks) {
+          monksList = JSON.parse(savedMonks)
+        }
 
-      const incList = savedIncomes ? JSON.parse(savedIncomes) : []
-      const expList = savedExpenses ? JSON.parse(savedExpenses) : []
+        // 2. Students Data
+        let studentsList: any[] = []
+        const savedStudents = localStorage.getItem('systemmk_custom_students')
+        if (savedStudents) {
+          studentsList = JSON.parse(savedStudents)
+        }
 
-      const yearIncomes = incList.filter((i: any) => (i.income_date || '').startsWith(selectedYear))
-      const yearExpenses = expList.filter((e: any) => (e.expense_date || '').startsWith(selectedYear))
+        // 3. Inventory Data
+        let inventoryList: any[] = []
+        const savedInventory = localStorage.getItem('systemmk_custom_inventory')
+        if (savedInventory) {
+          inventoryList = JSON.parse(savedInventory)
+        }
 
-      const totalInc = yearIncomes.reduce((s: number, i: any) => s + Number(i.amount || 0), 0)
-      const totalExp = yearExpenses.reduce((s: number, e: any) => s + Number(e.amount || 0), 0)
+        // 4. Finance Data
+        const savedIncomes = localStorage.getItem('systemmk_custom_incomes')
+        const savedExpenses = localStorage.getItem('systemmk_custom_expenses')
 
-      setStats(prev => ({
-        ...prev,
-        monthlyIncome: totalInc,
-        monthlyExpense: totalExp
-      }))
-    } catch {}
+        const incList = savedIncomes ? JSON.parse(savedIncomes) : []
+        const expList = savedExpenses ? JSON.parse(savedExpenses) : []
+
+        const yearIncomes = incList.filter((i: any) => (i.income_date || '').startsWith(selectedYear))
+        const yearExpenses = expList.filter((e: any) => (e.expense_date || '').startsWith(selectedYear))
+
+        const totalInc = yearIncomes.reduce((s: number, i: any) => s + Number(i.amount || 0), 0)
+        const totalExp = yearExpenses.reduce((s: number, e: any) => s + Number(e.amount || 0), 0)
+
+        // Calculate Monk Rank distribution
+        const bhikkhu = monksList.filter((m: any) => m.rank === 'bhikkhu' || m.rank === 'thera' || m.rank === 'maha_thera' || m.rank === 'samdech').length
+        const samanera = monksList.filter((m: any) => m.rank === 'samanera' || !m.rank).length
+
+        const rankCounts: Record<string, number> = {}
+        monksList.forEach((m: any) => {
+          const r = m.rank || 'samanera'
+          rankCounts[r] = (rankCounts[r] || 0) + 1
+        })
+
+        const rankNames: Record<string, string> = {
+          samdech: 'សម្តេច',
+          maha_thera: 'មហាថេរ',
+          thera: 'ថេរ',
+          bhikkhu: 'ភិក្ខុ',
+          samanera: 'សាមណេរ'
+        }
+
+        const pieData = Object.entries(rankCounts).map(([k, v]) => ({
+          name: rankNames[k] || k,
+          value: v
+        }))
+
+        setRankDistribution(pieData.length > 0 ? pieData : [
+          { name: 'ភិក្ខុ', value: bhikkhu || 0 },
+          { name: 'សាមណេរ', value: samanera || 0 }
+        ])
+
+        // Calculate Monthly Finance Chart (12 Months)
+        const months = ['មករា', 'កុម្ភៈ', 'មីនា', 'មេសា', 'ឧសភា', 'មិថុនា', 'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ']
+        const monthlyChart = months.map((mName, idx) => {
+          const mStr = String(idx + 1).padStart(2, '0')
+          const prefix = `${selectedYear}-${mStr}`
+          const mInc = incList.filter((i: any) => (i.income_date || '').startsWith(prefix)).reduce((s: number, i: any) => s + Number(i.amount || 0), 0)
+          const mExp = expList.filter((e: any) => (e.expense_date || '').startsWith(prefix)).reduce((s: number, e: any) => s + Number(e.amount || 0), 0)
+          return {
+            month: mName,
+            income: mInc,
+            expense: mExp
+          }
+        })
+        setFinanceData(monthlyChart)
+
+        // Inventory breakdowns
+        const good = inventoryList.filter((i: any) => i.status === 'good').length
+        const damaged = inventoryList.filter((i: any) => i.status === 'damaged').length
+        const lost = inventoryList.filter((i: any) => i.status === 'lost').length
+
+        setStats({
+          monksCount: monksList.length,
+          bhikkhuCount: bhikkhu,
+          samaneraCount: samanera,
+          roomsCount: 12,
+          availableRooms: 8,
+          occupiedRooms: 4,
+          studentsCount: studentsList.length,
+          inventoryCount: inventoryList.length,
+          goodItems: good,
+          damagedItems: damaged,
+          lostItems: lost,
+          monthlyIncome: totalInc,
+          monthlyExpense: totalExp
+        })
+      } catch {}
+    }
+
+    loadDashboardStats()
   }, [selectedYear])
-
-  const [rankDistribution] = useState<{ name: string; value: number }[]>([])
-
-  const [financeData] = useState<{ month: string; income: number; expense: number }[]>([])
 
   return (
     <div className="space-y-7 animate-fadeIn" style={{ paddingBottom: 'var(--space-8)' }}>
@@ -246,7 +331,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <div style={{ marginTop: '8px', paddingTop: '6px', borderTop: '1px dashed #FDE68A', fontSize: '0.62rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            <span style={{ color: '#B45309' }}>ភិក្ខុ: <strong>១៦</strong> | សាមណេរ: <strong>៩</strong></span>
+            <span style={{ color: '#B45309' }}>ភិក្ខុ: <strong>{stats.bhikkhuCount}</strong> | សាមណេរ: <strong>{stats.samaneraCount}</strong></span>
           </div>
         </div>
 

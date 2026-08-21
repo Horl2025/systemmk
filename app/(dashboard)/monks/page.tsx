@@ -24,14 +24,32 @@ export default function MonksPage() {
 
   useEffect(() => {
     async function loadData() {
+      // 1. Load local custom monks
+      try {
+        const saved = localStorage.getItem('systemmk_custom_monks')
+        if (saved) {
+          const parsed = JSON.parse(saved)
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setMonks(parsed)
+          }
+        }
+      } catch {}
+
+      // 2. Fetch from Supabase if connected
       if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder-systemmk.supabase.co') {
         try {
           const { data } = await supabase.from('monks').select('*').eq('is_active', true)
           if (data && data.length > 0) {
-            setMonks(data as unknown as Monk[])
+            setMonks(prev => {
+              const ids = new Set(prev.map(m => m.id))
+              const newItems = (data as unknown as Monk[]).filter(m => !ids.has(m.id))
+              const merged = [...prev, ...newItems]
+              try { localStorage.setItem('systemmk_custom_monks', JSON.stringify(merged)) } catch {}
+              return merged
+            })
           }
         } catch {
-          // fallback to initial
+          // fallback
         }
       }
     }
@@ -53,7 +71,9 @@ export default function MonksPage() {
 
   const confirmDeleteMonk = () => {
     if (!monkToDelete) return
-    setMonks(prev => prev.filter(m => m.id !== monkToDelete.id))
+    const updated = monks.filter(m => m.id !== monkToDelete.id)
+    setMonks(updated)
+    try { localStorage.setItem('systemmk_custom_monks', JSON.stringify(updated)) } catch {}
     setMonkToDelete(null)
   }
 
@@ -359,7 +379,20 @@ export default function MonksPage() {
       {showAddModal && (
         <AddMonkModal 
           onClose={() => setShowAddModal(false)} 
-          onAdd={(newMonk) => setMonks(prev => [newMonk, ...prev])} 
+          onAdd={async (newMonk) => {
+            setMonks(prev => {
+              const updated = [newMonk, ...prev]
+              try { localStorage.setItem('systemmk_custom_monks', JSON.stringify(updated)) } catch {}
+              return updated
+            })
+
+            // Also try saving to Supabase if connected
+            if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder-systemmk.supabase.co') {
+              try {
+                await (supabase.from('monks') as any).insert([newMonk])
+              } catch {}
+            }
+          }} 
         />
       )}
 

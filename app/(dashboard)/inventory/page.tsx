@@ -18,13 +18,31 @@ export default function InventoryPage() {
   const [showModal, setShowModal] = useState(false)
 
   const loadData = useCallback(async () => {
+    // 1. Load local custom inventory
+    try {
+      const saved = localStorage.getItem('systemmk_custom_inventory')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setItems(parsed)
+        }
+      }
+    } catch {}
+
+    // 2. Fetch from Supabase
     if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder-systemmk.supabase.co') {
       try {
         let query = supabase.from('inventory').select('*').eq('is_active', true).order('name')
         if (filterStatus !== 'all') query = query.eq('status', filterStatus)
         const { data } = await query
         if (data && data.length > 0) {
-          setItems(data as unknown as InventoryItem[])
+          setItems(prev => {
+            const ids = new Set(prev.map(i => i.id))
+            const newItems = (data as unknown as InventoryItem[]).filter(i => !ids.has(i.id))
+            const merged = [...prev, ...newItems]
+            try { localStorage.setItem('systemmk_custom_inventory', JSON.stringify(merged)) } catch {}
+            return merged
+          })
         }
       } catch {
         // fallback
@@ -328,23 +346,51 @@ export default function InventoryPage() {
         </div>
       </div>
 
-      {showModal && <InventoryModal onClose={() => { setShowModal(false); loadData() }} />}
+      {showModal && (
+        <InventoryModal 
+          onClose={() => setShowModal(false)} 
+          onAdd={async (newItem) => {
+            setItems(prev => {
+              const updated = [newItem, ...prev]
+              try { localStorage.setItem('systemmk_custom_inventory', JSON.stringify(updated)) } catch {}
+              return updated
+            })
+
+            if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder-systemmk.supabase.co') {
+              try {
+                await (supabase.from('inventory') as any).insert([newItem])
+              } catch {}
+            }
+          }} 
+        />
+      )}
     </div>
   )
 }
 
-function InventoryModal({ onClose }: { onClose: () => void }) {
+function InventoryModal({ onClose, onAdd }: { onClose: () => void, onAdd: (item: any) => void }) {
   const [form, setForm] = useState({ name: '', name_en: '', quantity: 1, unit: 'គ្រឿង', status: 'good', location: '', purchase_date: '', purchase_price: '', notes: '' })
   const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
-    await (supabase.from('inventory') as any).insert({
-      ...form,
-      purchase_price: form.purchase_price ? Number(form.purchase_price) : null,
+    const newItem = {
+      id: Date.now().toString(),
+      name: form.name,
+      name_en: form.name_en || null,
+      quantity: form.quantity || 1,
+      unit: form.unit || 'គ្រឿង',
+      status: form.status as any,
+      location: form.location || null,
       purchase_date: form.purchase_date || null,
-    })
+      purchase_price: form.purchase_price ? Number(form.purchase_price) : null,
+      notes: form.notes || null,
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }
+    onAdd(newItem)
     setLoading(false)
     onClose()
   }

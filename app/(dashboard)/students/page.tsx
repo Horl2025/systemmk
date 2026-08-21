@@ -18,11 +18,29 @@ export default function StudentsPage() {
 
   useEffect(() => {
     async function loadData() {
+      // 1. Load local custom students
+      try {
+        const saved = localStorage.getItem('systemmk_custom_students')
+        if (saved) {
+          const parsed = JSON.parse(saved)
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setStudents(parsed)
+          }
+        }
+      } catch {}
+
+      // 2. Fetch from Supabase
       if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder-systemmk.supabase.co') {
         try {
           const { data } = await supabase.from('students').select('*').eq('is_active', true).order('khmer_name')
           if (data && data.length > 0) {
-            setStudents(data as unknown as Student[])
+            setStudents(prev => {
+              const ids = new Set(prev.map(s => s.id))
+              const newItems = (data as unknown as Student[]).filter(s => !ids.has(s.id))
+              const merged = [...prev, ...newItems]
+              try { localStorage.setItem('systemmk_custom_students', JSON.stringify(merged)) } catch {}
+              return merged
+            })
           }
         } catch {
           // fallback
@@ -40,7 +58,9 @@ export default function StudentsPage() {
 
   const handleDelete = (id: string) => {
     if (!confirm('តើអ្នកពិតជាចង់លុបទិន្នន័យសិស្សរូបនេះមែនទេ?')) return
-    setStudents(prev => prev.filter(s => s.id !== id))
+    const updated = students.filter(s => s.id !== id)
+    setStudents(updated)
+    try { localStorage.setItem('systemmk_custom_students', JSON.stringify(updated)) } catch {}
   }
 
   return (
@@ -119,7 +139,19 @@ export default function StudentsPage() {
       {showModal && (
         <StudentModal 
           onClose={() => setShowModal(false)} 
-          onAdd={(newStudent) => setStudents(prev => [newStudent, ...prev])} 
+          onAdd={async (newStudent) => {
+            setStudents(prev => {
+              const updated = [newStudent, ...prev]
+              try { localStorage.setItem('systemmk_custom_students', JSON.stringify(updated)) } catch {}
+              return updated
+            })
+
+            if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder-systemmk.supabase.co') {
+              try {
+                await (supabase.from('students') as any).insert([newStudent])
+              } catch {}
+            }
+          }} 
         />
       )}
     </div>
