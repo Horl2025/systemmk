@@ -438,16 +438,62 @@ function AddMonkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (monk: M
 
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="modal modal-lg" style={{ maxWidth: '840px' }}>
-        <div className="modal-header">
-          <h3 className="modal-title">បន្ថែមព័ត៌មានព្រះសង្ឃ / Add Monk</h3>
-          <button className="btn btn-ghost" onClick={onClose}>✕</button>
+      <div 
+        className="modal modal-lg" 
+        style={{ 
+          maxWidth: '840px', 
+          width: '100%', 
+          maxHeight: '90vh', 
+          height: '90vh', 
+          display: 'flex', 
+          flexDirection: 'column', 
+          borderRadius: '24px', 
+          overflow: 'hidden',
+          boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.45)',
+          background: '#FFFFFF'
+        }}
+      >
+        {/* Sticky Modal Header */}
+        <div 
+          className="modal-header"
+          style={{
+            padding: '16px 24px',
+            borderBottom: '1.5px solid #E2E8F0',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            background: '#FFFFFF',
+            flexShrink: 0
+          }}
+        >
+          <h3 className="modal-title" style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>
+            បន្ថែមព័ត៌មានព្រះសង្ឃ / Add Monk
+          </h3>
+          <button 
+            type="button"
+            className="btn btn-ghost" 
+            onClick={onClose}
+            style={{ width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem' }}
+          >
+            ✕
+          </button>
         </div>
-        <form onSubmit={handleSubmit}>
-          <div className="modal-body space-y-4">
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+          {/* Scrollable Modal Body */}
+          <div 
+            className="modal-body space-y-4" 
+            style={{ 
+              padding: '20px 24px', 
+              overflowY: 'scroll', 
+              WebkitOverflowScrolling: 'touch',
+              flex: '1 1 0%',
+              background: '#FAFAFA'
+            }}
+          >
             
             {/* 🌟 1. PHOTO UPLOAD SECTION */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '18px', padding: '16px', background: '#F8FAFC', borderRadius: '18px', border: '1.5px dashed #CBD5E1' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '18px', padding: '16px', background: '#FFFFFF', borderRadius: '18px', border: '1.5px dashed #CBD5E1' }}>
               <div 
                 onClick={() => fileInputRef.current?.click()}
                 style={{ 
@@ -679,9 +725,34 @@ function AddMonkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (monk: M
             </div>
 
           </div>
-          <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>បោះបង់</button>
-            <button type="submit" className="btn btn-primary">
+
+          {/* Sticky Modal Footer */}
+          <div 
+            className="modal-footer"
+            style={{
+              padding: '14px 24px',
+              borderTop: '1.5px solid #E2E8F0',
+              display: 'flex',
+              justifyContent: 'flex-end',
+              alignItems: 'center',
+              gap: '10px',
+              background: '#FFFFFF',
+              flexShrink: 0
+            }}
+          >
+            <button 
+              type="button" 
+              className="btn btn-secondary" 
+              onClick={onClose}
+              style={{ padding: '8px 18px', borderRadius: '12px', fontWeight: 700 }}
+            >
+              បោះបង់
+            </button>
+            <button 
+              type="submit" 
+              className="btn btn-primary hover-lift"
+              style={{ padding: '8px 24px', borderRadius: '12px', fontWeight: 800 }}
+            >
               រក្សាទុក / Save
             </button>
           </div>
