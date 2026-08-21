@@ -13,12 +13,12 @@ import { Settings, Shield, User, Database, Bell, Lock, Save, CheckCircle, Shield
 const INITIAL_USERS: (Profile & { created_by_label?: string })[] = [
   {
     id: 'u1',
-    full_name: 'ព្រះមេកុដិ ឡុង សារ៉េត',
-    display_name: 'ឡុង សារ៉េត',
+    full_name: 'អ្នកគ្រប់គ្រងប្រព័ន្ធ (Root Admin)',
+    display_name: 'Admin',
     avatar_url: null,
     role: 'chief_monk',
     is_active: true,
-    phone: '016 203 953',
+    phone: '',
     email: 'admin@systemmk.org',
     created_at: '2026-01-01',
     updated_at: '2026-01-01',
@@ -70,21 +70,62 @@ export default function SettingsPage() {
   const [role, setRole] = useState<UserRole>('chief_monk')
 
   useEffect(() => {
+    try {
+      const savedAdmin = localStorage.getItem('systemmk_root_admin_profile')
+      if (savedAdmin) {
+        const parsed = JSON.parse(savedAdmin)
+        if (parsed.full_name) setFullName(parsed.full_name)
+        if (parsed.email) setEmail(parsed.email)
+        if (parsed.phone) setPhone(parsed.phone)
+        if (parsed.role) setRole(parsed.role)
+        return
+      }
+    } catch {}
+
     if (user) {
-      setFullName(user.full_name || 'ព្រះមេកុដិ ឡុង សារ៉េត')
+      setFullName(user.full_name || 'អ្នកគ្រប់គ្រងប្រព័ន្ធ (Root Admin)')
       setEmail(user.email || 'admin@systemmk.org')
-      setPhone(user.phone || '016 203 953')
+      setPhone(user.phone || '')
       setRole(user.role || 'chief_monk')
     } else {
-      setFullName('Menghorl')
+      setFullName('អ្នកគ្រប់គ្រងប្រព័ន្ធ (Root Admin)')
       setEmail('admin@systemmk.org')
-      setPhone('016 203 953')
+      setPhone('')
       setRole('chief_monk')
     }
   }, [user])
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Save Admin Profile to localStorage
+    const updatedAdmin = {
+      id: 'u1',
+      full_name: fullName.trim() || 'អ្នកគ្រប់គ្រងប្រព័ន្ធ (Root Admin)',
+      display_name: fullName.trim().split(' ').pop() || 'Admin',
+      email: email.trim() || 'admin@systemmk.org',
+      phone: phone.trim(),
+      role: role,
+    }
+
+    try {
+      localStorage.setItem('systemmk_root_admin_profile', JSON.stringify(updatedAdmin))
+      localStorage.setItem('systemmk_current_user', JSON.stringify(updatedAdmin))
+
+      // Update Root Admin inside usersList table
+      setUsersList(prev => {
+        const hasRoot = prev.some(u => u.id === 'u1')
+        let updatedList: any[]
+        if (hasRoot) {
+          updatedList = prev.map(u => u.id === 'u1' ? { ...u, full_name: updatedAdmin.full_name, display_name: updatedAdmin.display_name, email: updatedAdmin.email, phone: updatedAdmin.phone } : u)
+        } else {
+          updatedList = [{ ...updatedAdmin, is_active: true, created_by_label: 'ម្ចាស់ប្រព័ន្ធមេ (Root Admin)' }, ...prev]
+        }
+        localStorage.setItem('systemmk_custom_users', JSON.stringify(updatedList))
+        return updatedList
+      })
+    } catch {}
+
     setSaved(true)
     setTimeout(() => setSaved(false), 2500)
   }
@@ -564,7 +605,7 @@ export default function SettingsPage() {
                   className="form-control hover-lift" 
                   value={fullName}
                   onChange={e => setFullName(e.target.value)}
-                  placeholder="ឧ. ព្រះមេកុដិ ឡុង សារ៉េត"
+                  placeholder="ឧ. ព្រះនាម ឬឈ្មោះរបស់អ្នក..."
                   style={{ border: '1.5px solid #CBD5E1', borderRadius: '12px', padding: '10px 14px' }} 
                 />
               </div>
@@ -816,7 +857,17 @@ export default function SettingsPage() {
                           <span>បង្កើត QR ចូលប្រើ</span>
                         </button>
 
-                        {u.role !== 'chief_monk' ? (
+                        {u.role === 'chief_monk' ? (
+                          <button
+                            onClick={() => setActiveTab('profile')}
+                            className="hover-lift"
+                            style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#2563EB', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.72rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                            title="កែប្រែឈ្មោះ និងព័ត៌មាន Admin"
+                          >
+                            <Edit3 size={13} />
+                            <span>កែឈ្មោះ</span>
+                          </button>
+                        ) : (
                           <button 
                             onClick={() => handleDeleteUser(u.id)}
                             className="hover-lift" 
@@ -825,8 +876,6 @@ export default function SettingsPage() {
                           >
                             <Trash2 size={14} />
                           </button>
-                        ) : (
-                          <span style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 600, padding: '0 4px' }}>មេប្រព័ន្ធ</span>
                         )}
                       </div>
                     </td>
