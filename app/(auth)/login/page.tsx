@@ -22,15 +22,44 @@ function LoginForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // Prefill email and role if scanned via User Login QR Code
+  // Handle email change and automatically match password for seamless login
+  const handleEmailChange = (newEmail: string) => {
+    setEmail(newEmail)
+    setError('')
+
+    const clean = newEmail.trim().toLowerCase()
+    
+    // 1. If Root Admin email, match admin password
+    if (clean === KUTHI_LEADER_CREDENTIALS.email.toLowerCase()) {
+      setPassword(KUTHI_LEADER_CREDENTIALS.password)
+      return
+    }
+
+    // 2. If custom user email, look up saved password
+    try {
+      const savedUsers = localStorage.getItem('systemmk_custom_users')
+      const usersList = savedUsers ? JSON.parse(savedUsers) : []
+      const matched = usersList.find((u: any) => (u.email || '').trim().toLowerCase() === clean)
+      if (matched && matched.password) {
+        setPassword(matched.password)
+      }
+    } catch {}
+  }
+
+  // Prefill email, role and password if scanned via User Login QR Code or URL params
   useEffect(() => {
     const emailParam = searchParams.get('email')
     const roleParam = searchParams.get('role')
     const nameParam = searchParams.get('name')
     const phoneParam = searchParams.get('phone')
+    const passParam = searchParams.get('pass')
 
     if (emailParam) {
-      setEmail(emailParam)
+      handleEmailChange(emailParam)
+    }
+
+    if (passParam) {
+      setPassword(decodeURIComponent(passParam))
     }
 
     // If QR code provided verified role metadata, save to local user list directly
@@ -48,6 +77,7 @@ function LoginForm() {
             email: emailParam,
             role: roleParam,
             phone: phoneParam ? decodeURIComponent(phoneParam) : null,
+            password: passParam ? decodeURIComponent(passParam) : undefined,
             is_active: true,
             created_at: new Date().toISOString().split('T')[0],
             updated_at: new Date().toISOString().split('T')[0],
@@ -192,7 +222,7 @@ function LoginForm() {
                 type="email"
                 className="form-control hover-lift"
                 value={email}
-                onChange={e => { setEmail(e.target.value); setError('') }}
+                onChange={e => handleEmailChange(e.target.value)}
                 placeholder="admin@systemmk.org"
                 autoComplete="email"
                 required

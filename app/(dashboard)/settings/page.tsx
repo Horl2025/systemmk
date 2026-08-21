@@ -1149,8 +1149,8 @@ export default function SettingsPage() {
 function UserLoginQRModal({ user, onClose }: { user: any; onClose: () => void }) {
   const [copied, setCopied] = useState(false)
   
-  // Custom Login / Access URL with user credentials prefilled and encoded
-  const userAccessUrl = `https://systemmk.vercel.app/login?email=${encodeURIComponent(user.email)}&role=${encodeURIComponent(user.role || 'recorder')}&name=${encodeURIComponent(user.full_name || '')}&phone=${encodeURIComponent(user.phone || '')}`
+  // Custom Login / Access URL with user credentials and password prefilled and encoded
+  const userAccessUrl = `https://systemmk.vercel.app/login?email=${encodeURIComponent(user.email)}&role=${encodeURIComponent(user.role || 'recorder')}&name=${encodeURIComponent(user.full_name || '')}&phone=${encodeURIComponent(user.phone || '')}${user.password ? `&pass=${encodeURIComponent(user.password)}` : ''}`
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(userAccessUrl)}&color=0F172A&bgcolor=FFFFFF&margin=10`
 
   const handleCopy = () => {
@@ -1354,6 +1354,7 @@ function AddUserModal({ onClose, onAdd }: { onClose: () => void; onAdd: (user: a
       is_active: true,
       phone: form.phone || null,
       email: form.email,
+      password: form.password,
       created_at: new Date().toISOString().split('T')[0],
       updated_at: new Date().toISOString().split('T')[0],
       created_by_label: 'បង្កើតដោយ ព្រះមេកុដិ'
