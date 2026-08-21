@@ -123,7 +123,7 @@ function Sidebar({
         {/* Navigation - Filtered by User Role */}
         <nav className="sidebar-nav">
           {(() => {
-            const currentRole = user?.role || (loading ? 'chief_monk' : 'guest')
+            const currentRole = user?.role || 'guest'
             
             // 🛡️ Strict RBAC Matrix per Role:
             // - chief_monk: All Modules
@@ -236,7 +236,7 @@ function Sidebar({
                     {loading ? 'កំពុងផ្ទុក...' : (user?.full_name || 'អ្នកប្រើប្រាស់')}
                   </div>
                   <div style={{ fontSize: '0.68rem', color: '#FDE68A', fontWeight: 600, marginTop: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {user?.role ? (USER_ROLE_LABELS[user.role]?.kh || user.role) : 'អ្នកកត់ត្រា'}
+                    {user?.role ? (USER_ROLE_LABELS[user.role]?.kh || user.role) : 'ភ្ញៀវ/អ្នកប្រើប្រាស់'}
                   </div>
                 </div>
               )}
