@@ -438,13 +438,13 @@ function AddMonkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (monk: M
 
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="modal modal-lg" style={{ maxWidth: '840px', maxHeight: '92vh', display: 'flex', flexDirection: 'column' }}>
+      <div className="modal modal-lg" style={{ maxWidth: '840px' }}>
         <div className="modal-header">
           <h3 className="modal-title">បន្ថែមព័ត៌មានព្រះសង្ឃ / Add Monk</h3>
           <button className="btn btn-ghost" onClick={onClose}>✕</button>
         </div>
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
-          <div className="modal-body space-y-4" style={{ overflowY: 'auto', flex: 1 }}>
+        <form onSubmit={handleSubmit}>
+          <div className="modal-body space-y-4">
             
             {/* 🌟 1. PHOTO UPLOAD SECTION */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '18px', padding: '16px', background: '#F8FAFC', borderRadius: '18px', border: '1.5px dashed #CBD5E1' }}>
