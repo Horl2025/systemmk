@@ -132,17 +132,17 @@ function Sidebar({
             // 🛡️ Strict RBAC Matrix per Role:
             // - chief_monk: All Modules
             // - admin: All Modules
-            // - recorder (អ្នកកត់ត្រា): Attendance, Schedule, Monks (view/edit), Students, Chat, Settings (Edit Profile only) -> HIDE Finance, Inventory, Reports
-            // - acharya (អាចារ្យវត្ត): Attendance, Schedule, Chat, Settings (Edit Profile only) -> HIDE Monks, Rooms, Finance, Inventory, Reports
-            // - committee (គណៈកម្មការវត្ត): Attendance, Schedule, Chat, Settings (Edit Profile only) -> HIDE Monks, Rooms, Finance, Inventory, Reports
-            // - devotee (ពុទ្ធបរិស័ទ): Attendance, Schedule, Chat, Settings (Edit Profile only) -> HIDE Monks, Rooms, Finance, Inventory, Reports
-            // - student (សិស្សវត្ត): Attendance, Schedule, Chat, Settings (Edit Profile only) -> HIDE Monks, Rooms, Finance, Inventory, Reports
-            // - guest (ភ្ញៀវ): Attendance, Schedule, Chat, Settings (Edit Profile only) -> HIDE Monks, Rooms, Finance, Inventory, Reports
+            // - recorder (អ្នកកត់ត្រា): Monks, Rooms (ទីកន្លែង), Students, Attendance, Schedule, Finance (ហិរញ្ញវត្ថុ), Inventory (សម្ភារៈ), Reports (របាយការណ៍), Chat, Settings (Edit Profile)
+            // - acharya (អាចារ្យវត្ត): Attendance, Schedule, Chat, Settings (Edit Profile only)
+            // - committee (គណៈកម្មការវត្ត): Attendance, Schedule, Chat, Settings (Edit Profile only)
+            // - devotee (ពុទ្ធបរិស័ទ): Attendance, Schedule, Chat, Settings (Edit Profile only)
+            // - student (សិស្សវត្ត): Attendance, Schedule, Chat, Settings (Edit Profile only)
+            // - guest (ភ្ញៀវ): Attendance, Schedule, Chat, Settings (Edit Profile only)
             
             const allowedHrefs: Record<string, string[]> = {
               chief_monk: ['/dashboard', '/monks', '/rooms', '/students', '/attendance', '/schedule', '/finance', '/inventory', '/reports', '/chat', '/settings'],
               admin: ['/dashboard', '/monks', '/rooms', '/students', '/attendance', '/schedule', '/finance', '/inventory', '/reports', '/chat', '/settings'],
-              recorder: ['/dashboard', '/monks', '/students', '/attendance', '/schedule', '/chat', '/settings'],
+              recorder: ['/dashboard', '/monks', '/rooms', '/students', '/attendance', '/schedule', '/finance', '/inventory', '/reports', '/chat', '/settings'],
               acharya: ['/dashboard', '/attendance', '/schedule', '/chat', '/settings'],
               committee: ['/dashboard', '/attendance', '/schedule', '/chat', '/settings'],
               devotee: ['/dashboard', '/attendance', '/schedule', '/chat', '/settings'],
