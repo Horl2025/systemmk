@@ -431,39 +431,63 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
 
   return (
     <header className="header flex items-center justify-between" style={{ position: 'relative' }}>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3" style={{ minWidth: 0, flexShrink: 1 }}>
         {/* Mobile Hamburger Button */}
         <button 
           onClick={onMenuClick}
           style={{
-            background: '#F1F5F9',
-            border: '1px solid #E2E8F0',
+            background: isDark ? '#1E293B' : '#F1F5F9',
+            border: isDark ? '1px solid #334155' : '1px solid #E2E8F0',
             borderRadius: '10px',
-            padding: '7px',
+            padding: '6px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            flexShrink: 0
           }}
           className="mobile-menu-btn"
           aria-label="Open Menu"
         >
-          <Menu size={20} color="#0F172A" />
+          <Menu size={19} color={isDark ? '#FDE68A' : '#0F172A'} />
         </button>
 
         {currentItem && !('section' in currentItem) && (
-          <div>
-            <h2 style={{ fontSize: '1.05rem', fontWeight: 800, lineHeight: 1.2, color: '#0F172A' }}>
+          <div style={{ minWidth: 0, overflow: 'hidden' }}>
+            <h2 
+              className="text-truncate"
+              style={{ 
+                fontSize: '0.95rem', 
+                fontWeight: 800, 
+                lineHeight: 1.15, 
+                color: isDark ? '#FFFFFF' : '#0F172A', 
+                margin: 0,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}
+            >
               {!('section' in currentItem) && currentItem.label}
             </h2>
-            <p style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', fontFamily: 'var(--font-latin)' }}>
+            <p 
+              className="hidden sm:block text-truncate"
+              style={{ 
+                fontSize: '0.66rem', 
+                color: isDark ? '#94A3B8' : 'var(--color-text-muted)', 
+                fontFamily: 'var(--font-latin)', 
+                margin: 0,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}
+            >
               {!('section' in currentItem) && currentItem.labelEn}
             </p>
           </div>
         )}
       </div>
 
-      <div className="flex items-center gap-2.5 sm:gap-3">
+      <div className="flex items-center gap-1.5 sm:gap-2.5" style={{ flexShrink: 0 }}>
         
         {/* 🌟 GLOBAL YEAR SWITCHER DROPDOWN */}
         <div ref={yearDropdownRef} style={{ position: 'relative' }}>
@@ -472,24 +496,24 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
             onClick={() => setShowYearDropdown(!showYearDropdown)}
             className="hover-lift"
             style={{
-              background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(217, 119, 6, 0.18) 100%)',
+              background: isDark ? 'rgba(245, 158, 11, 0.15)' : 'linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(217, 119, 6, 0.18) 100%)',
               border: '1.5px solid rgba(245, 158, 11, 0.45)',
-              color: '#B45309',
-              borderRadius: '12px',
-              padding: '6px 12px',
+              color: isDark ? '#FDE68A' : '#B45309',
+              borderRadius: '10px',
+              padding: '5px 8px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
+              gap: '4px',
               fontWeight: 800,
-              fontSize: '0.82rem',
-              boxShadow: '0 2px 8px rgba(217, 119, 6, 0.12)'
+              fontSize: '0.78rem',
+              boxShadow: '0 2px 6px rgba(217, 119, 6, 0.1)'
             }}
             title="ជ្រើសរើសឆ្នាំគ្រប់គ្រងទិន្នន័យ (Fiscal / Academic Year)"
           >
-            <Calendar size={15} color="#D97706" />
-            <span>ឆ្នាំ {selectedYear}</span>
-            <ChevronDown size={14} color="#B45309" style={{ transform: showYearDropdown ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+            <Calendar size={13} color={isDark ? '#FDE68A' : '#D97706'} />
+            <span style={{ whiteSpace: 'nowrap' }}>{selectedYear}</span>
+            <ChevronDown size={12} color={isDark ? '#FDE68A' : '#B45309'} style={{ transform: showYearDropdown ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
           </button>
 
           {/* Dropdown Menu */}
@@ -587,10 +611,10 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
             }}
             className="hover-lift"
             style={{
-              background: '#F8FAFC',
-              border: '1.5px solid #E2E8F0',
-              borderRadius: '12px',
-              padding: '8px',
+              background: isDark ? '#1E293B' : '#F8FAFC',
+              border: isDark ? '1.5px solid #334155' : '1.5px solid #E2E8F0',
+              borderRadius: '10px',
+              padding: '6px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -600,19 +624,19 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
             }}
             title="សេចក្ដីជូនដំណឹង និងព្រឹត្តិការណ៍"
           >
-            <Bell size={18} color="#0F172A" />
+            <Bell size={16} color={isDark ? '#FDE68A' : '#0F172A'} />
             {unreadCount > 0 && (
               <span 
                 style={{
                   position: 'absolute',
-                  top: '-4px',
-                  right: '-4px',
+                  top: '-3px',
+                  right: '-3px',
                   background: '#EF4444',
                   color: '#FFFFFF',
-                  width: '18px',
-                  height: '18px',
+                  width: '16px',
+                  height: '16px',
                   borderRadius: '50%',
-                  fontSize: '0.65rem',
+                  fontSize: '0.6rem',
                   fontWeight: 800,
                   display: 'flex',
                   alignItems: 'center',
@@ -632,11 +656,11 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
               style={{
                 position: 'absolute',
                 right: '-10px',
-                top: '48px',
-                width: '350px',
-                maxWidth: 'calc(100vw - 32px)',
+                top: '44px',
+                width: '340px',
+                maxWidth: 'calc(100vw - 24px)',
                 background: '#FFFFFF',
-                borderRadius: '24px',
+                borderRadius: '20px',
                 boxShadow: '0 20px 40px -10px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(0,0,0,0.08)',
                 border: '1.5px solid #E2E8F0',
                 padding: '0',
@@ -645,54 +669,54 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
               }}
             >
               {/* Header Bar */}
-              <div style={{ background: 'linear-gradient(135deg, #1E1B18 0%, #2D2013 100%)', padding: '16px 20px', color: '#FFFFFF', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid rgba(245, 158, 11, 0.3)' }}>
+              <div style={{ background: 'linear-gradient(135deg, #1E1B18 0%, #2D2013 100%)', padding: '14px 18px', color: '#FFFFFF', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid rgba(245, 158, 11, 0.3)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'linear-gradient(135deg, #FDE68A 0%, #F59E0B 100%)', color: '#78350F', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Bell size={15} />
+                  <div style={{ width: '26px', height: '26px', borderRadius: '8px', background: 'linear-gradient(135deg, #FDE68A 0%, #F59E0B 100%)', color: '#78350F', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Bell size={14} />
                   </div>
                   <div>
-                    <h4 style={{ fontWeight: 800, fontSize: '0.88rem', color: '#FEF3C7', margin: 0 }}>
+                    <h4 style={{ fontWeight: 800, fontSize: '0.85rem', color: '#FEF3C7', margin: 0 }}>
                       សេចក្ដីជូនដំណឹងវត្ត (Notifications)
                     </h4>
                   </div>
                 </div>
                 <button 
                   onClick={() => setShowNotifications(false)} 
-                  style={{ width: '26px', height: '26px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: 'none', color: '#CBD5E1', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem' }}
+                  style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: 'none', color: '#CBD5E1', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem' }}
                 >
                   ✕
                 </button>
               </div>
 
               {/* Notification List Container */}
-              <div style={{ maxHeight: '380px', overflowY: 'auto', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px', background: '#FAFAFA' }}>
+              <div style={{ maxHeight: '360px', overflowY: 'auto', padding: '12px', display: 'flex', flexDirection: 'column', gap: '10px', background: '#FAFAFA' }}>
                 
                 {/* 1. Official Ceremony Broadcast Notification */}
                 <div 
                   className="hover-lift"
                   style={{ 
                     background: '#FFFFFF', 
-                    borderRadius: '16px', 
-                    padding: '12px 14px', 
+                    borderRadius: '14px', 
+                    padding: '10px 12px', 
                     border: '1.5px solid #FDE68A',
                     boxShadow: '0 4px 12px rgba(217, 119, 6, 0.08)'
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
-                    <span style={{ background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)', color: '#78350F', border: '1px solid #F59E0B', padding: '2px 8px', borderRadius: '6px', fontSize: '0.66rem', fontWeight: 800 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
+                    <span style={{ background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)', color: '#78350F', border: '1px solid #F59E0B', padding: '2px 6px', borderRadius: '6px', fontSize: '0.62rem', fontWeight: 800 }}>
                       📢 ពិធីបុណ្យវត្ត
                     </span>
-                    <span style={{ fontSize: '0.65rem', color: '#94A3B8' }}>ថ្មីៗនេះ</span>
+                    <span style={{ fontSize: '0.62rem', color: '#94A3B8' }}>ថ្មីៗនេះ</span>
                   </div>
 
-                  <h5 style={{ fontWeight: 800, fontSize: '0.86rem', color: '#0F172A', lineHeight: 1.3, margin: '0 0 4px 0' }}>
+                  <h5 style={{ fontWeight: 800, fontSize: '0.82rem', color: '#0F172A', lineHeight: 1.3, margin: '0 0 3px 0' }}>
                     ពិធីបុណ្យកឋិនទានសាមគ្គី
                   </h5>
-                  <p style={{ fontSize: '0.74rem', color: '#475569', lineHeight: 1.4, margin: '0 0 6px 0' }}>
+                  <p style={{ fontSize: '0.72rem', color: '#475569', lineHeight: 1.35, margin: '0 0 4px 0' }}>
                     ពិធីដង្ហែត្រៃចីវរ និងបច្ច័យបូជាទូទាំងវត្ត នឹងប្រព្រឹត្តទៅនៅសាលាឆាន់ និងព្រះវិហារ។
                   </p>
 
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px dashed #E2E8F0', paddingTop: '6px', fontSize: '0.68rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px dashed #E2E8F0', paddingTop: '4px', fontSize: '0.66rem' }}>
                     <span style={{ color: '#D97706', fontWeight: 700 }}>📅 កាលបរិច្ឆេទ: ២៥ តុលា ២០២៦</span>
                     <Link href="/schedule" onClick={() => setShowNotifications(false)} style={{ color: '#2563EB', fontWeight: 700, textDecoration: 'none' }}>
                       មើលលម្អិត →
@@ -705,28 +729,28 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
                   className="hover-lift"
                   style={{ 
                     background: '#FFFFFF', 
-                    borderRadius: '16px', 
-                    padding: '12px 14px', 
+                    borderRadius: '14px', 
+                    padding: '10px 12px', 
                     border: '1.5px solid #E2E8F0',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
-                    <span style={{ background: '#EFF6FF', color: '#1E40AF', border: '1px solid #BFDBFE', padding: '2px 8px', borderRadius: '6px', fontSize: '0.66rem', fontWeight: 800 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
+                    <span style={{ background: '#EFF6FF', color: '#1E40AF', border: '1px solid #BFDBFE', padding: '2px 6px', borderRadius: '6px', fontSize: '0.62rem', fontWeight: 800 }}>
                       💬 សារសន្ទនាផ្ទៃក្នុង
                     </span>
-                    <span style={{ fontSize: '0.65rem', color: '#94A3B8' }}>០៨:១៥ ព្រឹក</span>
+                    <span style={{ fontSize: '0.62rem', color: '#94A3B8' }}>០៨:១៥ ព្រឹក</span>
                   </div>
 
-                  <h5 style={{ fontWeight: 800, fontSize: '0.82rem', color: '#0F172A', margin: '0 0 2px 0' }}>
+                  <h5 style={{ fontWeight: 800, fontSize: '0.8rem', color: '#0F172A', margin: '0 0 2px 0' }}>
                     ព្រះមហា សុខ វិបុល
                   </h5>
-                  <p style={{ fontSize: '0.72rem', color: '#64748B', lineHeight: 1.4, margin: 0 }}>
+                  <p style={{ fontSize: '0.7rem', color: '#64748B', lineHeight: 1.35, margin: 0 }}>
                     «ថ្ងៃនេះម៉ោង ២ រសៀលមានកម្មវិធីសូត្រធម៌ និងថ្វាយបង្គំនៅសាលាឆាន់...»
                   </p>
 
-                  <div style={{ textAlign: 'right', marginTop: '6px' }}>
-                    <Link href="/chat" onClick={() => setShowNotifications(false)} style={{ color: '#2563EB', fontSize: '0.68rem', fontWeight: 700, textDecoration: 'none' }}>
+                  <div style={{ textAlign: 'right', marginTop: '4px' }}>
+                    <Link href="/chat" onClick={() => setShowNotifications(false)} style={{ color: '#2563EB', fontSize: '0.66rem', fontWeight: 700, textDecoration: 'none' }}>
                       ចូលបន្ទប់សន្ទនា →
                     </Link>
                   </div>
@@ -735,11 +759,11 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
               </div>
 
               {/* Footer Link */}
-              <div style={{ padding: '12px', background: '#FFFFFF', borderTop: '1.5px solid #F1F5F9', textAlign: 'center' }}>
+              <div style={{ padding: '10px', background: '#FFFFFF', borderTop: '1.5px solid #F1F5F9', textAlign: 'center' }}>
                 <Link 
                   href="/schedule" 
                   onClick={() => setShowNotifications(false)}
-                  style={{ fontSize: '0.76rem', fontWeight: 800, color: '#D97706', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                  style={{ fontSize: '0.74rem', fontWeight: 800, color: '#D97706', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                 >
                   <span>ពិនិត្យកាលវិភាគ & ពិធីបុណ្យទាំងអស់</span>
                   <span>→</span>
@@ -759,8 +783,8 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
           style={{
             background: isDark ? '#1E293B' : '#F8FAFC',
             border: isDark ? '1.5px solid #334155' : '1.5px solid #E2E8F0',
-            borderRadius: '12px',
-            padding: '8px',
+            borderRadius: '10px',
+            padding: '6px',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -771,21 +795,21 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
           }}
           aria-label="Toggle Theme Mode"
         >
-          {isDark ? <Sun size={18} color="#F59E0B" /> : <Moon size={18} color="#475569" />}
+          {isDark ? <Sun size={16} color="#F59E0B" /> : <Moon size={16} color="#475569" />}
         </button>
 
         {/* User profile bubble (Clickable to change photo) */}
         <div 
           onClick={() => setShowAvatarModal(true)}
-          className="flex items-center gap-2 hover-lift"
-          style={{ cursor: 'pointer', padding: '4px 8px', borderRadius: '20px', background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)' }}
+          className="flex items-center gap-1.5 hover-lift"
+          style={{ cursor: 'pointer', padding: '2px 4px', borderRadius: '20px', background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)', flexShrink: 0 }}
           title="ចុចទីនេះដើម្បីប្ដូររូបថតគណនី (Click to change photo)"
         >
           <div 
             className="avatar avatar-sm" 
             style={{ 
-              width: 34, 
-              height: 34, 
+              width: 30, 
+              height: 30, 
               borderRadius: '50%', 
               background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)', 
               color: '#1C1917', 
@@ -793,8 +817,9 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
               alignItems: 'center', 
               justifyContent: 'center', 
               fontWeight: 800,
+              fontSize: '0.8rem',
               overflow: 'hidden',
-              boxShadow: '0 2px 8px rgba(217, 119, 6, 0.3)',
+              boxShadow: '0 2px 6px rgba(217, 119, 6, 0.3)',
               position: 'relative'
             }}
           >
@@ -806,8 +831,8 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
               <span>{user?.full_name?.charAt(0) || 'U'}</span>
             )}
           </div>
-          <div className="hidden sm:block" style={{ lineHeight: 1.2 }}>
-            <div style={{ fontSize: 'var(--text-xs)', fontWeight: 700 }}>{user?.full_name || 'ចៅអធិការ'}</div>
+          <div className="hidden md:block" style={{ lineHeight: 1.2 }}>
+            <div style={{ fontSize: '0.74rem', fontWeight: 700 }}>{user?.full_name || 'ចៅអធិការ'}</div>
             <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontFamily: 'var(--font-latin)' }}>
               {user ? USER_ROLE_LABELS[user.role]?.en : 'Chief Monk'}
             </div>
