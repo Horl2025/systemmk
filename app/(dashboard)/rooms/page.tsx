@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase'
 import { Room, Kuthi } from '@/lib/database.types'
 import { ROOM_STATUS_LABELS } from '@/lib/utils'
 import { Plus, Edit, Trash2, Building2, ChevronDown, ChevronRight, Home, DoorOpen, CheckCircle, AlertCircle, Users, ArrowLeft, Eye, UserPlus, Sparkles, UserCheck, Bed, Shield } from 'lucide-react'
+import { fetchCloudCollection, syncToCloud, subscribeToRealtimeSync, notifyRealtimeUpdate } from '@/lib/cloudSync'
 
 interface KuthiWithRooms extends Kuthi {
   rooms: (Room & { monks?: any[] })[]
@@ -27,45 +28,84 @@ export default function RoomsPage() {
   const [selectedViewRoom, setSelectedViewRoom] = useState<{ kuthiName: string; kuthiId: string; room: any } | null>(null)
   const [deleteConfirmItem, setDeleteConfirmItem] = useState<{ type: 'kuthi' | 'room'; id: string; name: string; kuthiId?: string } | null>(null)
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!deleteConfirmItem) return
+    let updated: KuthiWithRooms[] = []
+
     if (deleteConfirmItem.type === 'kuthi') {
-      setKuthi(prev => prev.filter(k => k.id !== deleteConfirmItem.id))
+      updated = kuthi.filter(k => k.id !== deleteConfirmItem.id)
+      setKuthi(updated)
+      try { localStorage.setItem('systemmk_custom_rooms', JSON.stringify(updated)) } catch {}
+      await syncToCloud('delete', 'rooms', null, deleteConfirmItem.id)
     } else if (deleteConfirmItem.type === 'room' && deleteConfirmItem.kuthiId) {
-      setKuthi(prev => prev.map(k => {
+      updated = kuthi.map(k => {
         if (k.id === deleteConfirmItem.kuthiId) {
           return { ...k, rooms: k.rooms.filter(r => r.id !== deleteConfirmItem.id) }
         }
         return k
-      }))
+      })
+      setKuthi(updated)
+      try { localStorage.setItem('systemmk_custom_rooms', JSON.stringify(updated)) } catch {}
+      await syncToCloud('sync_all', 'rooms', updated)
     }
     setDeleteConfirmItem(null)
   }
 
   useEffect(() => {
     async function loadData() {
-      if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder-systemmk.supabase.co') {
-        try {
-          const { data: kuthiData } = await supabase.from('kuthi').select('*').eq('is_active', true).order('name')
-          const { data: roomData } = await supabase.from('rooms').select('*, monks(id, khmer_name)').eq('is_active', true).order('room_number')
-
-          const kList = ((kuthiData as unknown) as Kuthi[]) || []
-          const rList = ((roomData as unknown) as (Room & { monks: { id: string; khmer_name: string }[] })[]) || []
-
-          if (kList.length > 0) {
-            const result = kList.map(k => ({
-              ...k,
-              rooms: rList.filter(r => r.kuthi_id === k.id)
-            }))
-            setKuthi(result as KuthiWithRooms[])
-            setExpandedKuthi(new Set(kList.map(k => k.id)))
+      // 1. Local fast load
+      let localKuthi: KuthiWithRooms[] = []
+      try {
+        const saved = localStorage.getItem('systemmk_custom_rooms')
+        if (saved) {
+          const parsed = JSON.parse(saved)
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            localKuthi = parsed
+            setKuthi(parsed)
+            setExpandedKuthi(prev => prev.size === 0 ? new Set(parsed.map((k: any) => k.id)) : prev)
           }
-        } catch {
-          // fallback to initial
+        }
+      } catch {}
+
+      // 2. Fetch Central Cloud Data
+      const cloudData = await fetchCloudCollection('rooms')
+      if (cloudData && Array.isArray(cloudData)) {
+        const map = new Map<string, KuthiWithRooms>()
+        localKuthi.forEach(k => { if (k?.id) map.set(k.id, k) })
+        cloudData.forEach(k => { if (k?.id) map.set(k.id, k) })
+
+        const merged = Array.from(map.values())
+        if (merged.length > 0) {
+          setKuthi(merged)
+          setExpandedKuthi(prev => prev.size === 0 ? new Set(merged.map(k => k.id)) : prev)
+          try { localStorage.setItem('systemmk_custom_rooms', JSON.stringify(merged)) } catch {}
+          if (localKuthi.length > cloudData.length) {
+            syncToCloud('sync_all', 'rooms', merged)
+          }
         }
       }
     }
+
     loadData()
+
+    // 0ms Real-time broadcast listener
+    const unsubscribe = subscribeToRealtimeSync((col) => {
+      if (!col || col === 'rooms') loadData()
+    })
+
+    const handleCustomEvent = (e: any) => {
+      if (!e.detail?.collection || e.detail.collection === 'rooms') loadData()
+    }
+    window.addEventListener('systemmk_data_updated', handleCustomEvent)
+
+    // Fast 2.5s live polling across devices
+    const timer = setInterval(loadData, 2500)
+
+    return () => {
+      unsubscribe()
+      window.removeEventListener('systemmk_data_updated', handleCustomEvent)
+      clearInterval(timer)
+    }
   }, [])
 
   const toggleKuthi = (id: string) => {
@@ -708,13 +748,17 @@ export default function RoomsPage() {
         <KuthiModal 
           initialData={editingKuthi}
           onClose={() => { setShowKuthiModal(false); setEditingKuthi(null) }} 
-          onSave={(savedKuthi) => {
-            setKuthi(prev => {
-              if (editingKuthi) {
-                return prev.map(k => k.id === savedKuthi.id ? { ...k, ...savedKuthi, rooms: k.rooms } : k)
-              }
-              return [...prev, savedKuthi]
-            })
+          onSave={async (savedKuthi) => {
+            let updated: KuthiWithRooms[] = []
+            if (editingKuthi) {
+              updated = kuthi.map(k => k.id === savedKuthi.id ? { ...k, ...savedKuthi, rooms: k.rooms } : k)
+            } else {
+              updated = [...kuthi, savedKuthi]
+            }
+            setKuthi(updated)
+            setExpandedKuthi(prev => new Set([...prev, savedKuthi.id]))
+            try { localStorage.setItem('systemmk_custom_rooms', JSON.stringify(updated)) } catch {}
+            await syncToCloud('sync_all', 'rooms', updated)
           }} 
         />
       )}
@@ -723,8 +767,8 @@ export default function RoomsPage() {
           kuthiId={showRoomModal} 
           initialData={editingRoom?.room}
           onClose={() => { setShowRoomModal(null); setEditingRoom(null) }} 
-          onSave={(savedRoom) => {
-            setKuthi(prev => prev.map(k => {
+          onSave={async (savedRoom) => {
+            const updated = kuthi.map(k => {
               if (k.id === showRoomModal) {
                 if (editingRoom) {
                   return { ...k, rooms: k.rooms.map(r => r.id === savedRoom.id ? { ...r, ...savedRoom } : r) }
@@ -732,7 +776,10 @@ export default function RoomsPage() {
                 return { ...k, rooms: [...k.rooms, savedRoom] }
               }
               return k
-            }))
+            })
+            setKuthi(updated)
+            try { localStorage.setItem('systemmk_custom_rooms', JSON.stringify(updated)) } catch {}
+            await syncToCloud('sync_all', 'rooms', updated)
           }}
         />
       )}

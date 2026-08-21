@@ -170,13 +170,25 @@ export default function DashboardPage() {
         const damaged = inventoryList.filter((i: any) => i.status === 'damaged').length
         const lost = inventoryList.filter((i: any) => i.status === 'lost').length
 
+        // 5. Rooms & Kuthi Data
+        let kuthiList: any[] = (await fetchCloudCollection('rooms')) || []
+        if (kuthiList.length === 0) {
+          const savedKuthi = localStorage.getItem('systemmk_custom_rooms')
+          if (savedKuthi) kuthiList = JSON.parse(savedKuthi)
+        }
+
+        const allRooms = kuthiList.flatMap((k: any) => k.rooms || [])
+        const totalRooms = allRooms.length > 0 ? allRooms.length : 12
+        const availRooms = allRooms.length > 0 ? allRooms.filter((r: any) => r.status === 'available').length : 8
+        const occRooms = allRooms.length > 0 ? allRooms.filter((r: any) => r.status === 'occupied').length : 4
+
         setStats({
           monksCount: monksList.length,
           bhikkhuCount: bhikkhu,
           samaneraCount: samanera,
-          roomsCount: 12,
-          availableRooms: 8,
-          occupiedRooms: 4,
+          roomsCount: totalRooms,
+          availableRooms: availRooms,
+          occupiedRooms: occRooms,
           studentsCount: studentsList.length,
           inventoryCount: inventoryList.length,
           goodItems: good,
