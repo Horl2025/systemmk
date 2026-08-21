@@ -71,6 +71,15 @@ export default function SettingsPage() {
   const [role, setRole] = useState<UserRole>('chief_monk')
 
   useEffect(() => {
+    // If the active logged in user is a custom non-admin role, always use user object directly
+    if (user && user.role !== 'chief_monk') {
+      setFullName(user.full_name || 'អ្នកប្រើប្រាស់')
+      setEmail(user.email || '')
+      setPhone(user.phone || '')
+      setRole(user.role)
+      return
+    }
+
     try {
       const savedAdmin = localStorage.getItem('systemmk_root_admin_profile')
       if (savedAdmin) {
@@ -99,6 +108,27 @@ export default function SettingsPage() {
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault()
     
+    if (user && user.role !== 'chief_monk') {
+      const updatedUser: Profile = {
+        ...user,
+        full_name: fullName.trim() || user.full_name,
+        display_name: (fullName.trim() || user.full_name || '').split(' ').pop() || null,
+        email: email.trim() || user.email,
+        phone: phone.trim() || user.phone,
+      }
+      try {
+        localStorage.setItem('systemmk_current_user', JSON.stringify(updatedUser))
+        setUsersList(prev => {
+          const updatedList = prev.map(u => u.id === user.id ? { ...u, ...updatedUser } : u)
+          localStorage.setItem('systemmk_custom_users', JSON.stringify(updatedList))
+          return updatedList
+        })
+      } catch {}
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2500)
+      return
+    }
+
     // Save Admin Profile to localStorage
     const updatedAdmin = {
       id: 'u1',
