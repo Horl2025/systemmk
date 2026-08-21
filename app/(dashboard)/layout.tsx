@@ -136,6 +136,9 @@ function Sidebar({
               chief_monk: ['/dashboard', '/monks', '/rooms', '/students', '/attendance', '/schedule', '/finance', '/inventory', '/reports', '/chat', '/settings'],
               admin: ['/dashboard', '/monks', '/rooms', '/students', '/attendance', '/schedule', '/finance', '/inventory', '/reports', '/chat', '/settings'],
               recorder: ['/dashboard', '/monks', '/students', '/attendance', '/schedule', '/chat', '/settings'],
+              acharya: ['/dashboard', '/attendance', '/schedule', '/chat', '/settings'],
+              committee: ['/dashboard', '/attendance', '/schedule', '/chat', '/settings'],
+              devotee: ['/dashboard', '/attendance', '/schedule', '/chat', '/settings'],
               student: ['/dashboard', '/attendance', '/schedule', '/chat', '/settings'],
               guest: ['/dashboard', '/attendance', '/schedule', '/chat', '/settings'],
             }
@@ -1031,11 +1034,11 @@ function MobileBottomNav({ onOpenQR }: { onOpenQR: () => void }) {
   const currentRole = user?.role || 'chief_monk'
 
   const allTabs = [
-    { label: 'ទំព័រដើម', icon: Home, href: '/dashboard', roles: ['chief_monk', 'admin', 'recorder', 'student', 'guest'] },
+    { label: 'ទំព័រដើម', icon: Home, href: '/dashboard', roles: ['chief_monk', 'admin', 'recorder', 'acharya', 'committee', 'devotee', 'student', 'guest'] },
     { label: 'ព្រះសង្ឃ', icon: Users, href: '/monks', roles: ['chief_monk', 'admin', 'recorder'] },
-    { label: 'ស្កេន QR', icon: QrCode, isAction: true, roles: ['chief_monk', 'admin', 'recorder', 'student', 'guest'] },
-    { label: 'វត្តមាន', icon: CalendarCheck, href: '/attendance', roles: ['chief_monk', 'admin', 'recorder', 'student', 'guest'] },
-    { label: 'ការកំណត់', icon: Settings, href: '/settings', roles: ['chief_monk', 'admin', 'recorder', 'student', 'guest'] },
+    { label: 'ស្កេន QR', icon: QrCode, isAction: true, roles: ['chief_monk', 'admin', 'recorder', 'acharya', 'committee', 'devotee', 'student', 'guest'] },
+    { label: 'វត្តមាន', icon: CalendarCheck, href: '/attendance', roles: ['chief_monk', 'admin', 'recorder', 'acharya', 'committee', 'devotee', 'student', 'guest'] },
+    { label: 'ការកំណត់', icon: Settings, href: '/settings', roles: ['chief_monk', 'admin', 'recorder', 'acharya', 'committee', 'devotee', 'student', 'guest'] },
   ]
 
   const tabs = allTabs.filter(t => t.roles.includes(currentRole))

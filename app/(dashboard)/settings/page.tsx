@@ -648,7 +648,11 @@ export default function SettingsPage() {
                   <option value="chief_monk">ព្រះមេកុដិ / Kuthi Leader (អ្នកគ្រប់គ្រងពេញលេញ)</option>
                   <option value="admin">អ្នកគ្រប់គ្រង / Admin</option>
                   <option value="recorder">អ្នកកត់ត្រា / Recorder</option>
-                  <option value="guest">ភ្ញៀវ/សិស្សវត្ត / Guest</option>
+                  <option value="acharya">អាចារ្យវត្ត / Acharya</option>
+                  <option value="committee">គណៈកម្មការវត្ត / Pagoda Committee</option>
+                  <option value="devotee">ពុទ្ធបរិស័ទ / Devotee</option>
+                  <option value="student">សិស្សវត្ត / Student</option>
+                  <option value="guest">ភ្ញៀវទូទៅ / Guest</option>
                 </select>
               </div>
 
@@ -914,7 +918,11 @@ export default function SettingsPage() {
                   { role: 'ព្រះមេកុដិ (Kuthi Leader)', monks: 'ពេញលេញ (Full)', fin: 'ពេញលេញ (Full)', att: 'ពេញលេញ (Full)', usr: 'ពេញលេញ (Full)', bg: '#FEF3C7', color: '#92400E', border: '#FDE68A' },
                   { role: 'អ្នកគ្រប់គ្រង (Admin ទូទៅ)', monks: 'ពេញលេញ (Full)', fin: 'ពេញលេញ (Full)', att: 'ពេញលេញ (Full)', usr: 'មើល & កែប្រែ', bg: '#EFF6FF', color: '#1E40AF', border: '#BFDBFE' },
                   { role: 'អ្នកកត់ត្រា (Recorder)', monks: 'មើល/បន្ថែម', fin: 'កត់ត្រាប្រចាំថ្ងៃ', att: 'ពេញលេញ (Full)', usr: 'គ្មានសិទ្ធិ (None)', bg: '#ECFDF5', color: '#065F46', border: '#A7F3D0' },
-                  { role: 'ភ្ញៀវ/សិស្ស (Guest)', monks: 'មើលបាន', fin: 'គ្មានសិទ្ធិ (None)', att: 'មើលបាន', usr: 'គ្មានសិទ្ធិ (None)', bg: '#F1F5F9', color: '#475569', border: '#E2E8F0' },
+                  { role: 'អាចារ្យវត្ត (Acharya)', monks: 'មើលបាន', fin: 'គ្មានសិទ្ធិ (None)', att: 'មើលបាន', usr: 'គ្មានសិទ្ធិ (None)', bg: '#FEF3C7', color: '#B45309', border: '#FDE68A' },
+                  { role: 'គណៈកម្មការវត្ត (Committee)', monks: 'មើលបាន', fin: 'គ្មានសិទ្ធិ (None)', att: 'មើលបាន', usr: 'គ្មានសិទ្ធិ (None)', bg: '#EDE9FE', color: '#6D28D9', border: '#DDD6FE' },
+                  { role: 'ពុទ្ធបរិស័ទ (Devotee)', monks: 'មើលបាន', fin: 'គ្មានសិទ្ធិ (None)', att: 'មើលបាន', usr: 'គ្មានសិទ្ធិ (None)', bg: '#FCE7F3', color: '#BE185D', border: '#FBCFE8' },
+                  { role: 'សិស្សវត្ត (Student)', monks: 'មើលបាន', fin: 'គ្មានសិទ្ធិ (None)', att: 'មើលបាន', usr: 'គ្មានសិទ្ធិ (None)', bg: '#E0F2FE', color: '#0369A1', border: '#BAE6FD' },
+                  { role: 'ភ្ញៀវទូទៅ (Guest)', monks: 'មើលបាន', fin: 'គ្មានសិទ្ធិ (None)', att: 'មើលបាន', usr: 'គ្មានសិទ្ធិ (None)', bg: '#F1F5F9', color: '#475569', border: '#E2E8F0' },
                 ].map((r, i) => (
                   <tr key={i} style={{ borderBottom: '1px solid #F1F5F9' }}>
                     <td style={{ padding: '14px 18px', whiteSpace: 'nowrap' }}>
@@ -923,7 +931,7 @@ export default function SettingsPage() {
                       </span>
                     </td>
                     <td style={{ padding: '14px 18px', fontWeight: 700, color: '#059669', whiteSpace: 'nowrap' }}>{r.monks}</td>
-                    <td style={{ padding: '14px 18px', fontWeight: 700, color: '#059669', whiteSpace: 'nowrap' }}>{r.fin}</td>
+                    <td style={{ padding: '14px 18px', fontWeight: 700, color: r.fin.includes('None') ? '#94A3B8' : '#059669', whiteSpace: 'nowrap' }}>{r.fin}</td>
                     <td style={{ padding: '14px 18px', fontWeight: 700, color: '#059669', whiteSpace: 'nowrap' }}>{r.att}</td>
                     <td style={{ padding: '14px 18px', fontWeight: 700, color: r.usr.includes('None') ? '#94A3B8' : '#059669', whiteSpace: 'nowrap' }}>{r.usr}</td>
                   </tr>
@@ -1375,7 +1383,11 @@ function AddUserModal({ onClose, onAdd }: { onClose: () => void; onAdd: (user: a
                 >
                   <option value="admin">អ្នកគ្រប់គ្រងទូទៅ / General Admin</option>
                   <option value="recorder">អ្នកកត់ត្រា / Recorder</option>
-                  <option value="guest">ភ្ញៀវ/សិស្សវត្ត / Guest</option>
+                  <option value="acharya">អាចារ្យវត្ត / Acharya</option>
+                  <option value="committee">គណៈកម្មការវត្ត / Pagoda Committee</option>
+                  <option value="devotee">ពុទ្ធបរិស័ទ / Devotee</option>
+                  <option value="student">សិស្សវត្ត / Student</option>
+                  <option value="guest">ភ្ញៀវទូទៅ / Guest</option>
                 </select>
               </div>
               <div className="form-group" style={{ marginBottom: 0 }}>

@@ -132,12 +132,16 @@ export const EXPENSE_TYPE_LABELS: Record<string, { kh: string; en: string }> = {
   other: { kh: 'ផ្សេងៗ', en: 'Other' },
 }
 
-// User role labels - Changed Chief Monk to ព្រះមេកុដិ / Kuthi Leader
+// User role labels
 export const USER_ROLE_LABELS: Record<string, { kh: string; en: string }> = {
   chief_monk: { kh: 'ព្រះមេកុដិ', en: 'Kuthi Leader' },
   admin: { kh: 'អ្នកគ្រប់គ្រង', en: 'Administrator' },
   recorder: { kh: 'អ្នកកត់ត្រា', en: 'Recorder' },
-  guest: { kh: 'ភ្ញៀវ/សិស្ស', en: 'Guest' },
+  acharya: { kh: 'អាចារ្យ', en: 'Acharya' },
+  committee: { kh: 'គណៈកម្មការ', en: 'Pagoda Committee' },
+  devotee: { kh: 'ពុទ្ធបរិស័ទ', en: 'Devotee' },
+  student: { kh: 'សិស្សវត្ត', en: 'Student' },
+  guest: { kh: 'ភ្ញៀវ', en: 'Guest' },
 }
 
 // Get color class for status
