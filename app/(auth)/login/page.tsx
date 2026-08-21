@@ -46,13 +46,14 @@ function LoginForm() {
     } catch {}
   }
 
-  // Prefill email, role and password if scanned via User Login QR Code or URL params
+  // Prefill email, role and auto-login if opened via Magic User Link or QR Code
   useEffect(() => {
     const emailParam = searchParams.get('email')
     const roleParam = searchParams.get('role')
     const nameParam = searchParams.get('name')
     const phoneParam = searchParams.get('phone')
     const passParam = searchParams.get('pass')
+    const autoLogin = searchParams.get('autologin')
 
     if (emailParam) {
       handleEmailChange(emailParam)
@@ -62,29 +63,36 @@ function LoginForm() {
       setPassword(decodeURIComponent(passParam))
     }
 
-    // If QR code provided verified role metadata, save to local user list directly
-    if (emailParam && roleParam) {
+    // Save and activate user immediately if Magic Link contains credentials
+    if (emailParam && (roleParam || autoLogin === 'true')) {
       try {
+        const cleanEmail = emailParam.trim().toLowerCase()
+        const userObj = {
+          id: `user_${Date.now()}`,
+          full_name: nameParam ? decodeURIComponent(nameParam) : emailParam.split('@')[0],
+          display_name: nameParam ? decodeURIComponent(nameParam).split(' ').pop() : emailParam.split('@')[0],
+          email: cleanEmail,
+          role: roleParam || 'recorder',
+          phone: phoneParam ? decodeURIComponent(phoneParam) : null,
+          password: passParam ? decodeURIComponent(passParam) : undefined,
+          is_active: true,
+          created_at: new Date().toISOString().split('T')[0],
+          updated_at: new Date().toISOString().split('T')[0],
+        }
+
+        // Save active user session
+        localStorage.setItem('systemmk_current_user', JSON.stringify(userObj))
+
+        // Save to users list
         const savedUsers = localStorage.getItem('systemmk_custom_users')
         const usersList = savedUsers ? JSON.parse(savedUsers) : []
-        const exists = usersList.some((u: any) => (u.email || '').trim().toLowerCase() === emailParam.trim().toLowerCase())
-        
+        const exists = usersList.some((u: any) => (u.email || '').trim().toLowerCase() === cleanEmail)
         if (!exists) {
-          const newUser = {
-            id: `user_${Date.now()}`,
-            full_name: nameParam ? decodeURIComponent(nameParam) : emailParam.split('@')[0],
-            display_name: nameParam ? decodeURIComponent(nameParam).split(' ').pop() : emailParam.split('@')[0],
-            email: emailParam,
-            role: roleParam,
-            phone: phoneParam ? decodeURIComponent(phoneParam) : null,
-            password: passParam ? decodeURIComponent(passParam) : undefined,
-            is_active: true,
-            created_at: new Date().toISOString().split('T')[0],
-            updated_at: new Date().toISOString().split('T')[0],
-          }
-          const updated = [newUser, ...usersList]
-          localStorage.setItem('systemmk_custom_users', JSON.stringify(updated))
+          localStorage.setItem('systemmk_custom_users', JSON.stringify([userObj, ...usersList]))
         }
+
+        // Instant redirect to dashboard
+        window.location.href = '/dashboard'
       } catch {}
     }
   }, [searchParams])
