@@ -54,8 +54,12 @@ function Sidebar({
   const router = useRouter()
 
   async function handleSignOut() {
-    await signOut()
-    router.push('/login')
+    try {
+      localStorage.removeItem('systemmk_current_user')
+      localStorage.removeItem('systemmk_user_avatar')
+      await signOut()
+    } catch {}
+    window.location.href = '/login'
   }
 
   return (
