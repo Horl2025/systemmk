@@ -19,28 +19,37 @@ export default function InventoryPage() {
   const [showModal, setShowModal] = useState(false)
 
   const loadData = useCallback(async () => {
-    // 1. Fetch from Central Cloud
-    const cloudItems = await fetchCloudCollection('inventory')
-    if (cloudItems && cloudItems.length > 0) {
-      setItems(cloudItems)
-      try { localStorage.setItem('systemmk_custom_inventory', JSON.stringify(cloudItems)) } catch {}
-      return
-    }
-
-    // 2. Load local custom inventory
+    let localItems: InventoryItem[] = []
     try {
       const saved = localStorage.getItem('systemmk_custom_inventory')
       if (saved) {
         const parsed = JSON.parse(saved)
         if (Array.isArray(parsed) && parsed.length > 0) {
+          localItems = parsed
           setItems(parsed)
-          syncToCloud('sync_all', 'inventory', parsed)
         }
       }
     } catch {}
+
+    const cloudItems = await fetchCloudCollection('inventory')
+    if (cloudItems && Array.isArray(cloudItems)) {
+      const map = new Map<string, InventoryItem>()
+      localItems.forEach(i => { if (i?.id) map.set(i.id, i) })
+      cloudItems.forEach(i => { if (i?.id) map.set(i.id, i) })
+      const merged = Array.from(map.values())
+      setItems(merged)
+      try { localStorage.setItem('systemmk_custom_inventory', JSON.stringify(merged)) } catch {}
+      if (localItems.length > cloudItems.length) {
+        syncToCloud('sync_all', 'inventory', merged)
+      }
+    }
   }, [])
 
-  useEffect(() => { loadData() }, [loadData])
+  useEffect(() => { 
+    loadData()
+    const timer = setInterval(loadData, 8000)
+    return () => clearInterval(timer)
+  }, [loadData])
 
   const filteredItems = items.filter(i => {
     const matchesSearch = !search || 

@@ -189,6 +189,8 @@ export default function DashboardPage() {
     }
 
     loadDashboardStats()
+    const timer = setInterval(loadDashboardStats, 8000)
+    return () => clearInterval(timer)
   }, [selectedYear])
 
   return (

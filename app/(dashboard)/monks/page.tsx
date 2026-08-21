@@ -26,28 +26,43 @@ export default function MonksPage() {
 
   useEffect(() => {
     async function loadData() {
-      // 1. Fetch from Central Cloud Server
-      const cloudData = await fetchCloudCollection('monks')
-      if (cloudData && cloudData.length > 0) {
-        setMonks(cloudData)
-        try { localStorage.setItem('systemmk_custom_monks', JSON.stringify(cloudData)) } catch {}
-        return
-      }
-
-      // 2. Fallback to local custom monks
+      // 1. First load local custom monks immediately for fast UI
+      let localMonks: Monk[] = []
       try {
         const saved = localStorage.getItem('systemmk_custom_monks')
         if (saved) {
           const parsed = JSON.parse(saved)
           if (Array.isArray(parsed) && parsed.length > 0) {
+            localMonks = parsed
             setMonks(parsed)
-            // Sync local data up to cloud if cloud was empty
-            syncToCloud('sync_all', 'monks', parsed)
           }
         }
       } catch {}
+
+      // 2. Fetch fresh Central Cloud Data and merge
+      const cloudData = await fetchCloudCollection('monks')
+      if (cloudData && Array.isArray(cloudData)) {
+        // Merge cloud items with local items without duplicates
+        const map = new Map<string, Monk>()
+        localMonks.forEach(m => { if (m?.id) map.set(m.id, m) })
+        cloudData.forEach(m => { if (m?.id) map.set(m.id, m) })
+
+        const merged = Array.from(map.values())
+        if (merged.length > 0) {
+          setMonks(merged)
+          try { localStorage.setItem('systemmk_custom_monks', JSON.stringify(merged)) } catch {}
+          // Push any local only items to cloud
+          if (localMonks.length > cloudData.length) {
+            syncToCloud('sync_all', 'monks', merged)
+          }
+        }
+      }
     }
+
     loadData()
+    // Periodic auto-sync every 8 seconds to get updates made by other users
+    const timer = setInterval(loadData, 8000)
+    return () => clearInterval(timer)
   }, [])
 
   const displayedMonks = monks.filter(monk => {

@@ -1,8 +1,15 @@
-﻿// Utility for Synchronizing Data between Clients and Central Cloud Server
+﻿// Central Cloud Synchronization Helper with Instant Merging and Multi-Device Polling
 
 export async function fetchCloudCollection(collection: string): Promise<any[] | null> {
   try {
-    const res = await fetch(`/api/cloud-sync?collection=${collection}`, { cache: 'no-store' })
+    const timestamp = Date.now()
+    const res = await fetch(`/api/cloud-sync?collection=${collection}&t=${timestamp}`, { 
+      cache: 'no-store',
+      headers: {
+        'Pragma': 'no-cache',
+        'Cache-Control': 'no-cache'
+      }
+    })
     if (res.ok) {
       const json = await res.json()
       if (json.success && Array.isArray(json.data)) {

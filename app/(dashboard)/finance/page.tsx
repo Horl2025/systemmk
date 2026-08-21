@@ -21,45 +21,64 @@ export default function FinancePage() {
   const [showIncomeModal, setShowIncomeModal] = useState(false)
   const [showExpenseModal, setShowExpenseModal] = useState(false)
 
-  // Load custom finance records from Central Cloud Server & localStorage
+  // Load custom finance records from Central Cloud Server & localStorage with live auto-sync
   const loadData = useCallback(async () => {
-    // 1. Fetch from Cloud
-    const cloudInc = await fetchCloudCollection('incomes')
-    if (cloudInc && cloudInc.length > 0) {
-      setIncomes(cloudInc)
-      try { localStorage.setItem('systemmk_custom_incomes', JSON.stringify(cloudInc)) } catch {}
-    } else {
-      try {
-        const savedIncomes = localStorage.getItem('systemmk_custom_incomes')
-        if (savedIncomes) {
-          const parsed = JSON.parse(savedIncomes)
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setIncomes(parsed)
-            syncToCloud('sync_all', 'incomes', parsed)
-          }
+    let localIncomes: Income[] = []
+    let localExpenses: Expense[] = []
+
+    try {
+      const savedIncomes = localStorage.getItem('systemmk_custom_incomes')
+      if (savedIncomes) {
+        const parsed = JSON.parse(savedIncomes)
+        if (Array.isArray(parsed)) {
+          localIncomes = parsed
+          setIncomes(parsed)
         }
-      } catch {}
+      }
+
+      const savedExpenses = localStorage.getItem('systemmk_custom_expenses')
+      if (savedExpenses) {
+        const parsed = JSON.parse(savedExpenses)
+        if (Array.isArray(parsed)) {
+          localExpenses = parsed
+          setExpenses(parsed)
+        }
+      }
+    } catch {}
+
+    // Fetch from Cloud and merge
+    const cloudInc = await fetchCloudCollection('incomes')
+    if (cloudInc && Array.isArray(cloudInc)) {
+      const map = new Map<string, Income>()
+      localIncomes.forEach(i => { if (i?.id) map.set(i.id, i) })
+      cloudInc.forEach(i => { if (i?.id) map.set(i.id, i) })
+      const merged = Array.from(map.values())
+      setIncomes(merged)
+      try { localStorage.setItem('systemmk_custom_incomes', JSON.stringify(merged)) } catch {}
+      if (localIncomes.length > cloudInc.length) {
+        syncToCloud('sync_all', 'incomes', merged)
+      }
     }
 
     const cloudExp = await fetchCloudCollection('expenses')
-    if (cloudExp && cloudExp.length > 0) {
-      setExpenses(cloudExp)
-      try { localStorage.setItem('systemmk_custom_expenses', JSON.stringify(cloudExp)) } catch {}
-    } else {
-      try {
-        const savedExpenses = localStorage.getItem('systemmk_custom_expenses')
-        if (savedExpenses) {
-          const parsed = JSON.parse(savedExpenses)
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setExpenses(parsed)
-            syncToCloud('sync_all', 'expenses', parsed)
-          }
-        }
-      } catch {}
+    if (cloudExp && Array.isArray(cloudExp)) {
+      const map = new Map<string, Expense>()
+      localExpenses.forEach(e => { if (e?.id) map.set(e.id, e) })
+      cloudExp.forEach(e => { if (e?.id) map.set(e.id, e) })
+      const merged = Array.from(map.values())
+      setExpenses(merged)
+      try { localStorage.setItem('systemmk_custom_expenses', JSON.stringify(merged)) } catch {}
+      if (localExpenses.length > cloudExp.length) {
+        syncToCloud('sync_all', 'expenses', merged)
+      }
     }
   }, [])
 
-  useEffect(() => { loadData() }, [loadData])
+  useEffect(() => { 
+    loadData()
+    const timer = setInterval(loadData, 8000)
+    return () => clearInterval(timer)
+  }, [loadData])
 
   // Filter finance records by selected year
   const yearIncomes = incomes.filter(i => (i.income_date || '').startsWith(selectedYear))
