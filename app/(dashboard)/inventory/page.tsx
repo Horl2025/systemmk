@@ -1,12 +1,13 @@
 'use client'
+import { InventoryItem } from '@/lib/database.types'
 
 export const dynamic = 'force-dynamic'
 
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { InventoryItem } from '@/lib/database.types'
 import { Package, Plus, Edit, Trash2, Search, CheckCircle, AlertTriangle, XCircle, Box, MapPin, Calendar, Tag, ArrowLeft } from 'lucide-react'
+import { fetchCloudCollection, syncToCloud } from '@/lib/cloudSync'
 
 const INITIAL_ITEMS: InventoryItem[] = []
 
@@ -18,37 +19,26 @@ export default function InventoryPage() {
   const [showModal, setShowModal] = useState(false)
 
   const loadData = useCallback(async () => {
-    // 1. Load local custom inventory
+    // 1. Fetch from Central Cloud
+    const cloudItems = await fetchCloudCollection('inventory')
+    if (cloudItems && cloudItems.length > 0) {
+      setItems(cloudItems)
+      try { localStorage.setItem('systemmk_custom_inventory', JSON.stringify(cloudItems)) } catch {}
+      return
+    }
+
+    // 2. Load local custom inventory
     try {
       const saved = localStorage.getItem('systemmk_custom_inventory')
       if (saved) {
         const parsed = JSON.parse(saved)
         if (Array.isArray(parsed) && parsed.length > 0) {
           setItems(parsed)
+          syncToCloud('sync_all', 'inventory', parsed)
         }
       }
     } catch {}
-
-    // 2. Fetch from Supabase
-    if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder-systemmk.supabase.co') {
-      try {
-        let query = supabase.from('inventory').select('*').eq('is_active', true).order('name')
-        if (filterStatus !== 'all') query = query.eq('status', filterStatus)
-        const { data } = await query
-        if (data && data.length > 0) {
-          setItems(prev => {
-            const ids = new Set(prev.map(i => i.id))
-            const newItems = (data as unknown as InventoryItem[]).filter(i => !ids.has(i.id))
-            const merged = [...prev, ...newItems]
-            try { localStorage.setItem('systemmk_custom_inventory', JSON.stringify(merged)) } catch {}
-            return merged
-          })
-        }
-      } catch {
-        // fallback
-      }
-    }
-  }, [filterStatus])
+  }, [])
 
   useEffect(() => { loadData() }, [loadData])
 
@@ -355,12 +345,7 @@ export default function InventoryPage() {
               try { localStorage.setItem('systemmk_custom_inventory', JSON.stringify(updated)) } catch {}
               return updated
             })
-
-            if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder-systemmk.supabase.co') {
-              try {
-                await (supabase.from('inventory') as any).insert([newItem])
-              } catch {}
-            }
+            await syncToCloud('add', 'inventory', newItem)
           }} 
         />
       )}

@@ -13,6 +13,7 @@ import Link from 'next/link'
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell } from 'recharts'
 
 import { useYear } from '@/contexts/YearContext'
+import { fetchCloudCollection } from '@/lib/cloudSync'
 
 const PIE_COLORS = ['#D97706', '#2563EB', '#059669', '#7C3AED', '#DC2626']
 
@@ -82,32 +83,38 @@ export default function DashboardPage() {
     async function loadDashboardStats() {
       try {
         // 1. Monks Data
-        let monksList: any[] = []
-        const savedMonks = localStorage.getItem('systemmk_custom_monks')
-        if (savedMonks) {
-          monksList = JSON.parse(savedMonks)
+        let monksList: any[] = (await fetchCloudCollection('monks')) || []
+        if (monksList.length === 0) {
+          const savedMonks = localStorage.getItem('systemmk_custom_monks')
+          if (savedMonks) monksList = JSON.parse(savedMonks)
         }
 
         // 2. Students Data
-        let studentsList: any[] = []
-        const savedStudents = localStorage.getItem('systemmk_custom_students')
-        if (savedStudents) {
-          studentsList = JSON.parse(savedStudents)
+        let studentsList: any[] = (await fetchCloudCollection('students')) || []
+        if (studentsList.length === 0) {
+          const savedStudents = localStorage.getItem('systemmk_custom_students')
+          if (savedStudents) studentsList = JSON.parse(savedStudents)
         }
 
         // 3. Inventory Data
-        let inventoryList: any[] = []
-        const savedInventory = localStorage.getItem('systemmk_custom_inventory')
-        if (savedInventory) {
-          inventoryList = JSON.parse(savedInventory)
+        let inventoryList: any[] = (await fetchCloudCollection('inventory')) || []
+        if (inventoryList.length === 0) {
+          const savedInventory = localStorage.getItem('systemmk_custom_inventory')
+          if (savedInventory) inventoryList = JSON.parse(savedInventory)
         }
 
         // 4. Finance Data
-        const savedIncomes = localStorage.getItem('systemmk_custom_incomes')
-        const savedExpenses = localStorage.getItem('systemmk_custom_expenses')
+        let incList: any[] = (await fetchCloudCollection('incomes')) || []
+        if (incList.length === 0) {
+          const savedIncomes = localStorage.getItem('systemmk_custom_incomes')
+          if (savedIncomes) incList = JSON.parse(savedIncomes)
+        }
 
-        const incList = savedIncomes ? JSON.parse(savedIncomes) : []
-        const expList = savedExpenses ? JSON.parse(savedExpenses) : []
+        let expList: any[] = (await fetchCloudCollection('expenses')) || []
+        if (expList.length === 0) {
+          const savedExpenses = localStorage.getItem('systemmk_custom_expenses')
+          if (savedExpenses) expList = JSON.parse(savedExpenses)
+        }
 
         const yearIncomes = incList.filter((i: any) => (i.income_date || '').startsWith(selectedYear))
         const yearExpenses = expList.filter((e: any) => (e.expense_date || '').startsWith(selectedYear))

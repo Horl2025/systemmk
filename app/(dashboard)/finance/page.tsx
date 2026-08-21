@@ -8,8 +8,9 @@ import { supabase } from '@/lib/supabase'
 import { useYear } from '@/contexts/YearContext'
 import { Income, Expense } from '@/lib/database.types'
 import { INCOME_TYPE_LABELS, EXPENSE_TYPE_LABELS, formatCurrency, today } from '@/lib/utils'
-import { Plus, DollarSign, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Wallet, Check, Sparkles, ArrowLeft, Calendar } from 'lucide-react'
+import { Plus, DollarSign, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Wallet, Check, Sparkles, ArrowLeft, Calendar, Trash2 } from 'lucide-react'
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts'
+import { fetchCloudCollection, syncToCloud } from '@/lib/cloudSync'
 
 export default function FinancePage() {
   const router = useRouter()
@@ -20,29 +21,40 @@ export default function FinancePage() {
   const [showIncomeModal, setShowIncomeModal] = useState(false)
   const [showExpenseModal, setShowExpenseModal] = useState(false)
 
-  // Load custom finance records from localStorage by year
+  // Load custom finance records from Central Cloud Server & localStorage
   const loadData = useCallback(async () => {
-    try {
-      const savedIncomes = localStorage.getItem('systemmk_custom_incomes')
-      if (savedIncomes) {
-        const parsed = JSON.parse(savedIncomes)
-        if (Array.isArray(parsed)) setIncomes(parsed)
-      }
-
-      const savedExpenses = localStorage.getItem('systemmk_custom_expenses')
-      if (savedExpenses) {
-        const parsed = JSON.parse(savedExpenses)
-        if (Array.isArray(parsed)) setExpenses(parsed)
-      }
-    } catch {}
-
-    if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder-systemmk.supabase.co') {
+    // 1. Fetch from Cloud
+    const cloudInc = await fetchCloudCollection('incomes')
+    if (cloudInc && cloudInc.length > 0) {
+      setIncomes(cloudInc)
+      try { localStorage.setItem('systemmk_custom_incomes', JSON.stringify(cloudInc)) } catch {}
+    } else {
       try {
-        const { data: incData } = await supabase.from('income').select('*').order('income_date', { ascending: false })
-        const { data: expData } = await supabase.from('expenses').select('*').order('expense_date', { ascending: false })
+        const savedIncomes = localStorage.getItem('systemmk_custom_incomes')
+        if (savedIncomes) {
+          const parsed = JSON.parse(savedIncomes)
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setIncomes(parsed)
+            syncToCloud('sync_all', 'incomes', parsed)
+          }
+        }
+      } catch {}
+    }
 
-        if (incData && incData.length > 0) setIncomes(incData as unknown as Income[])
-        if (expData && expData.length > 0) setExpenses(expData as unknown as Expense[])
+    const cloudExp = await fetchCloudCollection('expenses')
+    if (cloudExp && cloudExp.length > 0) {
+      setExpenses(cloudExp)
+      try { localStorage.setItem('systemmk_custom_expenses', JSON.stringify(cloudExp)) } catch {}
+    } else {
+      try {
+        const savedExpenses = localStorage.getItem('systemmk_custom_expenses')
+        if (savedExpenses) {
+          const parsed = JSON.parse(savedExpenses)
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setExpenses(parsed)
+            syncToCloud('sync_all', 'expenses', parsed)
+          }
+        }
       } catch {}
     }
   }, [])
@@ -427,9 +439,7 @@ function IncomeModal({ onClose }: { onClose: () => void }) {
       localStorage.setItem('systemmk_custom_incomes', JSON.stringify(updated))
     } catch {}
 
-    try {
-      await (supabase.from('income') as any).insert({ ...form, amount: Number(form.amount) })
-    } catch {}
+    await syncToCloud('add', 'incomes', newRecord)
 
     setLoading(false)
     onClose()
@@ -522,9 +532,7 @@ function ExpenseModal({ onClose }: { onClose: () => void }) {
       localStorage.setItem('systemmk_custom_expenses', JSON.stringify(updated))
     } catch {}
 
-    try {
-      await (supabase.from('expenses') as any).insert({ ...form, amount: Number(form.amount) })
-    } catch {}
+    await syncToCloud('add', 'expenses', newRecord)
 
     setLoading(false)
     onClose()

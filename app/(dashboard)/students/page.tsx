@@ -1,13 +1,14 @@
 'use client'
+import { Student } from '@/lib/database.types'
 
 export const dynamic = 'force-dynamic'
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { Student } from '@/lib/database.types'
 import { Plus, Search, Edit, Trash2, GraduationCap, Phone, MapPin, Building } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
+import { fetchCloudCollection, syncToCloud } from '@/lib/cloudSync'
 
 const INITIAL_STUDENTS: Student[] = []
 
@@ -18,34 +19,25 @@ export default function StudentsPage() {
 
   useEffect(() => {
     async function loadData() {
-      // 1. Load local custom students
+      // 1. Fetch from Central Cloud
+      const cloudStudents = await fetchCloudCollection('students')
+      if (cloudStudents && cloudStudents.length > 0) {
+        setStudents(cloudStudents)
+        try { localStorage.setItem('systemmk_custom_students', JSON.stringify(cloudStudents)) } catch {}
+        return
+      }
+
+      // 2. Load local custom students
       try {
         const saved = localStorage.getItem('systemmk_custom_students')
         if (saved) {
           const parsed = JSON.parse(saved)
           if (Array.isArray(parsed) && parsed.length > 0) {
             setStudents(parsed)
+            syncToCloud('sync_all', 'students', parsed)
           }
         }
       } catch {}
-
-      // 2. Fetch from Supabase
-      if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder-systemmk.supabase.co') {
-        try {
-          const { data } = await supabase.from('students').select('*').eq('is_active', true).order('khmer_name')
-          if (data && data.length > 0) {
-            setStudents(prev => {
-              const ids = new Set(prev.map(s => s.id))
-              const newItems = (data as unknown as Student[]).filter(s => !ids.has(s.id))
-              const merged = [...prev, ...newItems]
-              try { localStorage.setItem('systemmk_custom_students', JSON.stringify(merged)) } catch {}
-              return merged
-            })
-          }
-        } catch {
-          // fallback
-        }
-      }
     }
     loadData()
   }, [])
@@ -145,12 +137,7 @@ export default function StudentsPage() {
               try { localStorage.setItem('systemmk_custom_students', JSON.stringify(updated)) } catch {}
               return updated
             })
-
-            if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder-systemmk.supabase.co') {
-              try {
-                await (supabase.from('students') as any).insert([newStudent])
-              } catch {}
-            }
+            await syncToCloud('add', 'students', newStudent)
           }} 
         />
       )}

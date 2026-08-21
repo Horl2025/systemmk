@@ -7,7 +7,8 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Monk } from '@/lib/database.types'
 import { MONK_RANK_LABELS, MONK_STATUS_LABELS, formatDate, calculateVassa, calculateAge } from '@/lib/utils'
-import { Plus, Search, Trash2, UserCheck, UserPlus, MapPin, Eye, Upload, Camera, Image as ImageIcon, X, ArrowLeft, AlertTriangle } from 'lucide-react'
+import { Plus, Search, Trash2, Edit, UserCheck, UserPlus, MapPin, Eye, Upload, Camera, Image as ImageIcon, X, ArrowLeft, AlertTriangle } from 'lucide-react'
+import { fetchCloudCollection, syncToCloud } from '@/lib/cloudSync'
 
 const INITIAL_MONKS: Monk[] = []
 
@@ -19,39 +20,32 @@ export default function MonksPage() {
   const [filterRank, setFilterRank] = useState('all')
   const [filterStatus, setFilterStatus] = useState('all')
   const [showAddModal, setShowAddModal] = useState(false)
+  const [editingMonk, setEditingMonk] = useState<Monk | null>(null)
   const [selectedMonk, setSelectedMonk] = useState<Monk | null>(null)
   const [monkToDelete, setMonkToDelete] = useState<Monk | null>(null)
 
   useEffect(() => {
     async function loadData() {
-      // 1. Load local custom monks
+      // 1. Fetch from Central Cloud Server
+      const cloudData = await fetchCloudCollection('monks')
+      if (cloudData && cloudData.length > 0) {
+        setMonks(cloudData)
+        try { localStorage.setItem('systemmk_custom_monks', JSON.stringify(cloudData)) } catch {}
+        return
+      }
+
+      // 2. Fallback to local custom monks
       try {
         const saved = localStorage.getItem('systemmk_custom_monks')
         if (saved) {
           const parsed = JSON.parse(saved)
           if (Array.isArray(parsed) && parsed.length > 0) {
             setMonks(parsed)
+            // Sync local data up to cloud if cloud was empty
+            syncToCloud('sync_all', 'monks', parsed)
           }
         }
       } catch {}
-
-      // 2. Fetch from Supabase if connected
-      if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder-systemmk.supabase.co') {
-        try {
-          const { data } = await supabase.from('monks').select('*').eq('is_active', true)
-          if (data && data.length > 0) {
-            setMonks(prev => {
-              const ids = new Set(prev.map(m => m.id))
-              const newItems = (data as unknown as Monk[]).filter(m => !ids.has(m.id))
-              const merged = [...prev, ...newItems]
-              try { localStorage.setItem('systemmk_custom_monks', JSON.stringify(merged)) } catch {}
-              return merged
-            })
-          }
-        } catch {
-          // fallback
-        }
-      }
     }
     loadData()
   }, [])
@@ -69,11 +63,12 @@ export default function MonksPage() {
     return matchesRank && matchesStatus && matchesSearch
   })
 
-  const confirmDeleteMonk = () => {
+  const confirmDeleteMonk = async () => {
     if (!monkToDelete) return
     const updated = monks.filter(m => m.id !== monkToDelete.id)
     setMonks(updated)
     try { localStorage.setItem('systemmk_custom_monks', JSON.stringify(updated)) } catch {}
+    await syncToCloud('delete', 'monks', null, monkToDelete.id)
     setMonkToDelete(null)
   }
 
@@ -270,6 +265,15 @@ export default function MonksPage() {
                     <span>លម្អិត</span>
                   </button>
                   <button 
+                    className="btn btn-sm hover-lift" 
+                    style={{ background: '#EFF6FF', border: '1.5px solid #BFDBFE', color: '#1D4ED8', fontWeight: 700 }}
+                    onClick={() => setEditingMonk(monk)} 
+                    title="កែប្រែព័ត៌មានព្រះសង្ឃ"
+                  >
+                    <Edit size={14} />
+                    <span>កែប្រែ</span>
+                  </button>
+                  <button 
                     className="btn btn-ghost btn-sm" 
                     style={{ color: 'var(--color-danger)' }} 
                     onClick={() => setMonkToDelete(monk)} 
@@ -379,19 +383,29 @@ export default function MonksPage() {
       {showAddModal && (
         <AddMonkModal 
           onClose={() => setShowAddModal(false)} 
-          onAdd={async (newMonk) => {
+          onSave={async (savedMonk) => {
             setMonks(prev => {
-              const updated = [newMonk, ...prev]
+              const updated = [savedMonk, ...prev]
               try { localStorage.setItem('systemmk_custom_monks', JSON.stringify(updated)) } catch {}
               return updated
             })
+            await syncToCloud('add', 'monks', savedMonk)
+          }} 
+        />
+      )}
 
-            // Also try saving to Supabase if connected
-            if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder-systemmk.supabase.co') {
-              try {
-                await (supabase.from('monks') as any).insert([newMonk])
-              } catch {}
-            }
+      {/* Edit Monk Modal */}
+      {editingMonk && (
+        <AddMonkModal 
+          monkToEdit={editingMonk}
+          onClose={() => setEditingMonk(null)} 
+          onSave={async (savedMonk) => {
+            setMonks(prev => {
+              const updated = prev.map(m => m.id === savedMonk.id ? savedMonk : m)
+              try { localStorage.setItem('systemmk_custom_monks', JSON.stringify(updated)) } catch {}
+              return updated
+            })
+            await syncToCloud('edit', 'monks', savedMonk, savedMonk.id)
           }} 
         />
       )}
@@ -404,27 +418,27 @@ export default function MonksPage() {
   )
 }
 
-function AddMonkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (monk: Monk) => void }) {
+function AddMonkModal({ monkToEdit, onClose, onSave }: { monkToEdit?: Monk | null; onClose: () => void; onSave: (monk: Monk) => void }) {
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
+  const [photoPreview, setPhotoPreview] = useState<string | null>(monkToEdit?.photo_url || null)
   
   const [form, setForm] = useState({
-    khmer_name: '',
-    latin_name: '',
-    dhamma_name: '',
-    rank: 'samanera',
-    status: 'new',
-    date_of_birth: '',
-    date_of_ordination: '',
-    date_of_higher_ordination: '',
-    origin_temple: '',
-    home_village: '',
-    home_commune: '',
-    home_district: '',
-    home_province: '',
-    health_status: 'good',
-    health_notes: '',
-    notes: '',
+    khmer_name: monkToEdit?.khmer_name || '',
+    latin_name: monkToEdit?.latin_name || '',
+    dhamma_name: monkToEdit?.dhamma_name || '',
+    rank: monkToEdit?.rank || 'samanera',
+    status: monkToEdit?.status || 'new',
+    date_of_birth: monkToEdit?.date_of_birth || '',
+    date_of_ordination: monkToEdit?.date_of_ordination || '',
+    date_of_higher_ordination: monkToEdit?.date_of_higher_ordination || '',
+    origin_temple: monkToEdit?.origin_temple || '',
+    home_village: monkToEdit?.home_village || '',
+    home_commune: monkToEdit?.home_commune || '',
+    home_district: monkToEdit?.home_district || '',
+    home_province: monkToEdit?.home_province || '',
+    health_status: monkToEdit?.health_status || 'good',
+    health_notes: monkToEdit?.health_notes || '',
+    notes: monkToEdit?.notes || '',
   })
 
   // Handle Photo File Selection and Local Preview
@@ -441,8 +455,8 @@ function AddMonkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (monk: M
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const newMonk: Monk = {
-      id: Date.now().toString(),
+    const savedMonk: Monk = {
+      id: monkToEdit?.id || Date.now().toString(),
       khmer_name: form.khmer_name,
       latin_name: form.latin_name || null,
       dhamma_name: form.dhamma_name || null,
@@ -458,14 +472,14 @@ function AddMonkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (monk: M
       home_province: form.home_province || null,
       health_status: form.health_status as any,
       health_notes: form.health_notes || null,
-      photo_url: photoPreview || null,
-      room_id: null,
+      photo_url: photoPreview || monkToEdit?.photo_url || null,
+      room_id: monkToEdit?.room_id || null,
       is_active: true,
       notes: form.notes || null,
-      created_at: new Date().toISOString(),
+      created_at: monkToEdit?.created_at || new Date().toISOString(),
       updated_at: new Date().toISOString(),
     }
-    onAdd(newMonk)
+    onSave(savedMonk)
     onClose()
   }
 
@@ -505,10 +519,10 @@ function AddMonkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (monk: M
             </div>
             <div>
               <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#FEF3C7', margin: 0 }}>
-                បន្ថែមព័ត៌មានព្រះសង្ឃ
+                {monkToEdit ? 'កែប្រែព័ត៌មានព្រះសង្ឃ' : 'បន្ថែមព័ត៌មានព្រះសង្ឃ'}
               </h3>
               <p style={{ fontSize: '0.68rem', color: '#CBD5E1', margin: 0, fontFamily: 'var(--font-latin)' }}>
-                Add New Monk Profile
+                {monkToEdit ? 'Edit Monk Profile' : 'Add New Monk Profile'}
               </p>
             </div>
           </div>
@@ -650,7 +664,7 @@ function AddMonkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (monk: M
                 </div>
                 <div className="form-group">
                   <label className="form-label" style={{ fontWeight: 700 }}>ឋានៈ (Rank)</label>
-                  <select className="form-control" value={form.rank} onChange={e => setForm({...form, rank: e.target.value})}>
+                  <select className="form-control" value={form.rank} onChange={e => setForm({...form, rank: e.target.value as any})}>
                     {Object.entries(MONK_RANK_LABELS).map(([k, v]) => (
                       <option key={k} value={k}>{v.kh} / {v.en}</option>
                     ))}
@@ -658,7 +672,7 @@ function AddMonkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (monk: M
                 </div>
                 <div className="form-group">
                   <label className="form-label" style={{ fontWeight: 700 }}>ស្ថានភាព (Status)</label>
-                  <select className="form-control" value={form.status} onChange={e => setForm({...form, status: e.target.value})}>
+                  <select className="form-control" value={form.status} onChange={e => setForm({...form, status: e.target.value as any})}>
                     {Object.entries(MONK_STATUS_LABELS).map(([k, v]) => (
                       <option key={k} value={k}>{v.kh} / {v.en}</option>
                     ))}
@@ -756,7 +770,7 @@ function AddMonkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (monk: M
               <div className="form-grid">
                 <div className="form-group">
                   <label className="form-label" style={{ fontWeight: 700 }}>ស្ថានភាពសុខភាព (Health)</label>
-                  <select className="form-control" value={form.health_status} onChange={e => setForm({...form, health_status: e.target.value})}>
+                  <select className="form-control" value={form.health_status} onChange={e => setForm({...form, health_status: e.target.value as any})}>
                     <option value="good">ល្អធម្មតា (Good)</option>
                     <option value="fair">មធ្យម (Fair)</option>
                     <option value="poor">ខ្សោយ (Poor)</option>
