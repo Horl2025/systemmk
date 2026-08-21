@@ -633,7 +633,7 @@ export default function SettingsPage() {
 
             </div>
 
-            <div style={{ paddingTop: '10px' }}>
+            <div style={{ paddingTop: '14px', display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
               <button 
                 type="submit" 
                 className="hover-lift"
@@ -654,6 +654,58 @@ export default function SettingsPage() {
               >
                 <Save size={18} />
                 <span>{saved ? 'បានរក្សាទុករួចរាល់ ✓' : 'រក្សាទុកការផ្លាស់ប្ដូរ / Save Changes'}</span>
+              </button>
+
+              {/* 🔔 Mobile Push Notification Test Trigger Button */}
+              <button
+                type="button"
+                onClick={async () => {
+                  if ('Notification' in window) {
+                    if (Notification.permission === 'granted') {
+                      if ('serviceWorker' in navigator) {
+                        const reg = await navigator.serviceWorker.ready
+                        reg.showNotification('📢 ដំណឹងវត្តអារាម SystemMK', {
+                          body: 'នេះជាការជូនដំណឹងសាកល្បងលើអេក្រង់ទូរស័ព្ទ! (Test Mobile Push Notification)',
+                          icon: '/app-logo.png',
+                          badge: '/app-logo.png',
+                          vibrate: [200, 100, 200, 100, 200]
+                        } as any)
+                      } else {
+                        new Notification('📢 ដំណឹងវត្តអារាម SystemMK', {
+                          body: 'នេះជាការជូនដំណឹងសាកល្បងលើអេក្រង់ទូរស័ព្ទ! (Test Mobile Push Notification)',
+                          icon: '/app-logo.png',
+                        })
+                      }
+                      alert('បានផ្ញើដំណឹងសាកល្បងទៅអេក្រង់ទូរស័ព្ទរួចរាល់! សូមពិនិត្យរបារ Notification ខាងលើនៃទូរស័ព្ទរបស់អ្នក។')
+                    } else {
+                      const res = await Notification.requestPermission()
+                      if (res === 'granted') {
+                        alert('បានបើកសិទ្ធិជោគជ័យ! សូមចុចប៊ូតុងនេះម្តងទៀតដើម្បីតេស្តដំណឹង។')
+                      } else {
+                        alert('លោកអ្នកបានបិទសិទ្ធិ Notification។ សូមបើកក្នុង Setting ទូរស័ព្ទរបស់អ្នក។')
+                      }
+                    }
+                  } else {
+                    alert('ឧបករណ៍នេះមិនគាំទ្រ Notification ឡើយ។')
+                  }
+                }}
+                className="hover-lift"
+                style={{
+                  background: '#F8FAFC',
+                  color: '#2563EB',
+                  fontWeight: 800,
+                  padding: '12px 20px',
+                  borderRadius: '12px',
+                  border: '1.5px solid #BFDBFE',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: 'pointer',
+                  fontSize: '0.85rem'
+                }}
+              >
+                <Bell size={17} color="#2563EB" />
+                <span>🔔 សាកល្បងផ្ញើដំណឹងទៅទូរស័ព្ទ (Test Push)</span>
               </button>
             </div>
           </form>

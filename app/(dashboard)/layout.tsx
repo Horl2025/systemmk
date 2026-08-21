@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { AuthProvider, useAuth } from '@/contexts/AuthContext'
 import { YearProvider, useYear } from '@/contexts/YearContext'
 import { LanguageProvider, useLanguage } from '@/contexts/LanguageContext'
+import { NotificationPrompt } from '@/components/NotificationPrompt'
 import { signOut } from '@/lib/auth'
 import { USER_ROLE_LABELS } from '@/lib/utils'
 import {
@@ -1273,6 +1274,9 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
 
       {/* 📱 Floating Mobile Bottom Navigation Bar */}
       <MobileBottomNav onOpenQR={() => setShowQRScanner(true)} />
+
+      {/* 🔔 Mobile Push Notification Permission Prompt */}
+      <NotificationPrompt />
 
       {/* 📷 Global Scan QR Modal */}
       {showQRScanner && (
