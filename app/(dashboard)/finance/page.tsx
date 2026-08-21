@@ -366,6 +366,7 @@ export default function FinancePage() {
                   <th style={{ padding: '16px 20px', fontWeight: 800 }}>ចំនួនទឹកប្រាក់ / Amount</th>
                   <th style={{ padding: '16px 20px', fontWeight: 800 }}>កាលបរិច្ឆេទ / Date</th>
                   <th style={{ padding: '16px 20px', fontWeight: 800 }}>សប្បុរសជន / Donor</th>
+                  <th style={{ padding: '16px 20px', fontWeight: 800, textAlign: 'center' }}>សកម្មភាព</th>
                 </tr>
               </thead>
               <tbody>
@@ -382,6 +383,22 @@ export default function FinancePage() {
                     </td>
                     <td className="font-latin" style={{ color: '#64748B', padding: '16px 20px' }}>{inc.income_date}</td>
                     <td style={{ color: '#334155', fontWeight: 600, padding: '16px 20px' }}>{inc.donor_name || '—'}</td>
+                    <td style={{ padding: '16px 20px', textAlign: 'center' }}>
+                      <button 
+                        className="btn btn-ghost btn-sm" 
+                        style={{ color: '#EF4444' }}
+                        title="លុបចំណូលនេះ"
+                        onClick={async () => {
+                          if (!confirm('តើអ្នកពិតជាចង់លុបទិន្នន័យចំណូលនេះមែនទេ?')) return
+                          const updated = incomes.filter(i => i.id !== inc.id)
+                          setIncomes(updated)
+                          try { localStorage.setItem('systemmk_custom_incomes', JSON.stringify(updated)) } catch {}
+                          await syncToCloud('delete', 'incomes', null, inc.id)
+                        }}
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -399,6 +416,7 @@ export default function FinancePage() {
                   <th style={{ padding: '16px 20px', fontWeight: 800 }}>ចំនួនទឹកប្រាក់ / Amount</th>
                   <th style={{ padding: '16px 20px', fontWeight: 800 }}>កាលបរិច្ឆេទ / Date</th>
                   <th style={{ padding: '16px 20px', fontWeight: 800 }}>អ្នកទទួល/ហាង / Vendor</th>
+                  <th style={{ padding: '16px 20px', fontWeight: 800, textAlign: 'center' }}>សកម្មភាព</th>
                 </tr>
               </thead>
               <tbody>
@@ -415,6 +433,22 @@ export default function FinancePage() {
                     </td>
                     <td className="font-latin" style={{ color: '#64748B', padding: '16px 20px' }}>{exp.expense_date}</td>
                     <td style={{ color: '#334155', fontWeight: 600, padding: '16px 20px' }}>{exp.vendor_name || '—'}</td>
+                    <td style={{ padding: '16px 20px', textAlign: 'center' }}>
+                      <button 
+                        className="btn btn-ghost btn-sm" 
+                        style={{ color: '#EF4444' }}
+                        title="លុបចំណាយនេះ"
+                        onClick={async () => {
+                          if (!confirm('តើអ្នកពិតជាចង់លុបទិន្នន័យចំណាយនេះមែនទេ?')) return
+                          const updated = expenses.filter(e => e.id !== exp.id)
+                          setExpenses(updated)
+                          try { localStorage.setItem('systemmk_custom_expenses', JSON.stringify(updated)) } catch {}
+                          await syncToCloud('delete', 'expenses', null, exp.id)
+                        }}
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

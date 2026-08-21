@@ -322,6 +322,7 @@ export default function InventoryPage() {
                 <th style={{ padding: '16px 20px', fontWeight: 800 }}>ទីតាំង / Location</th>
                 <th style={{ padding: '16px 20px', fontWeight: 800 }}>ថ្ងៃទិញ / Date</th>
                 <th style={{ padding: '16px 20px', fontWeight: 800 }}>តម្លៃ / Price</th>
+                <th style={{ padding: '16px 20px', fontWeight: 800, textAlign: 'center' }}>សកម្មភាព</th>
               </tr>
             </thead>
             <tbody>
@@ -352,6 +353,22 @@ export default function InventoryPage() {
                   <td className="font-latin" style={{ color: '#64748B', padding: '16px 20px' }}>{item.purchase_date || '—'}</td>
                   <td className="font-latin font-bold" style={{ color: '#7C3AED', fontSize: '0.95rem', padding: '16px 20px' }}>
                     {item.purchase_price ? item.purchase_price.toLocaleString() + ' ៛' : '—'}
+                  </td>
+                  <td style={{ padding: '16px 20px', textAlign: 'center' }}>
+                    <button 
+                      className="btn btn-ghost btn-sm" 
+                      style={{ color: '#EF4444' }}
+                      title="លុបសម្ភារៈនេះ"
+                      onClick={async () => {
+                        if (!confirm('តើអ្នកពិតជាចង់លុបទិន្នន័យសម្ភារៈនេះមែនទេ?')) return
+                        const updated = items.filter(i => i.id !== item.id)
+                        setItems(updated)
+                        try { localStorage.setItem('systemmk_custom_inventory', JSON.stringify(updated)) } catch {}
+                        await syncToCloud('delete', 'inventory', null, item.id)
+                      }}
+                    >
+                      <Trash2 size={15} />
+                    </button>
                   </td>
                 </tr>
               ))}
