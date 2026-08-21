@@ -13,7 +13,7 @@ import Link from 'next/link'
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell } from 'recharts'
 
 import { useYear } from '@/contexts/YearContext'
-import { fetchCloudCollection } from '@/lib/cloudSync'
+import { fetchCloudCollection, subscribeToRealtimeSync } from '@/lib/cloudSync'
 
 const PIE_COLORS = ['#D97706', '#2563EB', '#059669', '#7C3AED', '#DC2626']
 
@@ -189,8 +189,25 @@ export default function DashboardPage() {
     }
 
     loadDashboardStats()
-    const timer = setInterval(loadDashboardStats, 8000)
-    return () => clearInterval(timer)
+
+    // Instant Real-time broadcast update
+    const unsubscribe = subscribeToRealtimeSync(() => {
+      loadDashboardStats()
+    })
+
+    const handleCustomEvent = () => {
+      loadDashboardStats()
+    }
+    window.addEventListener('systemmk_data_updated', handleCustomEvent)
+
+    // Fast 2.5s auto-poll across devices
+    const timer = setInterval(loadDashboardStats, 2500)
+
+    return () => {
+      unsubscribe()
+      window.removeEventListener('systemmk_data_updated', handleCustomEvent)
+      clearInterval(timer)
+    }
   }, [selectedYear])
 
   return (

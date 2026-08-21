@@ -8,7 +8,7 @@ import { supabase } from '@/lib/supabase'
 import { Monk } from '@/lib/database.types'
 import { MONK_RANK_LABELS, MONK_STATUS_LABELS, formatDate, calculateVassa, calculateAge } from '@/lib/utils'
 import { Plus, Search, Trash2, Edit, UserCheck, UserPlus, MapPin, Eye, Upload, Camera, Image as ImageIcon, X, ArrowLeft, AlertTriangle } from 'lucide-react'
-import { fetchCloudCollection, syncToCloud } from '@/lib/cloudSync'
+import { fetchCloudCollection, syncToCloud, subscribeToRealtimeSync, notifyRealtimeUpdate } from '@/lib/cloudSync'
 
 const INITIAL_MONKS: Monk[] = []
 
@@ -26,7 +26,7 @@ export default function MonksPage() {
 
   useEffect(() => {
     async function loadData() {
-      // 1. First load local custom monks immediately for fast UI
+      // 1. First load local custom monks immediately for 0ms instant UI
       let localMonks: Monk[] = []
       try {
         const saved = localStorage.getItem('systemmk_custom_monks')
@@ -42,7 +42,6 @@ export default function MonksPage() {
       // 2. Fetch fresh Central Cloud Data and merge
       const cloudData = await fetchCloudCollection('monks')
       if (cloudData && Array.isArray(cloudData)) {
-        // Merge cloud items with local items without duplicates
         const map = new Map<string, Monk>()
         localMonks.forEach(m => { if (m?.id) map.set(m.id, m) })
         cloudData.forEach(m => { if (m?.id) map.set(m.id, m) })
@@ -51,7 +50,6 @@ export default function MonksPage() {
         if (merged.length > 0) {
           setMonks(merged)
           try { localStorage.setItem('systemmk_custom_monks', JSON.stringify(merged)) } catch {}
-          // Push any local only items to cloud
           if (localMonks.length > cloudData.length) {
             syncToCloud('sync_all', 'monks', merged)
           }
@@ -60,9 +58,25 @@ export default function MonksPage() {
     }
 
     loadData()
-    // Periodic auto-sync every 8 seconds to get updates made by other users
-    const timer = setInterval(loadData, 8000)
-    return () => clearInterval(timer)
+
+    // 0ms Real-time broadcast listener
+    const unsubscribe = subscribeToRealtimeSync((col) => {
+      if (!col || col === 'monks') loadData()
+    })
+
+    const handleCustomEvent = (e: any) => {
+      if (!e.detail?.collection || e.detail.collection === 'monks') loadData()
+    }
+    window.addEventListener('systemmk_data_updated', handleCustomEvent)
+
+    // Fast 2.5-second live polling across different devices
+    const timer = setInterval(loadData, 2500)
+
+    return () => {
+      unsubscribe()
+      window.removeEventListener('systemmk_data_updated', handleCustomEvent)
+      clearInterval(timer)
+    }
   }, [])
 
   const displayedMonks = monks.filter(monk => {

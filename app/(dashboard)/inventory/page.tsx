@@ -7,7 +7,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Package, Plus, Edit, Trash2, Search, CheckCircle, AlertTriangle, XCircle, Box, MapPin, Calendar, Tag, ArrowLeft } from 'lucide-react'
-import { fetchCloudCollection, syncToCloud } from '@/lib/cloudSync'
+import { fetchCloudCollection, syncToCloud, subscribeToRealtimeSync } from '@/lib/cloudSync'
 
 const INITIAL_ITEMS: InventoryItem[] = []
 
@@ -47,8 +47,23 @@ export default function InventoryPage() {
 
   useEffect(() => { 
     loadData()
-    const timer = setInterval(loadData, 8000)
-    return () => clearInterval(timer)
+
+    const unsubscribe = subscribeToRealtimeSync((col) => {
+      if (!col || col === 'inventory') loadData()
+    })
+
+    const handleCustomEvent = (e: any) => {
+      if (!e.detail?.collection || e.detail.collection === 'inventory') loadData()
+    }
+    window.addEventListener('systemmk_data_updated', handleCustomEvent)
+
+    const timer = setInterval(loadData, 2500)
+
+    return () => {
+      unsubscribe()
+      window.removeEventListener('systemmk_data_updated', handleCustomEvent)
+      clearInterval(timer)
+    }
   }, [loadData])
 
   const filteredItems = items.filter(i => {

@@ -10,7 +10,7 @@ import { Income, Expense } from '@/lib/database.types'
 import { INCOME_TYPE_LABELS, EXPENSE_TYPE_LABELS, formatCurrency, today } from '@/lib/utils'
 import { Plus, DollarSign, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Wallet, Check, Sparkles, ArrowLeft, Calendar, Trash2 } from 'lucide-react'
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts'
-import { fetchCloudCollection, syncToCloud } from '@/lib/cloudSync'
+import { fetchCloudCollection, syncToCloud, subscribeToRealtimeSync } from '@/lib/cloudSync'
 
 export default function FinancePage() {
   const router = useRouter()
@@ -76,8 +76,23 @@ export default function FinancePage() {
 
   useEffect(() => { 
     loadData()
-    const timer = setInterval(loadData, 8000)
-    return () => clearInterval(timer)
+
+    const unsubscribe = subscribeToRealtimeSync((col) => {
+      if (!col || col === 'incomes' || col === 'expenses') loadData()
+    })
+
+    const handleCustomEvent = (e: any) => {
+      if (!e.detail?.collection || e.detail.collection === 'incomes' || e.detail.collection === 'expenses') loadData()
+    }
+    window.addEventListener('systemmk_data_updated', handleCustomEvent)
+
+    const timer = setInterval(loadData, 2500)
+
+    return () => {
+      unsubscribe()
+      window.removeEventListener('systemmk_data_updated', handleCustomEvent)
+      clearInterval(timer)
+    }
   }, [loadData])
 
   // Filter finance records by selected year
