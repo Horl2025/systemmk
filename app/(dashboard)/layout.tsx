@@ -6,13 +6,14 @@ import { useEffect, useState, useRef } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { AuthProvider, useAuth } from '@/contexts/AuthContext'
+import { YearProvider, useYear } from '@/contexts/YearContext'
 import { signOut } from '@/lib/auth'
 import { USER_ROLE_LABELS } from '@/lib/utils'
 import {
   LayoutDashboard, Users, Building2, GraduationCap, CalendarCheck,
   Calendar, DollarSign, Package, BarChart3, MessageSquare,
   Settings, LogOut, ChevronLeft, ChevronRight, Menu, X, Bell, CheckCircle2, Sparkles,
-  QrCode, Home, Search, User, Moon, Sun, Camera, Upload, Image as ImageIcon, Smartphone, Download, Share2
+  QrCode, Home, Search, User, Moon, Sun, Camera, Upload, Image as ImageIcon, Smartphone, Download, Share2, ChevronDown, Plus
 } from 'lucide-react'
 
 const navItems = [
@@ -329,6 +330,37 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
     }
   }, [showNotifications])
 
+  const { selectedYear, setSelectedYear, availableYears, addYear } = useYear()
+  const [showYearDropdown, setShowYearDropdown] = useState(false)
+  const [showAddYearModal, setShowAddYearModal] = useState(false)
+  const [newYearInput, setNewYearInput] = useState('')
+  const yearDropdownRef = useRef<HTMLDivElement>(null)
+
+  // Close year dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (yearDropdownRef.current && !yearDropdownRef.current.contains(event.target as Node)) {
+        setShowYearDropdown(false)
+      }
+    }
+    if (showYearDropdown) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showYearDropdown])
+
+  const handleAddNewYear = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (newYearInput.trim()) {
+      addYear(newYearInput.trim())
+      setNewYearInput('')
+      setShowAddYearModal(false)
+      setShowYearDropdown(false)
+    }
+  }
+
   const currentItem = navItems.find(item =>
     !('section' in item) && (
       pathname === item.href ||
@@ -370,8 +402,121 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
         )}
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5 sm:gap-3">
         
+        {/* 🌟 GLOBAL YEAR SWITCHER DROPDOWN */}
+        <div ref={yearDropdownRef} style={{ position: 'relative' }}>
+          <button
+            type="button"
+            onClick={() => setShowYearDropdown(!showYearDropdown)}
+            className="hover-lift"
+            style={{
+              background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(217, 119, 6, 0.18) 100%)',
+              border: '1.5px solid rgba(245, 158, 11, 0.45)',
+              color: '#B45309',
+              borderRadius: '12px',
+              padding: '6px 12px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontWeight: 800,
+              fontSize: '0.82rem',
+              boxShadow: '0 2px 8px rgba(217, 119, 6, 0.12)'
+            }}
+            title="ជ្រើសរើសឆ្នាំគ្រប់គ្រងទិន្នន័យ (Fiscal / Academic Year)"
+          >
+            <Calendar size={15} color="#D97706" />
+            <span>ឆ្នាំ {selectedYear}</span>
+            <ChevronDown size={14} color="#B45309" style={{ transform: showYearDropdown ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+          </button>
+
+          {/* Dropdown Menu */}
+          {showYearDropdown && (
+            <div
+              className="animate-fadeIn"
+              style={{
+                position: 'absolute',
+                right: 0,
+                top: '42px',
+                width: '210px',
+                background: '#FFFFFF',
+                borderRadius: '16px',
+                border: '1.5px solid #E2E8F0',
+                boxShadow: '0 12px 30px rgba(0,0,0,0.12)',
+                zIndex: 100,
+                overflow: 'hidden',
+                padding: '6px'
+              }}
+            >
+              <div style={{ padding: '8px 10px 6px', borderBottom: '1px solid #F1F5F9' }}>
+                <span style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+                  📅 ជ្រើសរើសឆ្នាំទិន្នន័យ
+                </span>
+              </div>
+
+              <div style={{ maxHeight: '180px', overflowY: 'auto', padding: '4px 0' }}>
+                {availableYears.map(yr => (
+                  <button
+                    key={yr}
+                    onClick={() => {
+                      setSelectedYear(yr)
+                      setShowYearDropdown(false)
+                    }}
+                    style={{
+                      width: '100%',
+                      textAlign: 'left',
+                      padding: '8px 12px',
+                      borderRadius: '10px',
+                      border: 'none',
+                      background: selectedYear === yr ? 'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)' : 'transparent',
+                      color: selectedYear === yr ? '#92400E' : '#334155',
+                      fontWeight: selectedYear === yr ? 800 : 600,
+                      fontSize: '0.82rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: '2px'
+                    }}
+                  >
+                    <span>ឆ្នាំ {yr} {yr === '2026' ? '(បច្ចុប្បន្ន)' : ''}</span>
+                    {selectedYear === yr && <CheckCircle2 size={15} color="#D97706" />}
+                  </button>
+                ))}
+              </div>
+
+              <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: '6px' }}>
+                <button
+                  onClick={() => {
+                    setShowYearDropdown(false)
+                    setShowAddYearModal(true)
+                  }}
+                  className="hover-lift"
+                  style={{
+                    width: '100%',
+                    padding: '8px 10px',
+                    borderRadius: '10px',
+                    border: '1px dashed #CBD5E1',
+                    background: '#F8FAFC',
+                    color: '#2563EB',
+                    fontWeight: 800,
+                    fontSize: '0.76rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <Plus size={14} />
+                  <span>+ បន្ថែមឆ្នាំថ្មី</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* 🌟 NOTIFICATION BELL BUTTON & CONTAINER */}
         <div ref={dropdownRef} style={{ position: 'relative' }}>
           <button
@@ -738,6 +883,92 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
             </div>
           </div>
         )}
+        {/* ➕ Add Custom Year Modal */}
+        {showAddYearModal && (
+          <div 
+            className="animate-fadeIn" 
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(15, 23, 42, 0.75)',
+              backdropFilter: 'blur(8px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1100,
+              padding: '16px'
+            }}
+          >
+            <div 
+              className="hover-lift"
+              style={{
+                width: '100%',
+                maxWidth: '380px',
+                background: '#FFFFFF',
+                borderRadius: '24px',
+                border: '1.5px solid #E2E8F0',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                overflow: 'hidden'
+              }}
+            >
+              <div style={{ background: 'linear-gradient(135deg, #1E293B 0%, #0F172A 100%)', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#FEF3C7', fontWeight: 800, fontSize: '0.92rem' }}>
+                  <Calendar size={18} color="#F59E0B" />
+                  <span>បន្ថែមឆ្នាំគ្រប់គ្រងថ្មី</span>
+                </div>
+                <button 
+                  onClick={() => setShowAddYearModal(false)}
+                  style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: 'none', color: '#CBD5E1', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleAddNewYear} style={{ padding: '20px' }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 800, color: '#334155', marginBottom: '8px' }}>
+                  បញ្ចូលឆ្នាំថ្មី (ឧ. 2028, 2029...) :
+                </label>
+                <input 
+                  type="number" 
+                  min="2000" 
+                  max="2100"
+                  required
+                  autoFocus
+                  value={newYearInput}
+                  onChange={e => setNewYearInput(e.target.value)}
+                  placeholder="ឧ. 2028"
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    borderRadius: '12px',
+                    border: '1.5px solid #CBD5E1',
+                    fontSize: '1rem',
+                    fontWeight: 800,
+                    color: '#0F172A',
+                    outline: 'none',
+                    marginBottom: '16px'
+                  }}
+                />
+
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddYearModal(false)}
+                    style={{ flex: 1, padding: '10px', borderRadius: '12px', border: '1px solid #CBD5E1', background: '#F8FAFC', fontWeight: 700, fontSize: '0.84rem', cursor: 'pointer' }}
+                  >
+                    បោះបង់
+                  </button>
+                  <button
+                    type="submit"
+                    style={{ flex: 1, padding: '10px', borderRadius: '12px', border: 'none', background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)', color: '#1C1917', fontWeight: 800, fontSize: '0.84rem', cursor: 'pointer', boxShadow: '0 4px 12px rgba(217, 119, 6, 0.35)' }}
+                  >
+                    + បង្កើតឆ្នាំ
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </header>
   )
@@ -1038,7 +1269,9 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
-      <DashboardShell>{children}</DashboardShell>
+      <YearProvider>
+        <DashboardShell>{children}</DashboardShell>
+      </YearProvider>
     </AuthProvider>
   )
 }

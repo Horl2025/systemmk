@@ -2,8 +2,9 @@
 
 export const dynamic = 'force-dynamic'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useYear } from '@/contexts/YearContext'
 import { FileText, Download, Table, CheckCircle, BarChart3, Calendar, Sparkles, TrendingUp, Users, DollarSign, Package, ArrowLeft } from 'lucide-react'
 import * as XLSX from 'xlsx'
 import jsPDF from 'jspdf'
@@ -11,10 +12,15 @@ import 'jspdf-autotable'
 
 export default function ReportsPage() {
   const router = useRouter()
+  const { selectedYear, availableYears } = useYear()
   const [reportType, setReportType] = useState('monthly')
-  const [year, setYear] = useState('2026')
+  const [year, setYear] = useState(selectedYear)
   const [month, setMonth] = useState('8')
   const [exporting, setExporting] = useState(false)
+
+  useEffect(() => {
+    setYear(selectedYear)
+  }, [selectedYear])
 
   const handleExportExcel = () => {
     setExporting(true)
@@ -291,9 +297,9 @@ export default function ReportsPage() {
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label" style={{ fontWeight: 800 }}>ឆ្នាំ / Year</label>
             <select className="form-control" style={{ border: '1.5px solid #CBD5E1', borderRadius: '12px', fontWeight: 600 }} value={year} onChange={e => setYear(e.target.value)}>
-              <option value="2026">២០២៦ (2026)</option>
-              <option value="2025">២០២៥ (2025)</option>
-              <option value="2024">២០២៤ (2024)</option>
+              {availableYears.map(yr => (
+                <option key={yr} value={yr}>ឆ្នាំ {yr}</option>
+              ))}
             </select>
           </div>
 

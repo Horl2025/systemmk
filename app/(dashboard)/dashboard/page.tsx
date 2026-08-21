@@ -12,9 +12,12 @@ import {
 import Link from 'next/link'
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell } from 'recharts'
 
+import { useYear } from '@/contexts/YearContext'
+
 const PIE_COLORS = ['#D97706', '#2563EB', '#059669', '#7C3AED', '#DC2626']
 
 export default function DashboardPage() {
+  const { selectedYear } = useYear()
   const [currentDateTime, setCurrentDateTime] = useState({
     khmerDate: '',
     timeStr: '',
@@ -55,7 +58,7 @@ export default function DashboardPage() {
     return () => clearInterval(timer)
   }, [])
 
-  const [stats] = useState({
+  const [stats, setStats] = useState({
     monksCount: 0,
     roomsCount: 0,
     availableRooms: 0,
@@ -68,6 +71,29 @@ export default function DashboardPage() {
     monthlyIncome: 0,
     monthlyExpense: 0,
   })
+
+  // Load and calculate stats filtered by selectedYear
+  useEffect(() => {
+    try {
+      const savedIncomes = localStorage.getItem('systemmk_custom_incomes')
+      const savedExpenses = localStorage.getItem('systemmk_custom_expenses')
+
+      const incList = savedIncomes ? JSON.parse(savedIncomes) : []
+      const expList = savedExpenses ? JSON.parse(savedExpenses) : []
+
+      const yearIncomes = incList.filter((i: any) => (i.income_date || '').startsWith(selectedYear))
+      const yearExpenses = expList.filter((e: any) => (e.expense_date || '').startsWith(selectedYear))
+
+      const totalInc = yearIncomes.reduce((s: number, i: any) => s + Number(i.amount || 0), 0)
+      const totalExp = yearExpenses.reduce((s: number, e: any) => s + Number(e.amount || 0), 0)
+
+      setStats(prev => ({
+        ...prev,
+        monthlyIncome: totalInc,
+        monthlyExpense: totalExp
+      }))
+    } catch {}
+  }, [selectedYear])
 
   const [rankDistribution] = useState<{ name: string; value: number }[]>([])
 

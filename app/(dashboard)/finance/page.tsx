@@ -5,23 +5,37 @@ export const dynamic = 'force-dynamic'
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { useYear } from '@/contexts/YearContext'
 import { Income, Expense } from '@/lib/database.types'
 import { INCOME_TYPE_LABELS, EXPENSE_TYPE_LABELS, formatCurrency, today } from '@/lib/utils'
-import { Plus, DollarSign, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Wallet, Check, Sparkles, ArrowLeft } from 'lucide-react'
+import { Plus, DollarSign, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Wallet, Check, Sparkles, ArrowLeft, Calendar } from 'lucide-react'
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts'
-
-const INITIAL_INCOMES: Income[] = []
-const INITIAL_EXPENSES: Expense[] = []
 
 export default function FinancePage() {
   const router = useRouter()
-  const [incomes, setIncomes] = useState<Income[]>(INITIAL_INCOMES)
-  const [expenses, setExpenses] = useState<Expense[]>(INITIAL_EXPENSES)
+  const { selectedYear } = useYear()
+  const [incomes, setIncomes] = useState<Income[]>([])
+  const [expenses, setExpenses] = useState<Expense[]>([])
   const [tab, setTab] = useState<'overview' | 'income' | 'expense'>('overview')
   const [showIncomeModal, setShowIncomeModal] = useState(false)
   const [showExpenseModal, setShowExpenseModal] = useState(false)
 
+  // Load custom finance records from localStorage by year
   const loadData = useCallback(async () => {
+    try {
+      const savedIncomes = localStorage.getItem('systemmk_custom_incomes')
+      if (savedIncomes) {
+        const parsed = JSON.parse(savedIncomes)
+        if (Array.isArray(parsed)) setIncomes(parsed)
+      }
+
+      const savedExpenses = localStorage.getItem('systemmk_custom_expenses')
+      if (savedExpenses) {
+        const parsed = JSON.parse(savedExpenses)
+        if (Array.isArray(parsed)) setExpenses(parsed)
+      }
+    } catch {}
+
     if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder-systemmk.supabase.co') {
       try {
         const { data: incData } = await supabase.from('income').select('*').order('income_date', { ascending: false })
@@ -29,26 +43,28 @@ export default function FinancePage() {
 
         if (incData && incData.length > 0) setIncomes(incData as unknown as Income[])
         if (expData && expData.length > 0) setExpenses(expData as unknown as Expense[])
-      } catch {
-        // fallback to instant demo state
-      }
+      } catch {}
     }
   }, [])
 
   useEffect(() => { loadData() }, [loadData])
 
-  const totalIncome = incomes.reduce((sum, i) => sum + Number(i.amount), 0)
-  const totalExpense = expenses.reduce((sum, e) => sum + Number(e.amount), 0)
+  // Filter finance records by selected year
+  const yearIncomes = incomes.filter(i => (i.income_date || '').startsWith(selectedYear))
+  const yearExpenses = expenses.filter(e => (e.expense_date || '').startsWith(selectedYear))
+
+  const totalIncome = yearIncomes.reduce((sum, i) => sum + Number(i.amount), 0)
+  const totalExpense = yearExpenses.reduce((sum, e) => sum + Number(e.amount), 0)
   const balance = totalIncome - totalExpense
 
   const incomeByType = Object.entries(INCOME_TYPE_LABELS).map(([key, val]) => ({
     name: val.kh,
-    amount: incomes.filter(i => i.income_type === key).reduce((s, i) => s + Number(i.amount), 0),
+    amount: yearIncomes.filter(i => i.income_type === key).reduce((s, i) => s + Number(i.amount), 0),
   })).filter(x => x.amount > 0)
 
   const expenseByType = Object.entries(EXPENSE_TYPE_LABELS).map(([key, val]) => ({
     name: val.kh,
-    amount: expenses.filter(e => e.expense_type === key).reduce((s, e) => s + Number(e.amount), 0),
+    amount: yearExpenses.filter(e => e.expense_type === key).reduce((s, e) => s + Number(e.amount), 0),
   })).filter(x => x.amount > 0)
 
   return (
@@ -372,13 +388,49 @@ export default function FinancePage() {
 }
 
 function IncomeModal({ onClose }: { onClose: () => void }) {
-  const [form, setForm] = useState({ title: '', income_type: 'offering', amount: '', currency: 'KHR', income_date: today(), donor_name: '', description: '' })
+  const { selectedYear } = useYear()
+  const defaultDate = `${selectedYear}-01-15`
+  const [form, setForm] = useState({ 
+    title: '', 
+    income_type: 'offering', 
+    amount: '', 
+    currency: 'KHR', 
+    income_date: defaultDate, 
+    donor_name: '', 
+    description: '' 
+  })
   const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
-    await (supabase.from('income') as any).insert({ ...form, amount: Number(form.amount) })
+    const newRecord: Income = {
+      id: Date.now().toString(),
+      title: form.title,
+      income_type: form.income_type as any,
+      amount: Number(form.amount),
+      currency: 'KHR',
+      income_date: form.income_date,
+      donor_name: form.donor_name,
+      description: form.description,
+      receipt_url: null,
+      event_id: null,
+      recorded_by: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }
+
+    try {
+      const existing = localStorage.getItem('systemmk_custom_incomes')
+      const parsed = existing ? JSON.parse(existing) : []
+      const updated = [newRecord, ...parsed]
+      localStorage.setItem('systemmk_custom_incomes', JSON.stringify(updated))
+    } catch {}
+
+    try {
+      await (supabase.from('income') as any).insert({ ...form, amount: Number(form.amount) })
+    } catch {}
+
     setLoading(false)
     onClose()
   }
@@ -387,7 +439,7 @@ function IncomeModal({ onClose }: { onClose: () => void }) {
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal modal-md">
         <div className="modal-header">
-          <h3 className="modal-title">បន្ថែមចំណូល / Add Income</h3>
+          <h3 className="modal-title">បន្ថែមចំណូល / Add Income (ឆ្នាំ {selectedYear})</h3>
           <button className="btn btn-ghost" onClick={onClose}>✕</button>
         </div>
         <form onSubmit={handleSubmit}>
@@ -408,9 +460,15 @@ function IncomeModal({ onClose }: { onClose: () => void }) {
                 <input className="form-control" type="number" min="0" value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} required placeholder="3500000" />
               </div>
             </div>
-            <div className="form-group">
-              <label className="form-label">សប្បុរសជន / ម្ចាស់ទាន</label>
-              <input className="form-control" value={form.donor_name} onChange={e => setForm({...form, donor_name: e.target.value})} placeholder="ឧ. ឧបាសក..." />
+            <div className="grid-cols-2 gap-3" style={{ display: 'grid' }}>
+              <div className="form-group">
+                <label className="form-label">កាលបរិច្ឆេទ <span className="required">*</span></label>
+                <input className="form-control" type="date" value={form.income_date} onChange={e => setForm({...form, income_date: e.target.value})} required />
+              </div>
+              <div className="form-group">
+                <label className="form-label">សប្បុរសជន / ម្ចាស់ទាន</label>
+                <input className="form-control" value={form.donor_name} onChange={e => setForm({...form, donor_name: e.target.value})} placeholder="ឧ. ឧបាសក..." />
+              </div>
             </div>
           </div>
           <div className="modal-footer">
@@ -424,13 +482,50 @@ function IncomeModal({ onClose }: { onClose: () => void }) {
 }
 
 function ExpenseModal({ onClose }: { onClose: () => void }) {
-  const [form, setForm] = useState({ title: '', expense_type: 'food', amount: '', currency: 'KHR', expense_date: today(), vendor_name: '', description: '' })
+  const { selectedYear } = useYear()
+  const defaultDate = `${selectedYear}-01-15`
+  const [form, setForm] = useState({ 
+    title: '', 
+    expense_type: 'food', 
+    amount: '', 
+    currency: 'KHR', 
+    expense_date: defaultDate, 
+    vendor_name: '', 
+    description: '' 
+  })
   const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
-    await (supabase.from('expenses') as any).insert({ ...form, amount: Number(form.amount) })
+    const newRecord: Expense = {
+      id: Date.now().toString(),
+      title: form.title,
+      expense_type: form.expense_type as any,
+      amount: Number(form.amount),
+      currency: 'KHR',
+      expense_date: form.expense_date,
+      vendor_name: form.vendor_name,
+      description: form.description,
+      receipt_url: null,
+      event_id: null,
+      kuthi_id: null,
+      recorded_by: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }
+
+    try {
+      const existing = localStorage.getItem('systemmk_custom_expenses')
+      const parsed = existing ? JSON.parse(existing) : []
+      const updated = [newRecord, ...parsed]
+      localStorage.setItem('systemmk_custom_expenses', JSON.stringify(updated))
+    } catch {}
+
+    try {
+      await (supabase.from('expenses') as any).insert({ ...form, amount: Number(form.amount) })
+    } catch {}
+
     setLoading(false)
     onClose()
   }
