@@ -9,6 +9,8 @@ import { Monk } from '@/lib/database.types'
 import { ATTENDANCE_STATUS_LABELS, SESSION_LABELS, today } from '@/lib/utils'
 import { CheckCircle, XCircle, Clock, AlertCircle, Save, Calendar, Check, Users, Sparkles, QrCode, Search, Filter, CheckCheck, Camera, UserCheck, Flame, ArrowLeft } from 'lucide-react'
 
+import { fetchCloudCollection, syncToCloud, subscribeToRealtimeSync, notifyRealtimeUpdate } from '@/lib/cloudSync'
+
 type Session = 'morning' | 'afternoon' | 'evening'
 type Status = 'present' | 'absent' | 'leave' | 'sick'
 
@@ -27,30 +29,76 @@ export default function AttendancePage() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
+  // Load Monks & Attendance Records
   useEffect(() => {
     async function loadData() {
-      if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder-systemmk.supabase.co') {
-        try {
-          const { data: monkData } = await supabase
-            .from('monks')
-            .select('*')
-            .eq('is_active', true)
-            .neq('status', 'left')
-            .order('khmer_name')
-          
-          if (monkData && monkData.length > 0) {
-            setMonks(monkData as unknown as Monk[])
+      // 1. Load monks from Cloud / LocalStorage
+      let localMonks: Monk[] = []
+      try {
+        const saved = localStorage.getItem('systemmk_custom_monks')
+        if (saved) {
+          const parsed = JSON.parse(saved)
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            localMonks = parsed
+            setMonks(parsed)
           }
-        } catch {
-          // fallback
         }
-      }
-    }
-    loadData()
-  }, [])
+      } catch {}
 
-  function handleSave() {
+      const cloudMonks = await fetchCloudCollection('monks')
+      if (cloudMonks && Array.isArray(cloudMonks) && cloudMonks.length > 0) {
+        const map = new Map<string, Monk>()
+        localMonks.forEach(m => { if (m?.id) map.set(m.id, m) })
+        cloudMonks.forEach(m => { if (m?.id) map.set(m.id, m) })
+        const merged = Array.from(map.values())
+        setMonks(merged)
+      }
+
+      // 2. Load attendance for current date & session
+      try {
+        const key = `systemmk_attendance_${date}_${session}`
+        const savedAtt = localStorage.getItem(key)
+        if (savedAtt) {
+          setRecords(JSON.parse(savedAtt))
+        }
+      } catch {}
+    }
+
+    loadData()
+
+    const unsubscribe = subscribeToRealtimeSync((col) => {
+      if (!col || col === 'monks' || col === 'attendance') loadData()
+    })
+
+    const handleCustomEvent = (e: any) => {
+      if (!e.detail?.collection || e.detail.collection === 'monks' || e.detail.collection === 'attendance') loadData()
+    }
+    window.addEventListener('systemmk_data_updated', handleCustomEvent)
+
+    const timer = setInterval(loadData, 3000)
+
+    return () => {
+      unsubscribe()
+      window.removeEventListener('systemmk_data_updated', handleCustomEvent)
+      clearInterval(timer)
+    }
+  }, [date, session])
+
+  async function handleSave() {
     setSaving(true)
+    const key = `systemmk_attendance_${date}_${session}`
+    try {
+      localStorage.setItem(key, JSON.stringify(records))
+    } catch {}
+
+    await syncToCloud('add', 'attendance', {
+      key,
+      date,
+      session,
+      records,
+      updated_at: new Date().toISOString()
+    })
+
     setTimeout(() => {
       setSaving(false)
       setSaved(true)
