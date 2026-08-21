@@ -1,22 +1,31 @@
 ﻿import { NextResponse } from 'next/server'
 import fs from 'fs'
 import path from 'path'
+import os from 'os'
 
-// Persistent File-based storage for Mock Cloud
-// Guarantees that whatever user A inserts will be saved and visible to user B immediately
-const DATA_FILE = path.join(process.cwd(), 'cloud_database.json')
+// Global in-memory cache to ensure speed across serverless invocations
+let memoryStore: any = null
+
+function getFilePath() {
+  // In Vercel serverless environment, use os.tmpdir() for write permissions
+  return path.join(os.tmpdir(), 'systemmk_cloud_database.json')
+}
 
 function getStore() {
+  if (memoryStore) return memoryStore
+
+  const filePath = getFilePath()
   try {
-    if (fs.existsSync(DATA_FILE)) {
-      const content = fs.readFileSync(DATA_FILE, 'utf8')
-      return JSON.parse(content)
+    if (fs.existsSync(filePath)) {
+      const content = fs.readFileSync(filePath, 'utf8')
+      memoryStore = JSON.parse(content)
+      return memoryStore
     }
   } catch (e) {
     console.error('Error reading cloud database file:', e)
   }
 
-  return {
+  memoryStore = {
     monks: [],
     students: [],
     rooms: [],
@@ -26,12 +35,15 @@ function getStore() {
     attendance: {},
     lastUpdated: new Date().toISOString()
   }
+  return memoryStore
 }
 
 function saveStore(store: any) {
   try {
     store.lastUpdated = new Date().toISOString()
-    fs.writeFileSync(DATA_FILE, JSON.stringify(store, null, 2), 'utf8')
+    memoryStore = store
+    const filePath = getFilePath()
+    fs.writeFileSync(filePath, JSON.stringify(store, null, 2), 'utf8')
   } catch (e) {
     console.error('Error writing to cloud database file:', e)
   }
@@ -42,58 +54,69 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const collection = searchParams.get('collection')
 
+  const headers = {
+    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+    'CDN-Cache-Control': 'no-store',
+    'Vercel-CDN-Cache-Control': 'no-store',
+    'Pragma': 'no-cache',
+    'Expires': '0',
+  }
+
   if (collection && collection in store) {
     return NextResponse.json({
       success: true,
       data: store[collection],
       lastUpdated: store.lastUpdated
-    })
+    }, { headers })
   }
 
   return NextResponse.json({
     success: true,
     data: store,
     lastUpdated: store.lastUpdated
-  })
+  }, { headers })
 }
 
 export async function POST(request: Request) {
+  const headers = {
+    'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+  }
+
   try {
     const store = getStore()
     const body = await request.json()
     const { action, collection, data, id } = body
 
     if (!collection || !(collection in store)) {
-      return NextResponse.json({ success: false, error: 'Invalid collection' }, { status: 400 })
+      return NextResponse.json({ success: false, error: 'Invalid collection' }, { status: 400, headers })
     }
 
     const list = (store[collection] as any[]) || []
 
     if (action === 'insert' || action === 'add') {
       if (Array.isArray(data)) {
-        // Merge without duplicates by id
-        const existingIds = new Set(list.map((item: any) => item.id))
-        const newItems = data.filter((item: any) => !existingIds.has(item.id))
-        store[collection] = [...newItems, ...list]
-      } else if (data) {
+        const map = new Map()
+        list.forEach((item: any) => { if (item?.id) map.set(item.id, item) })
+        data.forEach((item: any) => { if (item?.id) map.set(item.id, item) })
+        store[collection] = Array.from(map.values())
+      } else if (data && data.id) {
         const filtered = list.filter((item: any) => item.id !== data.id)
         store[collection] = [data, ...filtered]
       }
     } else if (action === 'update' || action === 'edit') {
       if (id && data) {
-        store[collection] = list.map((item: any) => item.id === id ? { ...item, ...data, updated_at: new Date().toISOString() } : item)
+        store[collection] = list.map(item => item.id === id ? { ...item, ...data, updated_at: new Date().toISOString() } : item)
       }
     } else if (action === 'delete') {
       if (id) {
-        store[collection] = list.filter((item: any) => item.id !== id)
+        store[collection] = list.filter(item => item.id !== id)
       }
     } else if (action === 'sync_all') {
       if (Array.isArray(data)) {
-        // Merge existing cloud items with incoming data
         const map = new Map()
-        // First put cloud items
+        // Put existing cloud data
         list.forEach((item: any) => { if (item && item.id) map.set(item.id, item) })
-        // Then put incoming items (or override)
+        // Merge incoming data
         data.forEach((item: any) => { if (item && item.id) map.set(item.id, item) })
         store[collection] = Array.from(map.values())
       }
@@ -106,8 +129,8 @@ export async function POST(request: Request) {
       message: 'Cloud synchronized successfully',
       data: store[collection],
       lastUpdated: store.lastUpdated
-    })
+    }, { headers })
   } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 })
+    return NextResponse.json({ success: false, error: err.message }, { status: 500, headers })
   }
 }
