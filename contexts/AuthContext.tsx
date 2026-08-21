@@ -112,8 +112,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (session) {
         loadUser()
       } else {
-        setUser(null)
-        setLoading(false)
+        // If Supabase session is null, check if we have a valid custom local session
+        try {
+          const savedUser = localStorage.getItem('systemmk_current_user')
+          if (savedUser) {
+            const parsed = JSON.parse(savedUser)
+            if (parsed && parsed.role) {
+              setUser(parsed)
+              setLoading(false)
+              return
+            }
+          }
+        } catch {}
+        
+        // If neither Supabase nor localStorage exists, only then set to null
+        loadUser()
       }
     })
 
