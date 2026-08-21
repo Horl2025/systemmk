@@ -22,9 +22,27 @@ const AuthContext = createContext<AuthContextType>({
 })
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<Profile | null>(null)
+  const [user, setUser] = useState<Profile | null>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedUser = localStorage.getItem('systemmk_current_user')
+        if (savedUser) {
+          const parsed = JSON.parse(savedUser)
+          if (parsed && parsed.role) return parsed
+        }
+      } catch {}
+    }
+    return null
+  })
   const [loading, setLoading] = useState(true)
-  const [customAvatar, setCustomAvatarState] = useState<string | null>(null)
+  const [customAvatar, setCustomAvatarState] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        return localStorage.getItem('systemmk_user_avatar')
+      } catch {}
+    }
+    return null
+  })
 
   // Load custom user profile avatar from localStorage
   useEffect(() => {
