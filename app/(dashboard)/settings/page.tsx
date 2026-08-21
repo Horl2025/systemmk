@@ -33,6 +33,7 @@ export default function SettingsPage() {
   const [usersList, setUsersList] = useState(INITIAL_USERS)
   const [showAddModal, setShowAddModal] = useState(false)
   const [selectedUserForQR, setSelectedUserForQR] = useState<any | null>(null)
+  const [selectedUserForEdit, setSelectedUserForEdit] = useState<any | null>(null)
 
   // Current Role: Defaults to 'chief_monk' for root admin, or actual user.role
   const currentRole: UserRole = (user?.role as UserRole) || 'chief_monk'
@@ -147,6 +148,24 @@ export default function SettingsPage() {
       const updated = [newUser, ...prev]
       try {
         localStorage.setItem('systemmk_custom_users', JSON.stringify(updated))
+      } catch {}
+      return updated
+    })
+  }
+
+  const handleUpdateUser = (updatedUser: any) => {
+    setUsersList(prev => {
+      const updated = prev.map(u => u.id === updatedUser.id ? { ...u, ...updatedUser } : u)
+      try {
+        localStorage.setItem('systemmk_custom_users', JSON.stringify(updated))
+        // If updating the active logged in user, sync session
+        const currentActive = localStorage.getItem('systemmk_current_user')
+        if (currentActive) {
+          const parsed = JSON.parse(currentActive)
+          if (parsed.id === updatedUser.id) {
+            localStorage.setItem('systemmk_current_user', JSON.stringify({ ...parsed, ...updatedUser }))
+          }
+        }
       } catch {}
       return updated
     })
@@ -872,14 +891,26 @@ export default function SettingsPage() {
                             <span>កែឈ្មោះ</span>
                           </button>
                         ) : (
-                          <button 
-                            onClick={() => handleDeleteUser(u.id)}
-                            className="hover-lift" 
-                            style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer' }}
-                            title="លុបគណនីនេះ"
-                          >
-                            <Trash2 size={14} />
-                          </button>
+                          <>
+                            <button 
+                              onClick={() => setSelectedUserForEdit(u)}
+                              className="hover-lift" 
+                              style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#1D4ED8', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.72rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                              title="កែប្រែសិទ្ធិ និងព័ត៌មានគណនីនេះ"
+                            >
+                              <Edit3 size={13} />
+                              <span>កែសិទ្ធិ</span>
+                            </button>
+
+                            <button 
+                              onClick={() => handleDeleteUser(u.id)}
+                              className="hover-lift" 
+                              style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer' }}
+                              title="លុបគណនីនេះ"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </>
                         )}
                       </div>
                     </td>
@@ -1069,6 +1100,15 @@ export default function SettingsPage() {
         <UserLoginQRModal 
           user={selectedUserForQR} 
           onClose={() => setSelectedUserForQR(null)} 
+        />
+      )}
+
+      {/* Modal: Edit User Permissions & Details */}
+      {selectedUserForEdit && (
+        <EditUserModal 
+          user={selectedUserForEdit}
+          onClose={() => setSelectedUserForEdit(null)} 
+          onUpdate={handleUpdateUser} 
         />
       )}
 
@@ -1427,6 +1467,175 @@ function AddUserModal({ onClose, onAdd }: { onClose: () => void; onAdd: (user: a
               }}
             >
               {loading ? 'កំពុងបង្កើត...' : 'បង្កើតគណនី / Create'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+function EditUserModal({ user, onClose, onUpdate }: { user: any; onClose: () => void; onUpdate: (user: any) => void }) {
+  const [form, setForm] = useState({
+    id: user.id,
+    full_name: user.full_name || '',
+    email: user.email || '',
+    phone: user.phone || '',
+    role: (user.role || 'recorder') as UserRole,
+    password: '',
+  })
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+
+    const updated = {
+      ...user,
+      full_name: form.full_name,
+      display_name: form.full_name.split(' ').pop() || form.full_name,
+      email: form.email,
+      phone: form.phone || null,
+      role: form.role,
+      updated_at: new Date().toISOString().split('T')[0],
+      ...(form.password ? { password: form.password } : {})
+    }
+
+    onUpdate(updated)
+    setLoading(false)
+    onClose()
+  }
+
+  return (
+    <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div 
+        className="modal modal-md animate-scaleUp"
+        style={{
+          borderRadius: '24px',
+          overflow: 'hidden',
+          boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.35)',
+          maxWidth: '500px',
+          width: '100%',
+          margin: '0 auto',
+          background: '#FFFFFF'
+        }}
+      >
+        <div 
+          style={{ 
+            background: 'linear-gradient(135deg, #1E1B18 0%, #2D2013 100%)', 
+            padding: '16px 20px', 
+            color: '#FFFFFF',
+            borderBottom: '2px solid rgba(245, 158, 11, 0.3)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#FEF3C7', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Edit3 size={18} color="#F59E0B" />
+            <span>កែប្រែសិទ្ធិ និងព័ត៌មានគណនី (Edit User)</span>
+          </h3>
+          <button 
+            type="button"
+            onClick={onClose}
+            style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: 'none', color: '#CBD5E1', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            ✕
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <div className="modal-body space-y-2" style={{ padding: '16px 20px', background: '#F8FAFC', maxHeight: '52vh', overflowY: 'auto' }}>
+            <div className="form-group" style={{ marginBottom: '8px' }}>
+              <label className="form-label" style={{ fontSize: '0.74rem', fontWeight: 700 }}>ឈ្មោះពេញ (Full Name) <span className="required">*</span></label>
+              <input 
+                className="form-control" 
+                value={form.full_name} 
+                onChange={e => setForm({...form, full_name: e.target.value})} 
+                required 
+                style={{ padding: '8px 12px' }}
+              />
+            </div>
+
+            <div className="grid-cols-2 gap-2" style={{ display: 'grid', marginBottom: '8px' }}>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" style={{ fontSize: '0.74rem', fontWeight: 700 }}>អ៊ីមែល (Email) <span className="required">*</span></label>
+                <input 
+                  type="email"
+                  className="form-control" 
+                  value={form.email} 
+                  onChange={e => setForm({...form, email: e.target.value})} 
+                  required 
+                  style={{ padding: '8px 12px' }}
+                />
+              </div>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" style={{ fontSize: '0.74rem', fontWeight: 700 }}>លេខទូរស័ព្ទ</label>
+                <input 
+                  type="tel"
+                  className="form-control" 
+                  value={form.phone} 
+                  onChange={e => setForm({...form, phone: e.target.value})} 
+                  placeholder="012 345 678" 
+                  style={{ padding: '8px 12px' }}
+                />
+              </div>
+            </div>
+
+            <div className="grid-cols-2 gap-2" style={{ display: 'grid', marginBottom: '8px' }}>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" style={{ fontSize: '0.74rem', fontWeight: 700 }}>តួនាទី / សិទ្ធិប្រើប្រាស់ (Role) <span className="required">*</span></label>
+                <select 
+                  className="form-control" 
+                  value={form.role} 
+                  onChange={e => setForm({...form, role: e.target.value as UserRole})}
+                  style={{ padding: '8px 12px', fontSize: '0.78rem', fontWeight: 700, color: '#1D4ED8', background: '#EFF6FF', border: '1.5px solid #BFDBFE' }}
+                >
+                  <option value="admin">អ្នកគ្រប់គ្រងទូទៅ / General Admin</option>
+                  <option value="recorder">អ្នកកត់ត្រា / Recorder</option>
+                  <option value="acharya">អាចារ្យវត្ត / Acharya</option>
+                  <option value="committee">គណៈកម្មការវត្ត / Pagoda Committee</option>
+                  <option value="devotee">ពុទ្ធបរិស័ទ / Devotee</option>
+                  <option value="student">សិស្សវត្ត / Student</option>
+                  <option value="guest">ភ្ញៀវទូទៅ / Guest</option>
+                </select>
+              </div>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" style={{ fontSize: '0.74rem', fontWeight: 700 }}>លេខសម្ងាត់ថ្មី (ទុកទទេបើមិនប្ដូរ)</label>
+                <input 
+                  type="password"
+                  className="form-control" 
+                  value={form.password} 
+                  onChange={e => setForm({...form, password: e.target.value})} 
+                  placeholder="••••••••" 
+                  style={{ padding: '8px 12px' }}
+                />
+              </div>
+            </div>
+
+            <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', padding: '10px 14px', borderRadius: '12px', fontSize: '0.74rem', color: '#1E40AF' }}>
+              🛡️ <strong>សិទ្ធិដែលបានកំណត់៖</strong> {USER_ROLE_LABELS[form.role]?.kh || form.role} — {form.role === 'admin' ? 'មានសិទ្ធិគ្រប់គ្រងទូទៅ ហិរញ្ញវត្ថុ ព្រះសង្ឃ និងកត់វត្តមាន' : form.role === 'recorder' ? 'មានសិទ្ធិកត់វត្តមាន កាលវិភាគ និងគ្រប់គ្រងទិន្នន័យព្រះសង្ឃ (លាក់ហិរញ្ញវត្ថុ)' : 'មានសិទ្ធិមើលព័ត៌មានទូទៅ វត្តមាន កាលវិភាគ និង Chat (លាក់ហិរញ្ញវត្ថុ & សម្ភារៈ)'}
+            </div>
+          </div>
+
+          <div className="modal-footer" style={{ padding: '12px 20px', background: '#FFFFFF', borderTop: '1.5px solid #E2E8F0', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+            <button type="button" className="btn btn-secondary" onClick={onClose} style={{ padding: '7px 16px', borderRadius: '10px', fontWeight: 800, fontSize: '0.8rem' }}>បោះបង់</button>
+            <button 
+              type="submit" 
+              className="btn btn-primary hover-lift" 
+              disabled={loading}
+              style={{
+                background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
+                border: 'none',
+                color: '#FFFFFF',
+                padding: '7px 20px',
+                borderRadius: '10px',
+                fontWeight: 800,
+                fontSize: '0.82rem',
+                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.35)'
+              }}
+            >
+              {loading ? 'កំពុងរក្សាទុក...' : 'រក្សាទុកសិទ្ធិថ្មី / Save'}
             </button>
           </div>
         </form>
