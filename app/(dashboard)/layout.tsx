@@ -123,14 +123,17 @@ function Sidebar({
         {/* Navigation - Filtered by User Role */}
         <nav className="sidebar-nav">
           {(() => {
-            const currentRole = user?.role || 'chief_monk'
+            const currentRole = user?.role || (loading ? 'chief_monk' : 'guest')
             
             // 🛡️ Strict RBAC Matrix per Role:
             // - chief_monk: All Modules
             // - admin: All Modules
             // - recorder (អ្នកកត់ត្រា): Attendance, Schedule, Monks (view/edit), Students, Chat, Settings (Edit Profile only) -> HIDE Finance, Inventory, Reports
-            // - student (សិស្សវត្ត): Attendance, Schedule, Chat, Settings (Edit Profile only) -> HIDE Monks, Finance, Inventory, Reports, Rooms
-            // - guest (ភ្ញៀវ): Attendance, Schedule, Chat, Settings (Edit Profile only)
+            // - acharya (អាចារ្យវត្ត): Attendance, Schedule, Chat, Settings (Edit Profile only) -> HIDE Monks, Rooms, Finance, Inventory, Reports
+            // - committee (គណៈកម្មការវត្ត): Attendance, Schedule, Chat, Settings (Edit Profile only) -> HIDE Monks, Rooms, Finance, Inventory, Reports
+            // - devotee (ពុទ្ធបរិស័ទ): Attendance, Schedule, Chat, Settings (Edit Profile only) -> HIDE Monks, Rooms, Finance, Inventory, Reports
+            // - student (សិស្សវត្ត): Attendance, Schedule, Chat, Settings (Edit Profile only) -> HIDE Monks, Rooms, Finance, Inventory, Reports
+            // - guest (ភ្ញៀវ): Attendance, Schedule, Chat, Settings (Edit Profile only) -> HIDE Monks, Rooms, Finance, Inventory, Reports
             
             const allowedHrefs: Record<string, string[]> = {
               chief_monk: ['/dashboard', '/monks', '/rooms', '/students', '/attendance', '/schedule', '/finance', '/inventory', '/reports', '/chat', '/settings'],
@@ -143,7 +146,7 @@ function Sidebar({
               guest: ['/dashboard', '/attendance', '/schedule', '/chat', '/settings'],
             }
 
-            const accessibleHrefs = allowedHrefs[currentRole] || allowedHrefs.recorder
+            const accessibleHrefs = allowedHrefs[currentRole] || allowedHrefs.guest
 
             const filteredNav = navItems.filter((item, idx, arr) => {
               if ('section' in item) {

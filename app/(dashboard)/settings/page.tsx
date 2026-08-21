@@ -27,7 +27,7 @@ const INITIAL_USERS: (Profile & { created_by_label?: string })[] = [
 ]
 
 export default function SettingsPage() {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const [activeTab, setActiveTab] = useState<'profile' | 'users' | 'roles' | 'system'>('profile')
   const [saved, setSaved] = useState(false)
   const [usersList, setUsersList] = useState(INITIAL_USERS)
@@ -35,14 +35,14 @@ export default function SettingsPage() {
   const [selectedUserForQR, setSelectedUserForQR] = useState<any | null>(null)
   const [selectedUserForEdit, setSelectedUserForEdit] = useState<any | null>(null)
 
-  // Current Role: Defaults to 'chief_monk' for root admin, or actual user.role
-  const currentRole: UserRole = (user?.role as UserRole) || 'chief_monk'
+  // Current Role: Strictly checks user.role
+  const currentRole: UserRole = (user?.role as UserRole) || 'guest'
 
   // Permission Checks:
-  // 1. Only Chief Monk (ព្រះមេកុដិ) and high Admin have access to User Management
-  const canViewUsers = currentRole === 'chief_monk'
+  // 1. Only Chief Monk (ព្រះមេកុដិ / Root Admin) has access to User Management and System Config
+  const canViewUsers = !authLoading && currentRole === 'chief_monk'
   // 2. Only Chief Monk has access to Role Permissions and Cloud Backup
-  const canViewSystemAndRoles = currentRole === 'chief_monk'
+  const canViewSystemAndRoles = !authLoading && currentRole === 'chief_monk'
 
   // If a restricted user lands on an unauthorized tab, force tab back to 'profile'
   useEffect(() => {
