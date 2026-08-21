@@ -437,13 +437,13 @@ function AddMonkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (monk: M
   }
 
   return (
-    <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
+    <div className="modal-overlay" style={{ zIndex: 999999 }} onClick={e => e.target === e.currentTarget && onClose()}>
       <div 
         className="modal modal-lg" 
         style={{ 
           maxWidth: '800px', 
           width: '100%', 
-          maxHeight: '88vh', 
+          maxHeight: 'min(82vh, 720px)', 
           display: 'flex', 
           flexDirection: 'column', 
           borderRadius: '24px', 

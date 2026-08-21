@@ -875,7 +875,13 @@ body {
 
 @media (max-width: 768px) {
   .modal-overlay {
-    padding: 12px 10px 24px 10px !important;
+    padding: 10px 10px 85px 10px !important;
+    align-items: center !important;
+  }
+  
+  .modal {
+    max-height: 78vh !important;
+    border-radius: 20px !important;
   }
 }
 
