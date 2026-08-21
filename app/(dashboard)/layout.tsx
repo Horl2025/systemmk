@@ -120,44 +120,78 @@ function Sidebar({
           )}
         </div>
 
-        {/* Navigation */}
+        {/* Navigation - Filtered by User Role */}
         <nav className="sidebar-nav">
-          {navItems.map((item, i) => {
-            if ('section' in item) {
-              return <div key={i} className="sidebar-section-label">{item.section}</div>
+          {(() => {
+            const currentRole = user?.role || 'chief_monk'
+            
+            // 🛡️ Strict RBAC Matrix per Role:
+            // - chief_monk: All Modules
+            // - admin: All Modules
+            // - recorder (អ្នកកត់ត្រា): Attendance, Schedule, Monks (view/edit), Students, Chat, Settings (Edit Profile only) -> HIDE Finance, Inventory, Reports
+            // - student (សិស្សវត្ត): Attendance, Schedule, Chat, Settings (Edit Profile only) -> HIDE Monks, Finance, Inventory, Reports, Rooms
+            // - guest (ភ្ញៀវ): Attendance, Schedule, Chat, Settings (Edit Profile only)
+            
+            const allowedHrefs: Record<string, string[]> = {
+              chief_monk: ['/dashboard', '/monks', '/rooms', '/students', '/attendance', '/schedule', '/finance', '/inventory', '/reports', '/chat', '/settings'],
+              admin: ['/dashboard', '/monks', '/rooms', '/students', '/attendance', '/schedule', '/finance', '/inventory', '/reports', '/chat', '/settings'],
+              recorder: ['/dashboard', '/monks', '/students', '/attendance', '/schedule', '/chat', '/settings'],
+              student: ['/dashboard', '/attendance', '/schedule', '/chat', '/settings'],
+              guest: ['/dashboard', '/attendance', '/schedule', '/chat', '/settings'],
             }
-            const Icon = item.icon
-            const isActive = pathname === item.href ||
-              (item.href !== '/dashboard' && pathname?.startsWith(item.href))
-            const keyMap: Record<string, string> = {
-              '/dashboard': 'dashboard',
-              '/monks': 'monks',
-              '/rooms': 'rooms',
-              '/students': 'students',
-              '/attendance': 'attendance',
-              '/schedule': 'schedule',
-              '/finance': 'finance',
-              '/inventory': 'inventory',
-              '/reports': 'reports',
-              '/chat': 'chat',
-              '/settings': 'settings',
-            }
-            const translatedLabel = t(keyMap[item.href] || '', item.label)
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={onMobileClose}
-                className={`nav-item ${isActive ? 'nav-item--active' : ''}`}
-                title={collapsed ? `${translatedLabel} / ${item.labelEn}` : ''}
-              >
-                <span className="nav-item-icon">
-                  <Icon size={18} />
-                </span>
-                <span>{translatedLabel}</span>
-              </Link>
-            )
-          })}
+
+            const accessibleHrefs = allowedHrefs[currentRole] || allowedHrefs.recorder
+
+            const filteredNav = navItems.filter((item, idx, arr) => {
+              if ('section' in item) {
+                // Check if any following item belongs to this section until next section
+                const subsequentItems = []
+                for (let j = idx + 1; j < arr.length; j++) {
+                  if ('section' in arr[j]) break
+                  subsequentItems.push(arr[j])
+                }
+                return subsequentItems.some(sub => !('section' in sub) && accessibleHrefs.includes(sub.href))
+              }
+              return accessibleHrefs.includes(item.href)
+            })
+
+            return filteredNav.map((item, i) => {
+              if ('section' in item) {
+                return <div key={i} className="sidebar-section-label">{item.section}</div>
+              }
+              const Icon = item.icon
+              const isActive = pathname === item.href ||
+                (item.href !== '/dashboard' && pathname?.startsWith(item.href))
+              const keyMap: Record<string, string> = {
+                '/dashboard': 'dashboard',
+                '/monks': 'monks',
+                '/rooms': 'rooms',
+                '/students': 'students',
+                '/attendance': 'attendance',
+                '/schedule': 'schedule',
+                '/finance': 'finance',
+                '/inventory': 'inventory',
+                '/reports': 'reports',
+                '/chat': 'chat',
+                '/settings': 'settings',
+              }
+              const translatedLabel = t(keyMap[item.href] || '', item.label)
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={onMobileClose}
+                  className={`nav-item ${isActive ? 'nav-item--active' : ''}`}
+                  title={collapsed ? `${translatedLabel} / ${item.labelEn}` : ''}
+                >
+                  <span className="nav-item-icon">
+                    <Icon size={18} />
+                  </span>
+                  <span>{translatedLabel}</span>
+                </Link>
+              )
+            })
+          })()}
         </nav>
 
         {/* Footer / User Profile & Explicit Logout Button */}
@@ -993,14 +1027,18 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
 
 function MobileBottomNav({ onOpenQR }: { onOpenQR: () => void }) {
   const pathname = usePathname()
+  const { user } = useAuth()
+  const currentRole = user?.role || 'chief_monk'
 
-  const tabs = [
-    { label: 'ទំព័រដើម', icon: Home, href: '/dashboard' },
-    { label: 'ព្រះសង្ឃ', icon: Users, href: '/monks' },
-    { label: 'ស្កេន QR', icon: QrCode, isAction: true },
-    { label: 'វត្តមាន', icon: CalendarCheck, href: '/attendance' },
-    { label: 'ការកំណត់', icon: Settings, href: '/settings' },
+  const allTabs = [
+    { label: 'ទំព័រដើម', icon: Home, href: '/dashboard', roles: ['chief_monk', 'admin', 'recorder', 'student', 'guest'] },
+    { label: 'ព្រះសង្ឃ', icon: Users, href: '/monks', roles: ['chief_monk', 'admin', 'recorder'] },
+    { label: 'ស្កេន QR', icon: QrCode, isAction: true, roles: ['chief_monk', 'admin', 'recorder', 'student', 'guest'] },
+    { label: 'វត្តមាន', icon: CalendarCheck, href: '/attendance', roles: ['chief_monk', 'admin', 'recorder', 'student', 'guest'] },
+    { label: 'ការកំណត់', icon: Settings, href: '/settings', roles: ['chief_monk', 'admin', 'recorder', 'student', 'guest'] },
   ]
+
+  const tabs = allTabs.filter(t => t.roles.includes(currentRole))
 
   return (
     <nav className="mobile-bottom-nav">
