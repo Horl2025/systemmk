@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Monk } from '@/lib/database.types'
 import { MONK_RANK_LABELS, MONK_STATUS_LABELS, formatDate, calculateVassa, calculateAge } from '@/lib/utils'
-import { Plus, Search, Trash2, UserCheck, MapPin, Eye, Upload, Camera, Image as ImageIcon, X, ArrowLeft, AlertTriangle } from 'lucide-react'
+import { Plus, Search, Trash2, UserCheck, UserPlus, MapPin, Eye, Upload, Camera, Image as ImageIcon, X, ArrowLeft, AlertTriangle } from 'lucide-react'
 
 const INITIAL_MONKS: Monk[] = []
 
@@ -441,39 +441,48 @@ function AddMonkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (monk: M
       <div 
         className="modal modal-lg" 
         style={{ 
-          maxWidth: '840px', 
+          maxWidth: '800px', 
           width: '100%', 
-          maxHeight: '90vh', 
-          height: '90vh', 
+          maxHeight: '88vh', 
           display: 'flex', 
           flexDirection: 'column', 
           borderRadius: '24px', 
           overflow: 'hidden',
-          boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.45)',
-          background: '#FFFFFF'
+          boxShadow: '0 25px 60px -12px rgba(15, 23, 42, 0.45)',
+          background: '#FFFFFF',
+          margin: 'auto'
         }}
       >
         {/* Sticky Modal Header */}
         <div 
-          className="modal-header"
           style={{
-            padding: '16px 24px',
+            padding: '16px 22px',
             borderBottom: '1.5px solid #E2E8F0',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            background: '#FFFFFF',
+            background: 'linear-gradient(135deg, #1E1B18 0%, #2D2013 100%)',
+            color: '#FFFFFF',
             flexShrink: 0
           }}
         >
-          <h3 className="modal-title" style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>
-            បន្ថែមព័ត៌មានព្រះសង្ឃ / Add Monk
-          </h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: 'linear-gradient(135deg, #FDE68A 0%, #F59E0B 100%)', color: '#78350F', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <UserPlus size={18} />
+            </div>
+            <div>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#FEF3C7', margin: 0 }}>
+                បន្ថែមព័ត៌មានព្រះសង្ឃ
+              </h3>
+              <p style={{ fontSize: '0.68rem', color: '#CBD5E1', margin: 0, fontFamily: 'var(--font-latin)' }}>
+                Add New Monk Profile
+              </p>
+            </div>
+          </div>
           <button 
             type="button"
-            className="btn btn-ghost" 
             onClick={onClose}
-            style={{ width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem' }}
+            style={{ width: '30px', height: '30px', borderRadius: '50%', background: 'rgba(255,255,255,0.12)', border: 'none', color: '#CBD5E1', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem' }}
           >
             ✕
           </button>
@@ -484,22 +493,23 @@ function AddMonkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (monk: M
           <div 
             className="modal-body space-y-4" 
             style={{ 
-              padding: '20px 24px', 
-              overflowY: 'scroll', 
+              padding: '18px 22px', 
+              overflowY: 'auto', 
               WebkitOverflowScrolling: 'touch',
-              flex: '1 1 0%',
-              background: '#FAFAFA'
+              flex: 1,
+              background: '#F8FAFC'
             }}
           >
             
             {/* 🌟 1. PHOTO UPLOAD SECTION */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '18px', padding: '16px', background: '#FFFFFF', borderRadius: '18px', border: '1.5px dashed #CBD5E1' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '14px', background: '#FFFFFF', borderRadius: '16px', border: '1.5px dashed #CBD5E1', boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
               <div 
                 onClick={() => fileInputRef.current?.click()}
+                className="hover-lift"
                 style={{ 
-                  width: '84px', 
-                  height: '84px', 
-                  borderRadius: '20px', 
+                  width: '76px', 
+                  height: '76px', 
+                  borderRadius: '18px', 
                   background: photoPreview ? '#FFFFFF' : 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)', 
                   border: '2px solid #F59E0B', 
                   display: 'flex', 
@@ -509,7 +519,7 @@ function AddMonkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (monk: M
                   cursor: 'pointer',
                   overflow: 'hidden',
                   position: 'relative',
-                  boxShadow: '0 4px 12px rgba(245,158,11,0.2)',
+                  boxShadow: '0 4px 10px rgba(245,158,11,0.2)',
                   flexShrink: 0
                 }}
                 title="ចុចដើម្បីជ្រើសរើសរូបថត"
@@ -518,37 +528,37 @@ function AddMonkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (monk: M
                   <img src={photoPreview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
                   <>
-                    <Camera size={26} color="#B45309" />
-                    <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#78350F', marginTop: '4px' }}>ដាក់រូប</span>
+                    <Camera size={24} color="#B45309" />
+                    <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#78350F', marginTop: '2px' }}>ដាក់រូប</span>
                   </>
                 )}
               </div>
 
               <div style={{ flex: 1 }}>
-                <h4 style={{ fontSize: '0.92rem', fontWeight: 800, color: '#0F172A' }}>រូបថតព្រះឆាយាល័ក្ខណ៍ / ព្រះសង្ឃ</h4>
-                <p style={{ fontSize: '0.72rem', color: '#64748B', marginTop: '2px' }}>
+                <h4 style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>រូបថតព្រះឆាយាល័ក្ខណ៍ / ព្រះសង្ឃ</h4>
+                <p style={{ fontSize: '0.72rem', color: '#64748B', marginTop: '2px', marginBottom: '8px' }}>
                   ជ្រើសរើសរូបថតពីទូរស័ព្ទ ឬកុំព្យូទ័រ (JPG, PNG) ដើម្បីបង្ហាញលើកាត និងបញ្ជីវត្ត
                 </p>
 
-                <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                <div style={{ display: 'flex', gap: '8px' }}>
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     style={{
-                      background: '#FFFFFF',
-                      border: '1.5px solid #CBD5E1',
-                      color: '#1E293B',
-                      padding: '6px 14px',
+                      background: '#EFF6FF',
+                      border: '1.5px solid #BFDBFE',
+                      color: '#1D4ED8',
+                      padding: '6px 12px',
                       borderRadius: '10px',
-                      fontSize: '0.75rem',
+                      fontSize: '0.74rem',
                       fontWeight: 700,
                       cursor: 'pointer',
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: '6px'
+                      gap: '5px'
                     }}
                   >
-                    <Upload size={14} />
+                    <Upload size={13} />
                     <span>{photoPreview ? 'ប្ដូររូបថត' : 'ជ្រើសរើសរូបថត (Upload)'}</span>
                   </button>
 
@@ -560,9 +570,9 @@ function AddMonkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (monk: M
                         background: '#FEF2F2',
                         border: '1px solid #FECACA',
                         color: '#DC2626',
-                        padding: '6px 12px',
+                        padding: '6px 10px',
                         borderRadius: '10px',
-                        fontSize: '0.75rem',
+                        fontSize: '0.74rem',
                         fontWeight: 700,
                         cursor: 'pointer',
                         display: 'inline-flex',
@@ -570,7 +580,7 @@ function AddMonkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (monk: M
                         gap: '4px'
                       }}
                     >
-                      <X size={14} />
+                      <X size={13} />
                       <span>លុបរូប</span>
                     </button>
                   )}
@@ -587,60 +597,65 @@ function AddMonkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (monk: M
             </div>
 
             {/* 🌟 2. BASIC MONK INFORMATION */}
-            <div className="form-grid">
-              <div className="form-group">
-                <label className="form-label">ព្រះនាម (ភាសាខ្មែរ) <span className="required">*</span></label>
-                <input className="form-control" value={form.khmer_name} onChange={e => setForm({...form, khmer_name: e.target.value})} required placeholder="ឧ. សុខ វិបុល" />
+            <div style={{ background: '#FFFFFF', padding: '16px', borderRadius: '16px', border: '1.5px solid #E2E8F0' }}>
+              <div style={{ fontWeight: 800, fontSize: '0.86rem', color: '#0F172A', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#F59E0B' }} />
+                <span>ព័ត៌មានទូទៅរបស់ព្រះសង្ឃ (Basic Information)</span>
               </div>
-              <div className="form-group">
-                <label className="form-label">ព្រះនាមជាអក្សរឡាតាំង (Latin Name)</label>
-                <input className="form-control" value={form.latin_name} onChange={e => setForm({...form, latin_name: e.target.value})} placeholder="Ex. Sok Vibul" />
-              </div>
-              <div className="form-group">
-                <label className="form-label">ឈ្មោះធម៌ / ឆាយា (Dhamma Name)</label>
-                <input className="form-control" value={form.dhamma_name} onChange={e => setForm({...form, dhamma_name: e.target.value})} placeholder="ឧ. ញាណវង្សោ" />
-              </div>
-              <div className="form-group">
-                <label className="form-label">ឋានៈ (Rank)</label>
-                <select className="form-control" value={form.rank} onChange={e => setForm({...form, rank: e.target.value})}>
-                  {Object.entries(MONK_RANK_LABELS).map(([k, v]) => (
-                    <option key={k} value={k}>{v.kh} / {v.en}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group">
-                <label className="form-label">ស្ថានភាព (Status)</label>
-                <select className="form-control" value={form.status} onChange={e => setForm({...form, status: e.target.value})}>
-                  {Object.entries(MONK_STATUS_LABELS).map(([k, v]) => (
-                    <option key={k} value={k}>{v.kh} / {v.en}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group">
-                <label className="form-label">ថ្ងៃខែឆ្នាំកំណើត (DOB)</label>
-                <input className="form-control" type="date" value={form.date_of_birth} onChange={e => setForm({...form, date_of_birth: e.target.value})} />
-              </div>
-              <div className="form-group">
-                <label className="form-label">ថ្ងៃបព្វជ្ជា (បួសសាមណេរ)</label>
-                <input className="form-control" type="date" value={form.date_of_ordination} onChange={e => setForm({...form, date_of_ordination: e.target.value})} />
-              </div>
-              <div className="form-group">
-                <label className="form-label">ថ្ងៃឧបសម្បទា (បួសភិក្ខុ)</label>
-                <input className="form-control" type="date" value={form.date_of_higher_ordination} onChange={e => setForm({...form, date_of_higher_ordination: e.target.value})} />
+              <div className="form-grid">
+                <div className="form-group">
+                  <label className="form-label" style={{ fontWeight: 700 }}>ព្រះនាម (ភាសាខ្មែរ) <span className="required">*</span></label>
+                  <input className="form-control" value={form.khmer_name} onChange={e => setForm({...form, khmer_name: e.target.value})} required placeholder="ឧ. សុខ វិបុល" />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" style={{ fontWeight: 700 }}>ព្រះនាមជាអក្សរឡាតាំង (Latin Name)</label>
+                  <input className="form-control" value={form.latin_name} onChange={e => setForm({...form, latin_name: e.target.value})} placeholder="Ex. Sok Vibul" />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" style={{ fontWeight: 700 }}>ឈ្មោះធម៌ / ឆាយា (Dhamma Name)</label>
+                  <input className="form-control" value={form.dhamma_name} onChange={e => setForm({...form, dhamma_name: e.target.value})} placeholder="ឧ. ញាណវង្សោ" />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" style={{ fontWeight: 700 }}>ឋានៈ (Rank)</label>
+                  <select className="form-control" value={form.rank} onChange={e => setForm({...form, rank: e.target.value})}>
+                    {Object.entries(MONK_RANK_LABELS).map(([k, v]) => (
+                      <option key={k} value={k}>{v.kh} / {v.en}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label" style={{ fontWeight: 700 }}>ស្ថានភាព (Status)</label>
+                  <select className="form-control" value={form.status} onChange={e => setForm({...form, status: e.target.value})}>
+                    {Object.entries(MONK_STATUS_LABELS).map(([k, v]) => (
+                      <option key={k} value={k}>{v.kh} / {v.en}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label" style={{ fontWeight: 700 }}>ថ្ងៃខែឆ្នាំកំណើត (DOB)</label>
+                  <input className="form-control" type="date" value={form.date_of_birth} onChange={e => setForm({...form, date_of_birth: e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" style={{ fontWeight: 700 }}>ថ្ងៃបព្វជ្ជា (បួសសាមណេរ)</label>
+                  <input className="form-control" type="date" value={form.date_of_ordination} onChange={e => setForm({...form, date_of_ordination: e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" style={{ fontWeight: 700 }}>ថ្ងៃឧបសម្បទា (បួសភិក្ខុ)</label>
+                  <input className="form-control" type="date" value={form.date_of_higher_ordination} onChange={e => setForm({...form, date_of_higher_ordination: e.target.value})} />
+                </div>
               </div>
             </div>
 
-            {/* 🌟 3. COMPLETE BIRTHPLACE & ADDRESS SECTION (វត្ត, ភូមិ, ឃុំ/សង្កាត់, ស្រុក/ក្រុង, រាជធានី/ខេត្ត) */}
-            <div style={{ background: '#FFFBEB', border: '1.5px solid #FDE68A', borderRadius: '18px', padding: '16px' }}>
+            {/* 🌟 3. COMPLETE BIRTHPLACE & ADDRESS SECTION */}
+            <div style={{ background: '#FFFBEB', border: '1.5px solid #FDE68A', borderRadius: '16px', padding: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                 <MapPin size={16} className="text-amber-600" />
-                <span style={{ fontWeight: 800, fontSize: '0.92rem', color: '#92400E' }}>
+                <span style={{ fontWeight: 800, fontSize: '0.88rem', color: '#92400E' }}>
                   ព័ត៌មានស្រុកកំណើត និងទីកន្លែងដើម (Birthplace & Origin)
                 </span>
               </div>
 
               <div className="form-grid">
-                {/* 1. វត្តដើម */}
                 <div className="form-group">
                   <label className="form-label" style={{ fontWeight: 700, color: '#78350F' }}>វត្ត (Origin Temple)</label>
                   <input 
@@ -652,7 +667,6 @@ function AddMonkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (monk: M
                   />
                 </div>
 
-                {/* 2. ភូមិ */}
                 <div className="form-group">
                   <label className="form-label" style={{ fontWeight: 700, color: '#78350F' }}>ភូមិ (Village)</label>
                   <input 
@@ -664,7 +678,6 @@ function AddMonkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (monk: M
                   />
                 </div>
 
-                {/* 3. ឃុំ / សង្កាត់ */}
                 <div className="form-group">
                   <label className="form-label" style={{ fontWeight: 700, color: '#78350F' }}>ឃុំ / សង្កាត់ (Commune/Sangkat)</label>
                   <input 
@@ -676,7 +689,6 @@ function AddMonkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (monk: M
                   />
                 </div>
 
-                {/* 4. ស្រុក / ក្រុង */}
                 <div className="form-group">
                   <label className="form-label" style={{ fontWeight: 700, color: '#78350F' }}>ស្រុក / ក្រុង (District/City)</label>
                   <input 
@@ -688,9 +700,8 @@ function AddMonkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (monk: M
                   />
                 </div>
 
-                {/* 5. រាជធានី / ខេត្ត */}
                 <div className="form-group">
-                  <label className="form-label" style={{ fontWeight: 700, color: '#78350F' }}>រាជធានី / ខេត្ត (Province/Capital) <span className="required">*</span></label>
+                  <label className="form-label" style={{ fontWeight: 700, color: '#78350F' }}>រាជធានី / ខេត្ត (Province) <span className="required">*</span></label>
                   <input 
                     className="form-control" 
                     value={form.home_province} 
@@ -704,23 +715,29 @@ function AddMonkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (monk: M
             </div>
 
             {/* 🌟 4. HEALTH & ADDITIONAL NOTES */}
-            <div className="form-grid">
-              <div className="form-group">
-                <label className="form-label">ស្ថានភាពសុខភាព (Health)</label>
-                <select className="form-control" value={form.health_status} onChange={e => setForm({...form, health_status: e.target.value})}>
-                  <option value="good">ល្អធម្មតា (Good)</option>
-                  <option value="fair">មធ្យម (Fair)</option>
-                  <option value="poor">ខ្សោយ (Poor)</option>
-                  <option value="hospitalized">សម្រាកពេទ្យ (Hospitalized)</option>
-                </select>
+            <div style={{ background: '#FFFFFF', padding: '16px', borderRadius: '16px', border: '1.5px solid #E2E8F0' }}>
+              <div style={{ fontWeight: 800, fontSize: '0.86rem', color: '#0F172A', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10B981' }} />
+                <span>ស្ថានភាពសុខភាព និងកំណត់ចំណាំ (Health & Notes)</span>
               </div>
-              <div className="form-group">
-                <label className="form-label">កំណត់ចំណាំសុខភាព</label>
-                <input className="form-control" value={form.health_notes} onChange={e => setForm({...form, health_notes: e.target.value})} placeholder="ឧ. ជំងឺប្រចាំកាយ..." />
-              </div>
-              <div className="form-group col-span-full">
-                <label className="form-label">កំណត់ចំណាំបន្ថែម</label>
-                <textarea className="form-control" value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} rows={2} placeholder="ព័ត៌មានលម្អិតផ្សេងៗ..." />
+              <div className="form-grid">
+                <div className="form-group">
+                  <label className="form-label" style={{ fontWeight: 700 }}>ស្ថានភាពសុខភាព (Health)</label>
+                  <select className="form-control" value={form.health_status} onChange={e => setForm({...form, health_status: e.target.value})}>
+                    <option value="good">ល្អធម្មតា (Good)</option>
+                    <option value="fair">មធ្យម (Fair)</option>
+                    <option value="poor">ខ្សោយ (Poor)</option>
+                    <option value="hospitalized">សម្រាកពេទ្យ (Hospitalized)</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label" style={{ fontWeight: 700 }}>កំណត់ចំណាំសុខភាព</label>
+                  <input className="form-control" value={form.health_notes} onChange={e => setForm({...form, health_notes: e.target.value})} placeholder="ឧ. ជំងឺប្រចាំកាយ..." />
+                </div>
+                <div className="form-group col-span-full">
+                  <label className="form-label" style={{ fontWeight: 700 }}>កំណត់ចំណាំបន្ថែម</label>
+                  <textarea className="form-control" value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} rows={2} placeholder="ព័ត៌មានលម្អិតផ្សេងៗ..." />
+                </div>
               </div>
             </div>
 
@@ -728,9 +745,8 @@ function AddMonkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (monk: M
 
           {/* Sticky Modal Footer */}
           <div 
-            className="modal-footer"
             style={{
-              padding: '14px 24px',
+              padding: '14px 22px',
               borderTop: '1.5px solid #E2E8F0',
               display: 'flex',
               justifyContent: 'flex-end',
@@ -751,7 +767,7 @@ function AddMonkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (monk: M
             <button 
               type="submit" 
               className="btn btn-primary hover-lift"
-              style={{ padding: '8px 24px', borderRadius: '12px', fontWeight: 800 }}
+              style={{ padding: '8px 24px', borderRadius: '12px', fontWeight: 800, background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)', border: 'none', color: '#1C1917' }}
             >
               រក្សាទុក / Save
             </button>

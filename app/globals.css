@@ -858,26 +858,23 @@ body {
   left: 0 !important;
   right: 0 !important;
   bottom: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
+  width: 100vw !important;
+  height: 100vh !important;
   background-color: rgba(15, 23, 42, 0.75) !important;
   backdrop-filter: blur(8px) !important;
   -webkit-backdrop-filter: blur(8px) !important;
   display: flex !important;
-  align-items: flex-start !important;
+  align-items: center !important;
   justify-content: center !important;
   z-index: 999999 !important;
-  padding: 30px 16px !important;
+  padding: 20px 16px !important;
   animation: fadeIn 0.2s ease;
-  overflow-y: auto !important;
-  -webkit-overflow-scrolling: touch;
   box-sizing: border-box !important;
 }
 
 @media (max-width: 768px) {
   .modal-overlay {
-    padding: 16px 12px 32px 12px !important;
-    align-items: flex-start !important;
+    padding: 12px 10px 24px 10px !important;
   }
 }
 
@@ -889,9 +886,10 @@ body {
   box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.5);
   width: 100%;
   max-width: 540px;
-  margin: auto 0;
+  max-height: 90vh;
+  margin: auto;
   position: relative;
-  overflow: visible;
+  overflow: hidden;
   animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 1000000 !important;
 }
@@ -901,7 +899,7 @@ body {
 }
 
 .modal-lg {
-  max-width: 840px;
+  max-width: 800px;
 }
 
 .modal-header {
