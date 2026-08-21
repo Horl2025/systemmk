@@ -7,6 +7,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { AuthProvider, useAuth } from '@/contexts/AuthContext'
 import { YearProvider, useYear } from '@/contexts/YearContext'
+import { LanguageProvider, useLanguage } from '@/contexts/LanguageContext'
 import { signOut } from '@/lib/auth'
 import { USER_ROLE_LABELS } from '@/lib/utils'
 import {
@@ -47,6 +48,7 @@ function Sidebar({
   onMobileClose: () => void 
 }) {
   const { user, loading, customAvatar } = useAuth()
+  const { t } = useLanguage()
   const pathname = usePathname()
   const router = useRouter()
 
@@ -126,18 +128,32 @@ function Sidebar({
             const Icon = item.icon
             const isActive = pathname === item.href ||
               (item.href !== '/dashboard' && pathname?.startsWith(item.href))
+            const keyMap: Record<string, string> = {
+              '/dashboard': 'dashboard',
+              '/monks': 'monks',
+              '/rooms': 'rooms',
+              '/students': 'students',
+              '/attendance': 'attendance',
+              '/schedule': 'schedule',
+              '/finance': 'finance',
+              '/inventory': 'inventory',
+              '/reports': 'reports',
+              '/chat': 'chat',
+              '/settings': 'settings',
+            }
+            const translatedLabel = t(keyMap[item.href] || '', item.label)
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={onMobileClose}
                 className={`nav-item ${isActive ? 'nav-item--active' : ''}`}
-                title={collapsed ? `${item.label} / ${item.labelEn}` : ''}
+                title={collapsed ? `${translatedLabel} / ${item.labelEn}` : ''}
               >
                 <span className="nav-item-icon">
                   <Icon size={18} />
                 </span>
-                <span>{item.label}</span>
+                <span>{translatedLabel}</span>
               </Link>
             )
           })}
@@ -1270,7 +1286,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <AuthProvider>
       <YearProvider>
-        <DashboardShell>{children}</DashboardShell>
+        <LanguageProvider>
+          <DashboardShell>{children}</DashboardShell>
+        </LanguageProvider>
       </YearProvider>
     </AuthProvider>
   )

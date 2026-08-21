@@ -4,9 +4,10 @@ export const dynamic = 'force-dynamic'
 
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useLanguage } from '@/contexts/LanguageContext'
 import { USER_ROLE_LABELS } from '@/lib/utils'
 import { UserRole, Profile } from '@/lib/database.types'
-import { Settings, Shield, User, Database, Bell, Lock, Save, CheckCircle, ShieldCheck, Key, RefreshCw, Sparkles, Smartphone, Mail, Phone, UserCheck, UserPlus, Trash2, Edit3, Share2, Download, QrCode, Camera } from 'lucide-react'
+import { Settings, Shield, User, Database, Bell, Lock, Save, CheckCircle, ShieldCheck, Key, RefreshCw, Sparkles, Smartphone, Mail, Phone, UserCheck, UserPlus, Trash2, Edit3, Share2, Download, QrCode, Camera, Globe } from 'lucide-react'
 
 // Initial Root Users
 const INITIAL_USERS: (Profile & { created_by_label?: string })[] = [
@@ -112,6 +113,7 @@ export default function SettingsPage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { customAvatar, setCustomAvatar } = useAuth()
+  const { language, setLanguage, languages, t } = useLanguage()
   const [password, setPassword] = useState('••••••••••••')
   const [birthDate, setBirthDate] = useState('1995-05-23')
   const [province, setProvince] = useState('ភ្នំពេញ (Phnom Penh)')
@@ -280,6 +282,26 @@ export default function SettingsPage() {
                   onChange={e => setBirthDate(e.target.value)}
                   style={{ width: '100%', background: 'transparent', border: 'none', color: '#FFFFFF', fontSize: '0.92rem', fontWeight: 600, outline: 'none', colorScheme: 'dark' }}
                 />
+              </div>
+            </div>
+
+            {/* Language Selector (ភាសាប្រព័ន្ធ ៦ ភាសា) */}
+            <div>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#94A3B8', marginBottom: '6px' }}>
+                🌐 Language / ភាសាប្រព័ន្ធ
+              </label>
+              <div style={{ background: '#0F1A3A', border: '1.5px solid #1E2E5D', borderRadius: '14px', padding: '12px 16px', display: 'flex', alignItems: 'center' }}>
+                <select
+                  value={language}
+                  onChange={e => setLanguage(e.target.value as any)}
+                  style={{ width: '100%', background: 'transparent', border: 'none', color: '#FFFFFF', fontSize: '0.92rem', fontWeight: 700, outline: 'none', colorScheme: 'dark' }}
+                >
+                  {languages.map(l => (
+                    <option key={l.code} value={l.code} style={{ background: '#0F172A', color: '#FFF' }}>
+                      {l.flag} {l.nativeName} ({l.name})
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
@@ -586,6 +608,26 @@ export default function SettingsPage() {
                   <option value="admin">អ្នកគ្រប់គ្រង / Admin</option>
                   <option value="recorder">អ្នកកត់ត្រា / Recorder</option>
                   <option value="guest">ភ្ញៀវ/សិស្សវត្ត / Guest</option>
+                </select>
+              </div>
+
+              {/* 🌐 System Display Language Selector */}
+              <div className="form-group">
+                <label className="form-label" style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Globe size={16} color="#2563EB" />
+                  <span>ភាសាបង្ហាញក្នុងប្រព័ន្ធ / Display Language</span>
+                </label>
+                <select 
+                  className="form-control hover-lift" 
+                  value={language}
+                  onChange={e => setLanguage(e.target.value as any)}
+                  style={{ border: '1.5px solid #CBD5E1', borderRadius: '12px', padding: '10px 14px', background: '#FFFFFF', fontWeight: 800, color: '#1E293B' }}
+                >
+                  {languages.map(l => (
+                    <option key={l.code} value={l.code}>
+                      {l.flag} {l.nativeName} ({l.name})
+                    </option>
+                  ))}
                 </select>
               </div>
 
