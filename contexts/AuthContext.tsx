@@ -48,6 +48,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function loadUser() {
+    try {
+      const savedUser = localStorage.getItem('systemmk_current_user')
+      if (savedUser) {
+        const parsed = JSON.parse(savedUser)
+        if (parsed && parsed.role) {
+          setUser(parsed)
+          setLoading(false)
+          return
+        }
+      }
+    } catch {}
+
     const profile = await getCurrentUser()
     setUser(profile)
     setLoading(false)

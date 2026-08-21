@@ -10,6 +10,9 @@ export async function signIn(email: string, password: string) {
 }
 
 export async function signOut() {
+  try {
+    localStorage.removeItem('systemmk_current_user')
+  } catch {}
   const { error } = await supabase.auth.signOut()
   if (error) throw error
 }

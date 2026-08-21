@@ -44,6 +44,17 @@ function LoginForm() {
     // 1. Instant check for Kuthi Leader (ព្រះមេកុដិ)
     if (cleanEmail === KUTHI_LEADER_CREDENTIALS.email.toLowerCase()) {
       if (cleanPassword === KUTHI_LEADER_CREDENTIALS.password) {
+        try {
+          const rootAdminUser = {
+            id: 'u1',
+            full_name: 'ព្រះមេកុដិ ឡុង សារ៉េត',
+            display_name: 'ឡុង សារ៉េត',
+            email: 'admin@systemmk.org',
+            role: 'chief_monk',
+            phone: '016 203 953'
+          }
+          localStorage.setItem('systemmk_current_user', JSON.stringify(rootAdminUser))
+        } catch {}
         router.push('/dashboard')
         return
       } else {
@@ -53,10 +64,26 @@ function LoginForm() {
       }
     }
 
-    // 2. Instant login for general Admins & Users (Zero Lag / Real-time redirect)
+    // 2. Instant login for general Custom Users & Roles (Recorder, Student, Guest, etc.)
     if (cleanEmail && cleanPassword.length >= 4) {
-      // Try background async login, navigate to dashboard immediately
       try {
+        const savedUsers = localStorage.getItem('systemmk_custom_users')
+        const usersList = savedUsers ? JSON.parse(savedUsers) : []
+        const matchedUser = usersList.find((u: any) => (u.email || '').toLowerCase() === cleanEmail)
+
+        if (matchedUser) {
+          localStorage.setItem('systemmk_current_user', JSON.stringify(matchedUser))
+        } else {
+          // Fallback if not found in custom list, create guest/recorder session
+          const fallbackUser = {
+            id: `guest_${Date.now()}`,
+            full_name: cleanEmail.split('@')[0],
+            email: cleanEmail,
+            role: 'recorder',
+          }
+          localStorage.setItem('systemmk_current_user', JSON.stringify(fallbackUser))
+        }
+
         signIn(email, password).catch(() => {})
       } catch {}
       router.push('/dashboard')
@@ -68,6 +95,17 @@ function LoginForm() {
 
   // Quick Instant Access for Kuthi Leader
   const handleQuickKuthiLeaderLogin = () => {
+    try {
+      const rootAdminUser = {
+        id: 'u1',
+        full_name: 'ព្រះមេកុដិ ឡុង សារ៉េត',
+        display_name: 'ឡុង សារ៉េត',
+        email: 'admin@systemmk.org',
+        role: 'chief_monk',
+        phone: '016 203 953'
+      }
+      localStorage.setItem('systemmk_current_user', JSON.stringify(rootAdminUser))
+    } catch {}
     setEmail(KUTHI_LEADER_CREDENTIALS.email)
     setPassword(KUTHI_LEADER_CREDENTIALS.password)
     router.push('/dashboard')
