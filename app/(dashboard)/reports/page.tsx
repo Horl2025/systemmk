@@ -9,6 +9,9 @@ import { FileText, Download, Table, CheckCircle, BarChart3, Calendar, Sparkles, 
 import * as XLSX from 'xlsx'
 import jsPDF from 'jspdf'
 import 'jspdf-autotable'
+import { fetchCloudCollection, subscribeToRealtimeSync } from '@/lib/cloudSync'
+import { Monk } from '@/lib/database.types'
+import { MONK_RANK_LABELS, MONK_STATUS_LABELS, calculateVassa, formatCurrency } from '@/lib/utils'
 
 export default function ReportsPage() {
   const router = useRouter()
@@ -18,24 +21,121 @@ export default function ReportsPage() {
   const [month, setMonth] = useState('8')
   const [exporting, setExporting] = useState(false)
 
+  // Live Data States
+  const [monks, setMonks] = useState<Monk[]>([])
+  const [incomes, setIncomes] = useState<any[]>([])
+  const [expenses, setExpenses] = useState<any[]>([])
+  const [inventory, setInventory] = useState<any[]>([])
+
   useEffect(() => {
     setYear(selectedYear)
   }, [selectedYear])
 
+  // Load Real-time Data from Cloud & LocalStorage
+  const loadData = async () => {
+    // 1. Monks
+    let localMonks: Monk[] = []
+    try {
+      const savedM = localStorage.getItem('systemmk_custom_monks')
+      if (savedM) {
+        const parsed = JSON.parse(savedM)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          localMonks = parsed
+          setMonks(parsed)
+        }
+      }
+    } catch {}
+
+    const cloudMonks = await fetchCloudCollection('monks')
+    if (cloudMonks && Array.isArray(cloudMonks) && cloudMonks.length > 0) {
+      const map = new Map<string, Monk>()
+      localMonks.forEach(m => { if (m?.id) map.set(m.id, m) })
+      cloudMonks.forEach(m => { if (m?.id) map.set(m.id, m) })
+      setMonks(Array.from(map.values()))
+    }
+
+    // 2. Finance
+    let localInc: any[] = []
+    let localExp: any[] = []
+    try {
+      const sInc = localStorage.getItem('systemmk_custom_incomes')
+      if (sInc) localInc = JSON.parse(sInc)
+      const sExp = localStorage.getItem('systemmk_custom_expenses')
+      if (sExp) localExp = JSON.parse(sExp)
+    } catch {}
+
+    const cInc = await fetchCloudCollection('incomes')
+    if (cInc && Array.isArray(cInc)) {
+      const map = new Map<string, any>()
+      localInc.forEach(i => { if (i?.id) map.set(i.id, i) })
+      cInc.forEach(i => { if (i?.id) map.set(i.id, i) })
+      setIncomes(Array.from(map.values()))
+    } else {
+      setIncomes(localInc)
+    }
+
+    const cExp = await fetchCloudCollection('expenses')
+    if (cExp && Array.isArray(cExp)) {
+      const map = new Map<string, any>()
+      localExp.forEach(e => { if (e?.id) map.set(e.id, e) })
+      cExp.forEach(e => { if (e?.id) map.set(e.id, e) })
+      setExpenses(Array.from(map.values()))
+    } else {
+      setExpenses(localExp)
+    }
+
+    // 3. Inventory
+    let localInv: any[] = []
+    try {
+      const sInv = localStorage.getItem('systemmk_custom_inventory')
+      if (sInv) localInv = JSON.parse(sInv)
+    } catch {}
+
+    const cInv = await fetchCloudCollection('inventory')
+    if (cInv && Array.isArray(cInv)) {
+      const map = new Map<string, any>()
+      localInv.forEach(i => { if (i?.id) map.set(i.id, i) })
+      cInv.forEach(i => { if (i?.id) map.set(i.id, i) })
+      setInventory(Array.from(map.values()))
+    } else {
+      setInventory(localInv)
+    }
+  }
+
+  useEffect(() => {
+    loadData()
+
+    const unsubscribe = subscribeToRealtimeSync(() => loadData())
+    const handleCustomEvent = () => loadData()
+    window.addEventListener('systemmk_data_updated', handleCustomEvent)
+    const timer = setInterval(loadData, 2500)
+
+    return () => {
+      unsubscribe()
+      window.removeEventListener('systemmk_data_updated', handleCustomEvent)
+      clearInterval(timer)
+    }
+  }, [])
+
   const handleExportExcel = () => {
     setExporting(true)
     try {
-      const data = [
-        { 'ល.រ': 1, 'ឈ្មោះព្រះសង្ឃ': 'ព្រះមហា សុខ វិបុល', 'ឋានៈ': 'ភិក្ខុ', 'វស្សា': 5, 'វត្តមាន': '២៨ ថ្ងៃ', 'ស្ថានភាព': 'វត្តមានពេញលេញ' },
-        { 'ល.រ': 2, 'ឈ្មោះព្រះសង្ឃ': 'សាមណេរ ចាន់ រ៉ា', 'ឋានៈ': 'សាមណេរ', 'វស្សា': 2, 'វត្តមាន': '៣០ ថ្ងៃ', 'ស្ថានភាព': 'រៀនពូកែ' },
-        { 'ល.រ': 3, 'ឈ្មោះព្រះសង្ឃ': 'ព្រះគ្រូ ឡុង សារ៉េត', 'ឋានៈ': 'ចៅអធិការ', 'វស្សា': 18, 'វត្តមាន': '៣១ ថ្ងៃ', 'ស្ថានភាព': 'ដឹកនាំសង្ឃកិច្ច' },
-        { 'ល.រ': 4, 'ឈ្មោះព្រះសង្ឃ': 'ភិក្ខុ ឌុក សម្បត្តិ', 'ឋានៈ': 'ភិក្ខុ', 'វស្សា': 8, 'វត្តមាន': '២៥ ថ្ងៃ', 'ស្ថានភាព': 'សុំច្បាប់ព្យាបាលជំងឺ' },
+      const data = monks.length > 0 ? monks.map((m, idx) => ({
+        'ល.រ': idx + 1,
+        'ឈ្មោះព្រះសង្ឃ': m.khmer_name + (m.dhamma_name ? ` (${m.dhamma_name})` : ''),
+        'ឋានៈ': MONK_RANK_LABELS[m.rank]?.kh || m.rank,
+        'វស្សា': calculateVassa(m.date_of_ordination) || 0,
+        'សុខភាព': m.health_status === 'good' ? 'ល្អ' : 'មានបញ្ហាសុខភាព',
+        'វត្តកំណើត': m.origin_temple || '—',
+        'ស្ថានភាព': MONK_STATUS_LABELS[m.status]?.kh || m.status
+      })) : [
+        { 'ល.រ': 1, 'ឈ្មោះព្រះសង្ឃ': 'មិនទាន់មានទិន្នន័យព្រះសង្ឃ', 'ឋានៈ': '—', 'វស្សា': 0, 'សុខភាព': '—', 'វត្តកំណើត': '—', 'ស្ថានភាព': '—' }
       ]
 
       const worksheet = XLSX.utils.json_to_sheet(data)
       const workbook = XLSX.utils.book_new()
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'របាយការណ៍វត្តអារាម')
-      XLSX.writeFile(workbook, `SystemMK_Report_${year}_${month}.xlsx`)
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'របាយការណ៍ព្រះសង្ឃ')
+      XLSX.writeFile(workbook, `SystemMK_Monks_Report_${year}_${month}.xlsx`)
     } catch (err) {
       console.error(err)
     } finally {
@@ -47,17 +147,21 @@ export default function ReportsPage() {
     setExporting(true)
     try {
       const doc = new jsPDF()
-      doc.text('វត្តអារាម SystemMK - របាយការណ៍បូកសរុបប្រចាំខែ', 14, 20)
+      doc.text(`SystemMK - Monastery Report (${year})`, 14, 20)
       
-      const tableData = [
-        [1, 'ព្រះមហា សុខ វិបុល', 'ភិក្ខុ', '5 វស្សា', '២៨ ថ្ងៃ', 'វត្តមានល្អ'],
-        [2, 'សាមណេរ ចាន់ រ៉ា', 'សាមណេរ', '2 វស្សា', '៣០ ថ្ងៃ', 'រៀនពូកែ'],
-        [3, 'ព្រះគ្រូ ឡុង សារ៉េត', 'ចៅអធិការ', '18 វស្សា', '៣១ ថ្ងៃ', 'ដឹកនាំសង្ឃកិច្ច'],
-        [4, 'ភិក្ខុ ឌុក សម្បត្តិ', 'ភិក្ខុ', '8 វស្សា', '២៥ ថ្ងៃ', 'សុំច្បាប់'],
+      const tableData = monks.length > 0 ? monks.map((m, idx) => [
+        idx + 1,
+        m.khmer_name + (m.dhamma_name ? ` (${m.dhamma_name})` : ''),
+        MONK_RANK_LABELS[m.rank]?.kh || m.rank,
+        `${calculateVassa(m.date_of_ordination) || 0} វស្សា`,
+        m.health_status === 'good' ? 'សុខភាពល្អ' : 'មានបញ្ហាសុខភាព',
+        MONK_STATUS_LABELS[m.status]?.kh || m.status
+      ]) : [
+        [1, 'មិនទាន់មានទិន្នន័យ', '—', '0 វស្សា', '—', '—']
       ]
 
       ;(doc as any).autoTable({
-        head: [['ល.រ', 'ឈ្មោះ', 'ឋានៈ', 'វស្សា', 'វត្តមាន', 'ស្ថានភាព']],
+        head: [['No.', 'Monk Name', 'Rank', 'Vassa', 'Health', 'Status']],
         body: tableData,
         startY: 30,
       })
@@ -179,7 +283,7 @@ export default function ReportsPage() {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#FDE68A', letterSpacing: '0.02em', whiteSpace: 'nowrap' }}>ព្រះសង្ឃសរុប / MONKS</div>
               <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#FFFFFF', marginTop: '2px', lineHeight: 1.1 }}>
-                ២៨ <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#FEF3C7' }}>អង្គ</span>
+                {monks.length} <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#FEF3C7' }}>អង្គ</span>
               </div>
             </div>
             <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(10px)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -208,7 +312,7 @@ export default function ReportsPage() {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#A7F3D0', letterSpacing: '0.02em', whiteSpace: 'nowrap' }}>អត្រាវត្តមាន / ATTEND</div>
               <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#FFFFFF', marginTop: '2px', lineHeight: 1.1 }}>
-                ៩៦% <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#D1FAE5' }}>មធ្យម</span>
+                ១០០% <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#D1FAE5' }}>មធ្យម</span>
               </div>
             </div>
             <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(10px)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -236,8 +340,11 @@ export default function ReportsPage() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#BFDBFE', letterSpacing: '0.02em', whiteSpace: 'nowrap' }}>សមតុល្យ / BALANCE</div>
-              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#FFFFFF', marginTop: '2px', lineHeight: 1.1 }} className="font-latin">
-                3.4M ៛
+              <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#FFFFFF', marginTop: '2px', lineHeight: 1.1 }} className="font-latin">
+                {formatCurrency(
+                  incomes.reduce((s, i) => s + Number(i.amount || 0), 0) -
+                  expenses.reduce((s, e) => s + Number(e.amount || 0), 0)
+                )}
               </div>
             </div>
             <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(10px)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -266,7 +373,7 @@ export default function ReportsPage() {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#DDD6FE', letterSpacing: '0.02em', whiteSpace: 'nowrap' }}>ទ្រព្យសម្បត្តិ / ASSETS</div>
               <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#FFFFFF', marginTop: '2px', lineHeight: 1.1 }}>
-                ៥៦ <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#EDE9FE' }}>មុខ</span>
+                {inventory.length} <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#EDE9FE' }}>មុខ</span>
               </div>
             </div>
             <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(10px)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -274,7 +381,7 @@ export default function ReportsPage() {
             </div>
           </div>
           <div style={{ fontSize: '0.62rem', color: '#C4B5FD', marginTop: '8px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            ស្ថានភាពល្អ ៤៨ មុខ
+            សម្ភារៈវត្តជាក់ស្ដែង
           </div>
         </div>
 
@@ -342,8 +449,8 @@ export default function ReportsPage() {
         /* Report Preview Table */
         <div style={{ background: '#FFFFFF', borderRadius: '22px', border: '1.5px solid #E2E8F0', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.03)' }}>
           <div style={{ padding: '18px 24px', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0F172A' }}>តារាងទិន្នន័យរបាយការណ៍សង្ខេប</h3>
-            <span style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', color: '#065F46', padding: '4px 12px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 800 }}>ទិន្នន័យជាក់ស្ដែង</span>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0F172A' }}>តារាងទិន្នន័យរបាយការណ៍សង្ខេប (បញ្ជីព្រះសង្ឃគង់ជាក់ស្ដែង)</h3>
+            <span style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', color: '#065F46', padding: '4px 12px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 800 }}>{monks.length} អង្គសរុប</span>
           </div>
           <div className="table-wrapper" style={{ border: 'none' }}>
             <table className="table">
@@ -353,34 +460,56 @@ export default function ReportsPage() {
                   <th style={{ padding: '16px 20px', fontWeight: 800 }}>ព្រះនាម / ឈ្មោះ</th>
                   <th style={{ padding: '16px 20px', fontWeight: 800 }}>ឋានៈ / តួនាទី</th>
                   <th style={{ padding: '16px 20px', fontWeight: 800 }}>វស្សា</th>
-                  <th style={{ padding: '16px 20px', fontWeight: 800 }}>វត្តមានសរុប</th>
-                  <th style={{ padding: '16px 20px', fontWeight: 800 }}>ស្ថានភាព / ចំណាំ</th>
+                  <th style={{ padding: '16px 20px', fontWeight: 800 }}>សុខភាព</th>
+                  <th style={{ padding: '16px 20px', fontWeight: 800 }}>វត្តកំណើត</th>
+                  <th style={{ padding: '16px 20px', fontWeight: 800 }}>ស្ថានភាព</th>
                 </tr>
               </thead>
               <tbody>
-                {[
-                  { id: 1, name: 'ព្រះមហា សុខ វិបុល', rank: 'ភិក្ខុ', vassa: '៥', att: '២៨ ថ្ងៃ', note: 'វត្តមានពេញលេញ', color: '#059669', bg: '#ECFDF5' },
-                  { id: 2, name: 'សាមណេរ ចាន់ រ៉ា', rank: 'សាមណេរ', vassa: '២', att: '៣០ ថ្ងៃ', note: 'រៀនពូកែ', color: '#2563EB', bg: '#EFF6FF' },
-                  { id: 3, name: 'ព្រះគ្រូ ឡុង សារ៉េត', rank: 'ចៅអធិការ', vassa: '១៨', att: '៣១ ថ្ងៃ', note: 'ដឹកនាំសង្ឃកិច្ច', color: '#D97706', bg: '#FFFBEB' },
-                  { id: 4, name: 'ភិក្ខុ ឌុក សម្បត្តិ', rank: 'ភិក្ខុ', vassa: '៨', att: '២៥ ថ្ងៃ', note: 'សុំច្បាប់ព្យាបាលជំងឺ', color: '#DC2626', bg: '#FEF2F2' },
-                ].map(row => (
-                  <tr key={row.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                    <td className="text-muted font-latin" style={{ padding: '16px 20px', fontWeight: 700 }}>{row.id}</td>
-                    <td style={{ fontWeight: 800, color: '#0F172A', padding: '16px 20px' }}>{row.name}</td>
-                    <td style={{ padding: '16px 20px' }}>
-                      <span style={{ background: '#FEF3C7', border: '1px solid #FDE68A', color: '#92400E', padding: '4px 12px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 800 }}>
-                        {row.rank}
-                      </span>
-                    </td>
-                    <td className="font-latin" style={{ padding: '16px 20px', color: '#475569', fontWeight: 600 }}>{row.vassa} វស្សា</td>
-                    <td className="font-latin font-bold" style={{ color: '#059669', fontSize: '0.95rem', padding: '16px 20px' }}>{row.att}</td>
-                    <td style={{ padding: '16px 20px' }}>
-                      <span style={{ background: row.bg, color: row.color, padding: '4px 10px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700 }}>
-                        {row.note}
-                      </span>
+                {monks.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} style={{ textAlign: 'center', padding: '32px', color: '#94A3B8', fontWeight: 700 }}>
+                      មិនទាន់មានទិន្នន័យព្រះសង្ឃដែលបានបញ្ចូលនៅឡើយទេ
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  monks.map((monk, idx) => (
+                    <tr key={monk.id || idx} style={{ borderBottom: '1px solid #F1F5F9' }}>
+                      <td className="text-muted font-latin" style={{ padding: '16px 20px', fontWeight: 700 }}>{idx + 1}</td>
+                      <td style={{ fontWeight: 800, color: '#0F172A', padding: '16px 20px' }}>
+                        {monk.khmer_name} {monk.dhamma_name && <span style={{ color: '#D97706', fontSize: '0.8rem', fontWeight: 700 }}>({monk.dhamma_name})</span>}
+                      </td>
+                      <td style={{ padding: '16px 20px' }}>
+                        <span style={{ background: '#FEF3C7', border: '1px solid #FDE68A', color: '#92400E', padding: '4px 12px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 800 }}>
+                          {MONK_RANK_LABELS[monk.rank]?.kh || monk.rank}
+                        </span>
+                      </td>
+                      <td className="font-latin" style={{ padding: '16px 20px', color: '#475569', fontWeight: 600 }}>
+                        {calculateVassa(monk.date_of_ordination)} វស្សា
+                      </td>
+                      <td style={{ padding: '16px 20px' }}>
+                        <span style={{ 
+                          background: monk.health_status === 'good' ? '#ECFDF5' : '#FEF2F2', 
+                          color: monk.health_status === 'good' ? '#065F46' : '#991B1B', 
+                          padding: '4px 10px', 
+                          borderRadius: '8px', 
+                          fontSize: '0.75rem', 
+                          fontWeight: 700 
+                        }}>
+                          {monk.health_status === 'good' ? '🟢 ល្អ' : '🔴 មានបញ្ហា'}
+                        </span>
+                      </td>
+                      <td style={{ padding: '16px 20px', color: '#64748B', fontSize: '0.85rem' }}>
+                        {monk.origin_temple || '—'}
+                      </td>
+                      <td style={{ padding: '16px 20px' }}>
+                        <span style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#1E40AF', padding: '4px 10px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700 }}>
+                          {MONK_STATUS_LABELS[monk.status]?.kh || monk.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
