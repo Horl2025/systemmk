@@ -230,10 +230,10 @@ function Sidebar({
               {!collapsed && (
                 <div style={{ minWidth: 0, flex: 1 }}>
                   <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#FFFFFF', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {loading ? 'កំពុងផ្ទុក...' : (user?.full_name || 'អ្នកគ្រប់គ្រង')}
+                    {loading ? 'កំពុងផ្ទុក...' : (user?.full_name || 'អ្នកប្រើប្រាស់')}
                   </div>
                   <div style={{ fontSize: '0.68rem', color: '#FDE68A', fontWeight: 600, marginTop: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {user ? USER_ROLE_LABELS[user.role]?.kh : 'ព្រះមេគណ / លេខា'}
+                    {user?.role ? (USER_ROLE_LABELS[user.role]?.kh || user.role) : 'អ្នកកត់ត្រា'}
                   </div>
                 </div>
               )}

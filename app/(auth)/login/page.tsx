@@ -22,11 +22,40 @@ function LoginForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // Prefill email if scanned via User Login QR Code
+  // Prefill email and role if scanned via User Login QR Code
   useEffect(() => {
     const emailParam = searchParams.get('email')
+    const roleParam = searchParams.get('role')
+    const nameParam = searchParams.get('name')
+    const phoneParam = searchParams.get('phone')
+
     if (emailParam) {
       setEmail(emailParam)
+    }
+
+    // If QR code provided verified role metadata, save to local user list directly
+    if (emailParam && roleParam) {
+      try {
+        const savedUsers = localStorage.getItem('systemmk_custom_users')
+        const usersList = savedUsers ? JSON.parse(savedUsers) : []
+        const exists = usersList.some((u: any) => (u.email || '').trim().toLowerCase() === emailParam.trim().toLowerCase())
+        
+        if (!exists) {
+          const newUser = {
+            id: `user_${Date.now()}`,
+            full_name: nameParam ? decodeURIComponent(nameParam) : emailParam.split('@')[0],
+            display_name: nameParam ? decodeURIComponent(nameParam).split(' ').pop() : emailParam.split('@')[0],
+            email: emailParam,
+            role: roleParam,
+            phone: phoneParam ? decodeURIComponent(phoneParam) : null,
+            is_active: true,
+            created_at: new Date().toISOString().split('T')[0],
+            updated_at: new Date().toISOString().split('T')[0],
+          }
+          const updated = [newUser, ...usersList]
+          localStorage.setItem('systemmk_custom_users', JSON.stringify(updated))
+        }
+      } catch {}
     }
   }, [searchParams])
 
@@ -41,17 +70,18 @@ function LoginForm() {
     const cleanEmail = email.trim().toLowerCase()
     const cleanPassword = password.trim()
 
-    // 1. Instant check for Kuthi Leader (ព្រះមេកុដិ)
+    // 1. Instant check for Kuthi Leader (ព្រះមេកុដិ / Root Admin)
     if (cleanEmail === KUTHI_LEADER_CREDENTIALS.email.toLowerCase()) {
       if (cleanPassword === KUTHI_LEADER_CREDENTIALS.password) {
         try {
-          const rootAdminUser = {
+          const savedAdmin = localStorage.getItem('systemmk_root_admin_profile')
+          const rootAdminUser = savedAdmin ? JSON.parse(savedAdmin) : {
             id: 'u1',
-            full_name: 'ព្រះមេកុដិ ឡុង សារ៉េត',
-            display_name: 'ឡុង សារ៉េត',
+            full_name: 'អ្នកគ្រប់គ្រងប្រព័ន្ធ (Root Admin)',
+            display_name: 'Admin',
             email: 'admin@systemmk.org',
             role: 'chief_monk',
-            phone: '016 203 953'
+            phone: ''
           }
           localStorage.setItem('systemmk_current_user', JSON.stringify(rootAdminUser))
         } catch {}
@@ -69,17 +99,21 @@ function LoginForm() {
       try {
         const savedUsers = localStorage.getItem('systemmk_custom_users')
         const usersList = savedUsers ? JSON.parse(savedUsers) : []
-        const matchedUser = usersList.find((u: any) => (u.email || '').toLowerCase() === cleanEmail)
+        const matchedUser = usersList.find((u: any) => (u.email || '').trim().toLowerCase() === cleanEmail)
+
+        const roleFromParam = searchParams.get('role')
+        const nameFromParam = searchParams.get('name')
 
         if (matchedUser) {
           localStorage.setItem('systemmk_current_user', JSON.stringify(matchedUser))
         } else {
-          // Fallback if not found in custom list, create guest/recorder session
+          // Fallback user bound with scanned role or recorder
           const fallbackUser = {
-            id: `guest_${Date.now()}`,
-            full_name: cleanEmail.split('@')[0],
+            id: `user_${Date.now()}`,
+            full_name: nameFromParam ? decodeURIComponent(nameFromParam) : cleanEmail.split('@')[0],
+            display_name: nameFromParam ? decodeURIComponent(nameFromParam).split(' ').pop() : cleanEmail.split('@')[0],
             email: cleanEmail,
-            role: 'recorder',
+            role: roleFromParam || 'recorder',
           }
           localStorage.setItem('systemmk_current_user', JSON.stringify(fallbackUser))
         }
@@ -96,13 +130,14 @@ function LoginForm() {
   // Quick Instant Access for Kuthi Leader
   const handleQuickKuthiLeaderLogin = () => {
     try {
-      const rootAdminUser = {
+      const savedAdmin = localStorage.getItem('systemmk_root_admin_profile')
+      const rootAdminUser = savedAdmin ? JSON.parse(savedAdmin) : {
         id: 'u1',
-        full_name: 'ព្រះមេកុដិ ឡុង សារ៉េត',
-        display_name: 'ឡុង សារ៉េត',
+        full_name: 'អ្នកគ្រប់គ្រងប្រព័ន្ធ (Root Admin)',
+        display_name: 'Admin',
         email: 'admin@systemmk.org',
         role: 'chief_monk',
-        phone: '016 203 953'
+        phone: ''
       }
       localStorage.setItem('systemmk_current_user', JSON.stringify(rootAdminUser))
     } catch {}

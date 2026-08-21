@@ -61,12 +61,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch {}
 
     const profile = await getCurrentUser()
-    setUser(profile)
+    if (profile) {
+      setUser(profile)
+    } else {
+      // Default to guest/recorder if not found, never default to root admin
+      setUser({
+        id: 'guest',
+        full_name: 'អ្នកប្រើប្រាស់',
+        display_name: 'User',
+        avatar_url: null,
+        role: 'guest',
+        is_active: true,
+        phone: null,
+        email: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+    }
     setLoading(false)
   }
 
   useEffect(() => {
     loadUser()
+
+    const handleStorageChange = () => {
+      loadUser()
+    }
+
+    window.addEventListener('storage', handleStorageChange)
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
@@ -77,7 +99,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      subscription.unsubscribe()
+    }
   }, [])
 
   return (

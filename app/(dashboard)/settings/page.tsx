@@ -1119,8 +1119,8 @@ export default function SettingsPage() {
 function UserLoginQRModal({ user, onClose }: { user: any; onClose: () => void }) {
   const [copied, setCopied] = useState(false)
   
-  // Custom Login / Access URL with user email prefilled
-  const userAccessUrl = `https://systemmk.vercel.app/login?email=${encodeURIComponent(user.email)}`
+  // Custom Login / Access URL with user credentials prefilled and encoded
+  const userAccessUrl = `https://systemmk.vercel.app/login?email=${encodeURIComponent(user.email)}&role=${encodeURIComponent(user.role || 'recorder')}&name=${encodeURIComponent(user.full_name || '')}&phone=${encodeURIComponent(user.phone || '')}`
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(userAccessUrl)}&color=0F172A&bgcolor=FFFFFF&margin=10`
 
   const handleCopy = () => {
