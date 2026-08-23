@@ -7,8 +7,8 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Monk } from '@/lib/database.types'
 import { ATTENDANCE_STATUS_LABELS, SESSION_LABELS, today } from '@/lib/utils'
-import { CheckCircle, XCircle, Clock, AlertCircle, Save, Calendar, Check, Users, Sparkles, QrCode, Search, Filter, CheckCheck, Camera, UserCheck, Flame, ArrowLeft } from 'lucide-react'
-
+import { CheckCircle, XCircle, Clock, AlertCircle, Save, Calendar, Check, Users, Sparkles, QrCode, Search, Filter, CheckCheck, Camera, UserCheck, Flame, ArrowLeft, Send } from 'lucide-react'
+import { sendTelegramReport } from '@/lib/telegram'
 import { fetchCloudCollection, syncToCloud, subscribeToRealtimeSync, notifyRealtimeUpdate } from '@/lib/cloudSync'
 
 type Session = 'morning' | 'afternoon' | 'evening'
@@ -28,6 +28,7 @@ export default function AttendancePage() {
   const [showQRScanner, setShowQRScanner] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [sendingTelegram, setSendingTelegram] = useState(false)
 
   // Load Monks & Attendance Records
   useEffect(() => {
@@ -246,6 +247,58 @@ export default function AttendancePage() {
             onChange={e => setDate(e.target.value)} 
             style={{ fontWeight: 600, borderRadius: '12px', border: '1.5px solid #CBD5E1', padding: '8px 10px', fontSize: '0.8rem', flex: '1 1 auto', minWidth: '110px' }} 
           />
+
+          <button 
+            className="hover-lift" 
+            disabled={sendingTelegram}
+            onClick={async () => {
+              setSendingTelegram(true)
+              const sessionText = session === 'morning' ? 'ពេលព្រឹក (Morning Chanting)' : session === 'afternoon' ? 'ពេលរសៀល (Afternoon)' : 'ពេលយប់ (Evening Chanting)'
+              const presentCount = Object.values(records).filter(s => s === 'present').length
+              const absentCount = Object.values(records).filter(s => s === 'absent').length
+              const leaveCount = Object.values(records).filter(s => s === 'leave').length
+              const sickCount = Object.values(records).filter(s => s === 'sick').length
+              const totalMonks = monks.length || (presentCount + absentCount + leaveCount + sickCount) || 1
+              const rate = ((presentCount / totalMonks) * 100).toFixed(1)
+
+              const msg = `📿 <b>វត្តអារាម SystemMK - របាយការណ៍វត្តមានសង្ឃកិច្ច</b>
+📅 កាលបរិច្ឆេទ: <b>${date}</b>
+⏰ វេន: <b>${sessionText}</b>
+━━━━━━━━━━━━━━━━━━━━━━
+✅ វត្តមានជាក់ស្ដែង: <b>${presentCount} អង្គ</b>
+❌ អវត្តមាន: <b>${absentCount} អង្គ</b>
+📝 សុំច្បាប់: <b>${leaveCount} អង្គ</b>
+🤒 មានជំងឺ/សម្រាក: <b>${sickCount} អង្គ</b>
+━━━━━━━━━━━━━━━━━━━━━━
+📊 <b>អត្រាវត្តមានសរុប: ${rate}%</b> (${presentCount}/${totalMonks} អង្គ)
+<i>ចេញពីប្រព័ន្ធវត្តមាន SystemMK</i>`
+
+              const res = await sendTelegramReport(msg)
+              alert(res.message)
+              setSendingTelegram(false)
+            }}
+            style={{
+              background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)',
+              color: '#FFFFFF',
+              fontWeight: 800,
+              padding: '9px 14px',
+              borderRadius: '12px',
+              border: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              cursor: 'pointer',
+              boxShadow: '0 4px 14px rgba(2, 132, 199, 0.35)',
+              fontSize: '0.8rem',
+              whiteSpace: 'nowrap',
+              flex: '1 1 auto'
+            }}
+          >
+            <Send size={15} />
+            <span>{sendingTelegram ? 'កំពុងផ្ញើ...' : '📢 ផ្ញើទៅ Telegram'}</span>
+          </button>
+
           <button 
             className="hover-lift" 
             onClick={handleSave} 

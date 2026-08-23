@@ -5,9 +5,9 @@ export const dynamic = 'force-dynamic'
 
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
-import { Package, Plus, Edit, Trash2, Search, CheckCircle, AlertTriangle, XCircle, Box, MapPin, Calendar, Tag, ArrowLeft } from 'lucide-react'
+import { Package, Plus, Edit, Trash2, Search, CheckCircle, AlertTriangle, XCircle, Box, MapPin, Calendar, Tag, ArrowLeft, Send } from 'lucide-react'
 import { fetchCloudCollection, syncToCloud, subscribeToRealtimeSync } from '@/lib/cloudSync'
+import { sendTelegramReport } from '@/lib/telegram'
 
 const INITIAL_ITEMS: InventoryItem[] = []
 
@@ -17,6 +17,7 @@ export default function InventoryPage() {
   const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
   const [showModal, setShowModal] = useState(false)
+  const [sendingTelegram, setSendingTelegram] = useState(false)
 
   const loadData = useCallback(async () => {
     let localItems: InventoryItem[] = []
@@ -137,7 +138,49 @@ export default function InventoryPage() {
             <p className="page-subtitle" style={{ margin: '2px 0 0' }}>គ្រប់គ្រងគ្រឿងបរិក្ខារ គ្រឿងសង្ហារឹម ទីតាំង និងស្ថានភាពខូចខាត — {items.length} មុខ</p>
           </div>
         </div>
-        <div className="page-header-actions" style={{ marginTop: '8px' }}>
+        <div className="page-header-actions" style={{ marginTop: '8px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <button 
+            className="hover-lift" 
+            disabled={sendingTelegram}
+            onClick={async () => {
+              setSendingTelegram(true)
+              const goodCount = items.filter(i => i.status === 'good').length
+              const damagedCount = items.filter(i => i.status === 'damaged').length
+              const lostCount = items.filter(i => i.status === 'lost').length
+
+              const msg = `📦 <b>វត្តអារាម SystemMK - របាយការណ៍សារពើភណ្ឌសម្ភារៈ</b>
+📅 កាលបរិច្ឆេទ: <b>${new Date().toLocaleDateString('km-KH')}</b>
+━━━━━━━━━━━━━━━━━━━━━━
+🔹 សម្ភារៈវត្តសរុប: <b>${items.length} មុខ</b>
+🟢 ស្ថានភាពល្អ: <b>${goodCount} មុខ</b>
+🟡 កំពុងខូច/ជួសជុល: <b>${damagedCount} មុខ</b>
+🔴 បាត់បង់: <b>${lostCount} មុខ</b>
+━━━━━━━━━━━━━━━━━━━━━━
+<i>ចេញពីប្រព័ន្ធសារពើភណ្ឌ SystemMK</i>`
+
+              const res = await sendTelegramReport(msg)
+              alert(res.message)
+              setSendingTelegram(false)
+            }}
+            style={{
+              background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)',
+              color: '#FFFFFF',
+              fontWeight: 800,
+              padding: '10px 16px',
+              borderRadius: '12px',
+              border: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              cursor: 'pointer',
+              boxShadow: '0 4px 14px rgba(2, 132, 199, 0.35)',
+              fontSize: '0.82rem'
+            }}
+          >
+            <Send size={15} />
+            <span>{sendingTelegram ? 'កំពុងផ្ញើ...' : '📢 ផ្ញើទៅ Telegram'}</span>
+          </button>
+
           <button 
             className="hover-lift" 
             onClick={() => setShowModal(true)}

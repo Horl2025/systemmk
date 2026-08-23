@@ -5,13 +5,14 @@ export const dynamic = 'force-dynamic'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useYear } from '@/contexts/YearContext'
-import { FileText, Download, Table, CheckCircle, BarChart3, Calendar, Sparkles, TrendingUp, Users, DollarSign, Package, ArrowLeft } from 'lucide-react'
+import { FileText, Download, Table, CheckCircle, BarChart3, Calendar, Sparkles, TrendingUp, Users, DollarSign, Package, ArrowLeft, Send } from 'lucide-react'
 import * as XLSX from 'xlsx'
 import jsPDF from 'jspdf'
 import 'jspdf-autotable'
 import { fetchCloudCollection, subscribeToRealtimeSync } from '@/lib/cloudSync'
 import { Monk } from '@/lib/database.types'
 import { MONK_RANK_LABELS, MONK_STATUS_LABELS, calculateVassa, formatCurrency } from '@/lib/utils'
+import { sendTelegramReport } from '@/lib/telegram'
 
 export default function ReportsPage() {
   const router = useRouter()
@@ -20,6 +21,7 @@ export default function ReportsPage() {
   const [year, setYear] = useState(selectedYear)
   const [month, setMonth] = useState('8')
   const [exporting, setExporting] = useState(false)
+  const [sendingTelegram, setSendingTelegram] = useState(false)
 
   // Live Data States
   const [monks, setMonks] = useState<Monk[]>([])
@@ -174,6 +176,57 @@ export default function ReportsPage() {
     }
   }
 
+  // Handle Broadcasting Report to Telegram
+  const handleSendTelegram = async () => {
+    setSendingTelegram(true)
+    const totalInc = incomes.reduce((s, i) => s + Number(i.amount || 0), 0)
+    const totalExp = expenses.reduce((s, e) => s + Number(e.amount || 0), 0)
+    const balance = totalInc - totalExp
+    const goodInv = inventory.filter(i => i.status === 'good').length
+
+    let msg = ''
+    if (reportType === 'monthly' || reportType === 'annual') {
+      msg = `🏛️ <b>វត្តអារាម SystemMK - របាយការណ៍បូកសរុប (${year} ខែទី ${month})</b>
+📅 កាលបរិច្ឆេទ: ${new Date().toLocaleDateString('km-KH')}
+━━━━━━━━━━━━━━━━━━━━━━
+🧘‍♂️ <b>ស្ថិតិព្រះសង្ឃសរុប:</b> <b>${monks.length} អង្គ</b>
+• ភិក្ខុ: ${monks.filter(m => m.rank === 'bhikkhu' || m.rank === 'abbot' || m.rank === 'chief_monk').length} អង្គ
+• សាមណេរ: ${monks.filter(m => m.rank === 'samanera' || !m.rank).length} អង្គ
+• សុខភាពល្អ: ${monks.filter(m => m.health_status === 'good').length} អង្គ
+
+💰 <b>របាយការណ៍ហិរញ្ញវត្ថុ:</b>
+• ចំណូលសរុប: <b>+ ${formatCurrency(totalInc)}</b>
+• ចំណាយសរុប: <b>- ${formatCurrency(totalExp)}</b>
+• សមតុល្យសល់: <b>${formatCurrency(balance)}</b>
+
+📦 <b>សារពើភណ្ឌសម្ភារៈ:</b> <b>${inventory.length} មុខ</b> (ល្អ ${goodInv} មុខ)
+━━━━━━━━━━━━━━━━━━━━━━
+<i>របាយការណ៍ចេញពីប្រព័ន្ធគ្រប់គ្រងវត្តអារាម SystemMK</i>`
+    } else if (reportType === 'finance') {
+      msg = `💰 <b>វត្តអារាម SystemMK - របាយការណ៍សមតុល្យបច្ច័យ</b>
+📅 ឆ្នាំ ${year} ខែទី ${month}
+━━━━━━━━━━━━━━━━━━━━━━
+🟢 ចំណូលបច្ច័យសរុប: <b>+ ${formatCurrency(totalInc)}</b>
+🔴 ចំណាយវត្តសរុប: <b>- ${formatCurrency(totalExp)}</b>
+━━━━━━━━━━━━━━━━━━━━━━
+💵 <b>សមតុល្យបច្ច័យនៅសល់: ${formatCurrency(balance)}</b>
+📈 ស្ថានភាព: ${balance >= 0 ? 'ថវិកាសល់វិជ្ជមាន' : 'ចំណាយលើសចំណូល'}`
+    } else {
+      msg = `📋 <b>វត្តអារាម SystemMK - របាយការណ៍ទូទៅ</b>
+📅 ឆ្នាំ ${year}
+━━━━━━━━━━━━━━━━━━━━━━
+• ព្រះសង្ឃសរុប: <b>${monks.length} អង្គ</b>
+• សមតុល្យបច្ច័យ: <b>${formatCurrency(balance)}</b>
+• សម្ភារៈវត្ត: <b>${inventory.length} មុខ</b>
+━━━━━━━━━━━━━━━━━━━━━━
+<i>ចេញពីប្រព័ន្ធ SystemMK</i>`
+    }
+
+    const res = await sendTelegramReport(msg)
+    alert(res.message)
+    setSendingTelegram(false)
+  }
+
   return (
     <div className="animate-fadeIn space-y-6" style={{ paddingBottom: 'var(--space-8)' }}>
       
@@ -214,7 +267,30 @@ export default function ReportsPage() {
             <p className="page-subtitle" style={{ margin: '2px 0 0' }}>ទាញយករបាយការណ៍បូកសរុប និងតាមដានផែនការយុទ្ធសាស្ត្រវត្តអារាម</p>
           </div>
         </div>
-        <div className="page-header-actions" style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
+        <div className="page-header-actions" style={{ marginTop: '8px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <button 
+            className="hover-lift" 
+            onClick={handleSendTelegram} 
+            disabled={sendingTelegram}
+            style={{
+              background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)',
+              color: '#FFFFFF',
+              border: 'none',
+              fontWeight: 800,
+              padding: '9px 16px',
+              borderRadius: '12px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              cursor: 'pointer',
+              boxShadow: '0 4px 14px rgba(2, 132, 199, 0.35)',
+              fontSize: '0.82rem'
+            }}
+          >
+            <Send size={15} />
+            <span>{sendingTelegram ? 'កំពុងផ្ញើ...' : '📢 ផ្ញើទៅ Telegram'}</span>
+          </button>
+
           <button 
             className="hover-lift" 
             onClick={handleExportExcel} 

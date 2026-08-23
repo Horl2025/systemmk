@@ -7,7 +7,8 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { USER_ROLE_LABELS } from '@/lib/utils'
 import { UserRole, Profile } from '@/lib/database.types'
-import { Settings, Shield, User, Database, Bell, Lock, Save, CheckCircle, ShieldCheck, Key, RefreshCw, Sparkles, Smartphone, Mail, Phone, UserCheck, UserPlus, Trash2, Edit3, Share2, Download, QrCode, Camera, Globe } from 'lucide-react'
+import { Settings, Shield, User, Database, Bell, Lock, Save, CheckCircle, ShieldCheck, Key, RefreshCw, Sparkles, Smartphone, Mail, Phone, UserCheck, UserPlus, Trash2, Edit3, Share2, Download, QrCode, Camera, Globe, Send } from 'lucide-react'
+import { getTelegramConfig, saveTelegramConfig, sendTelegramReport, TelegramConfig } from '@/lib/telegram'
 
 // Initial Root Users
 const INITIAL_USERS: (Profile & { created_by_label?: string })[] = [
@@ -34,6 +35,14 @@ export default function SettingsPage() {
   const [showAddModal, setShowAddModal] = useState(false)
   const [selectedUserForQR, setSelectedUserForQR] = useState<any | null>(null)
   const [selectedUserForEdit, setSelectedUserForEdit] = useState<any | null>(null)
+
+  // Telegram Config State
+  const [telegramConfig, setTelegramConfig] = useState<TelegramConfig>({ botToken: '', chatId: '' })
+  const [telegramTesting, setTelegramTesting] = useState(false)
+
+  useEffect(() => {
+    setTelegramConfig(getTelegramConfig())
+  }, [])
 
   // Current Role: Strictly checks user.role
   const currentRole: UserRole = (user?.role as UserRole) || 'guest'
@@ -1037,6 +1046,121 @@ export default function SettingsPage() {
                 <Database size={16} />
                 <span>Backup Now (.json)</span>
               </button>
+            </div>
+
+            {/* 🤖 Telegram Bot Configuration Card */}
+            <div style={{ padding: '20px 22px', background: '#FFFFFF', borderRadius: '18px', border: '1.5px solid #CBD5E1', boxShadow: '0 4px 14px rgba(0,0,0,0.03)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ width: '38px', height: '38px', borderRadius: '12px', background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(2, 132, 199, 0.3)' }}>
+                    <Send size={20} />
+                  </div>
+                  <div>
+                    <h4 style={{ fontWeight: 800, color: '#0F172A', fontSize: '1rem', margin: 0 }}>
+                      កំណត់ប្រព័ន្ធ Telegram Bot សម្រាប់ផ្ញើរបាយការណ៍
+                    </h4>
+                    <p style={{ fontSize: '0.74rem', color: '#64748B', margin: '2px 0 0' }}>
+                      ផ្ញើរបាយការណ៍ព្រះសង្ឃ វត្តមាន បច្ច័យ និងសម្ភារៈទៅកាន់ Telegram Group របស់វត្តដោយស្វ័យប្រវត្តិ
+                    </p>
+                  </div>
+                </div>
+                <span style={{ background: telegramConfig.botToken && telegramConfig.chatId ? '#ECFDF5' : '#FFFBEB', color: telegramConfig.botToken && telegramConfig.chatId ? '#065F46' : '#92400E', border: `1px solid ${telegramConfig.botToken && telegramConfig.chatId ? '#A7F3D0' : '#FDE68A'}`, padding: '4px 12px', borderRadius: '10px', fontSize: '0.74rem', fontWeight: 800 }}>
+                  {telegramConfig.botToken && telegramConfig.chatId ? '✓ បានតភ្ជាប់ (Connected)' : '⚪ ពុំទាន់តភ្ជាប់ (Not Configured)'}
+                </span>
+              </div>
+
+              <div className="grid-cols-2 gap-3" style={{ display: 'grid', marginBottom: '14px' }}>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>
+                    Telegram Bot Token <span className="text-muted font-latin">(ពី @BotFather)</span>
+                  </label>
+                  <input
+                    type="password"
+                    className="form-control"
+                    placeholder="ឧ. 123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ..."
+                    value={telegramConfig.botToken}
+                    onChange={e => setTelegramConfig({ ...telegramConfig, botToken: e.target.value })}
+                    style={{ fontSize: '0.82rem', padding: '9px 12px' }}
+                  />
+                </div>
+
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>
+                    Telegram Chat ID / Group ID <span className="text-muted font-latin">(ឧ. -100xxxxxxxxxx)</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control font-latin"
+                    placeholder="ឧ. -1001234567890 ឬ @your_channel"
+                    value={telegramConfig.chatId}
+                    onChange={e => setTelegramConfig({ ...telegramConfig, chatId: e.target.value })}
+                    style={{ fontSize: '0.82rem', padding: '9px 12px' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                <div style={{ fontSize: '0.72rem', color: '#64748B' }}>
+                  💡 <strong>របៀបយក៖</strong> បង្កើត Bot តាមរយៈ <code>@BotFather</code> រួច Add Bot ចូលក្នុង Group វត្ត ហើយយក Chat ID ពី <code>@userinfobot</code>
+                </div>
+
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    type="button"
+                    className="hover-lift"
+                    disabled={telegramTesting || !telegramConfig.botToken || !telegramConfig.chatId}
+                    onClick={async () => {
+                      setTelegramTesting(true)
+                      const testMsg = `🔔 <b>វត្តអារាម SystemMK - សាកល្បងប្រព័ន្ធតភ្ជាប់</b>\n📅 កាលបរិច្ឆេទ: ${new Date().toLocaleDateString('km-KH')}\n━━━━━━━━━━━━━━\n✅ ប្រព័ន្ធ Telegram Bot បានតភ្ជាប់ជាមួយ SystemMK ដោយជោគជ័យ ១០០%!`
+                      const res = await sendTelegramReport(testMsg, telegramConfig)
+                      alert(res.message)
+                      setTelegramTesting(false)
+                    }}
+                    style={{
+                      background: '#F0F9FF',
+                      border: '1.5px solid #BAE6FD',
+                      color: '#0369A1',
+                      padding: '8px 14px',
+                      borderRadius: '10px',
+                      fontWeight: 800,
+                      fontSize: '0.78rem',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}
+                  >
+                    <Send size={14} />
+                    <span>{telegramTesting ? 'កំពុងផ្ញើ...' : 'សាកល្បងផ្ញើសារ (Test)'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="hover-lift"
+                    onClick={() => {
+                      saveTelegramConfig(telegramConfig)
+                      alert('បានរក្សាទុកការកំណត់ Telegram Bot ជោគជ័យ!')
+                    }}
+                    style={{
+                      background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)',
+                      border: 'none',
+                      color: '#FFFFFF',
+                      padding: '8px 16px',
+                      borderRadius: '10px',
+                      fontWeight: 800,
+                      fontSize: '0.78rem',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      boxShadow: '0 4px 12px rgba(2, 132, 199, 0.35)'
+                    }}
+                  >
+                    <Save size={14} />
+                    <span>រក្សាទុក Telegram</span>
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* 📱 Official App QR Code Download & Share Card */}

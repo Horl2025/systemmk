@@ -8,9 +8,10 @@ import { supabase } from '@/lib/supabase'
 import { useYear } from '@/contexts/YearContext'
 import { Income, Expense } from '@/lib/database.types'
 import { INCOME_TYPE_LABELS, EXPENSE_TYPE_LABELS, formatCurrency, today } from '@/lib/utils'
-import { Plus, DollarSign, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Wallet, Check, Sparkles, ArrowLeft, Calendar, Trash2 } from 'lucide-react'
+import { Plus, DollarSign, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Wallet, Check, Sparkles, ArrowLeft, Calendar, Trash2, Send } from 'lucide-react'
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts'
 import { fetchCloudCollection, syncToCloud, subscribeToRealtimeSync } from '@/lib/cloudSync'
+import { sendTelegramReport } from '@/lib/telegram'
 
 export default function FinancePage() {
   const router = useRouter()
@@ -20,6 +21,7 @@ export default function FinancePage() {
   const [tab, setTab] = useState<'overview' | 'income' | 'expense'>('overview')
   const [showIncomeModal, setShowIncomeModal] = useState(false)
   const [showExpenseModal, setShowExpenseModal] = useState(false)
+  const [sendingTelegram, setSendingTelegram] = useState(false)
 
   // Load custom finance records from Central Cloud Server & localStorage with live auto-sync
   const loadData = useCallback(async () => {
@@ -153,7 +155,45 @@ export default function FinancePage() {
             <p className="page-subtitle" style={{ margin: '2px 0 0' }}>គ្រប់គ្រង និងតាមដានចរន្តចំណូល ចំណាយ និងតុល្យភាពបច្ច័យវត្ត</p>
           </div>
         </div>
-        <div className="page-header-actions" style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
+        <div className="page-header-actions" style={{ marginTop: '8px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <button 
+            className="hover-lift" 
+            disabled={sendingTelegram}
+            onClick={async () => {
+              setSendingTelegram(true)
+              const msg = `💰 <b>វត្តអារាម SystemMK - របាយការណ៍បច្ច័យវត្ត</b>
+📅 ឆ្នាំ <b>${selectedYear}</b>
+━━━━━━━━━━━━━━━━━━━━━━
+🟢 ចំណូលបច្ច័យសរុប: <b>+ ${formatCurrency(totalIncome)}</b>
+🔴 ចំណាយវត្តសរុប: <b>- ${formatCurrency(totalExpense)}</b>
+━━━━━━━━━━━━━━━━━━━━━━
+💵 <b>សមតុល្យបច្ច័យនៅសល់: ${formatCurrency(balance)}</b>
+📈 ស្ថានភាព: ${balance >= 0 ? 'ថវិកាសល់វិជ្ជមាន' : 'ចំណាយលើសចំណូល'}
+<i>ចេញពីប្រព័ន្ធហិរញ្ញវត្ថុ SystemMK</i>`
+
+              const res = await sendTelegramReport(msg)
+              alert(res.message)
+              setSendingTelegram(false)
+            }}
+            style={{
+              background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)',
+              color: '#FFFFFF',
+              fontWeight: 800,
+              padding: '10px 16px',
+              borderRadius: '12px',
+              border: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              cursor: 'pointer',
+              boxShadow: '0 4px 14px rgba(2, 132, 199, 0.35)',
+              fontSize: '0.82rem'
+            }}
+          >
+            <Send size={15} />
+            <span>{sendingTelegram ? 'កំពុងផ្ញើ...' : '📢 ផ្ញើទៅ Telegram'}</span>
+          </button>
+
           <button 
             className="hover-lift" 
             onClick={() => setShowIncomeModal(true)}
