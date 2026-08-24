@@ -487,7 +487,7 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
         )}
       </div>
 
-      <div className="flex items-center gap-1.5 sm:gap-2.5" style={{ flexShrink: 0 }}>
+      <div className="flex items-center gap-2.5 sm:gap-3.5" style={{ flexShrink: 0 }}>
         
         {/* 🌟 GLOBAL YEAR SWITCHER DROPDOWN */}
         <div ref={yearDropdownRef} style={{ position: 'relative' }}>
@@ -499,21 +499,21 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
               background: isDark ? 'rgba(245, 158, 11, 0.15)' : 'linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(217, 119, 6, 0.18) 100%)',
               border: '1.5px solid rgba(245, 158, 11, 0.45)',
               color: isDark ? '#FDE68A' : '#B45309',
-              borderRadius: '10px',
-              padding: '5px 8px',
+              borderRadius: '12px',
+              padding: '6px 10px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '4px',
+              gap: '6px',
               fontWeight: 800,
-              fontSize: '0.78rem',
-              boxShadow: '0 2px 6px rgba(217, 119, 6, 0.1)'
+              fontSize: '0.82rem',
+              boxShadow: '0 2px 6px rgba(217, 119, 6, 0.12)'
             }}
             title="ជ្រើសរើសឆ្នាំគ្រប់គ្រងទិន្នន័យ (Fiscal / Academic Year)"
           >
-            <Calendar size={13} color={isDark ? '#FDE68A' : '#D97706'} />
+            <Calendar size={14} color={isDark ? '#FDE68A' : '#D97706'} />
             <span style={{ whiteSpace: 'nowrap' }}>{selectedYear}</span>
-            <ChevronDown size={12} color={isDark ? '#FDE68A' : '#B45309'} style={{ transform: showYearDropdown ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+            <ChevronDown size={13} color={isDark ? '#FDE68A' : '#B45309'} style={{ transform: showYearDropdown ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
           </button>
 
           {/* Dropdown Menu */}
@@ -613,8 +613,9 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
             style={{
               background: isDark ? '#1E293B' : '#F8FAFC',
               border: isDark ? '1.5px solid #334155' : '1.5px solid #E2E8F0',
-              borderRadius: '10px',
-              padding: '6px',
+              borderRadius: '12px',
+              width: '36px',
+              height: '36px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -624,24 +625,25 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
             }}
             title="សេចក្ដីជូនដំណឹង និងព្រឹត្តិការណ៍"
           >
-            <Bell size={16} color={isDark ? '#FDE68A' : '#0F172A'} />
+            <Bell size={17} color={isDark ? '#FDE68A' : '#0F172A'} />
             {unreadCount > 0 && (
               <span 
                 style={{
                   position: 'absolute',
-                  top: '-3px',
-                  right: '-3px',
+                  top: '-4px',
+                  right: '-4px',
                   background: '#EF4444',
                   color: '#FFFFFF',
-                  width: '16px',
-                  height: '16px',
+                  width: '18px',
+                  height: '18px',
                   borderRadius: '50%',
-                  fontSize: '0.6rem',
+                  fontSize: '0.62rem',
                   fontWeight: 800,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 2px 6px rgba(239, 68, 68, 0.4)'
+                  boxShadow: '0 2px 6px rgba(239, 68, 68, 0.4)',
+                  border: '2px solid #FFFFFF'
                 }}
               >
                 {unreadCount}
@@ -656,7 +658,7 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
               style={{
                 position: 'absolute',
                 right: '-10px',
-                top: '44px',
+                top: '48px',
                 width: '340px',
                 maxWidth: 'calc(100vw - 24px)',
                 background: '#FFFFFF',
@@ -783,8 +785,9 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
           style={{
             background: isDark ? '#1E293B' : '#F8FAFC',
             border: isDark ? '1.5px solid #334155' : '1.5px solid #E2E8F0',
-            borderRadius: '10px',
-            padding: '6px',
+            borderRadius: '12px',
+            width: '36px',
+            height: '36px',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -795,14 +798,14 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
           }}
           aria-label="Toggle Theme Mode"
         >
-          {isDark ? <Sun size={16} color="#F59E0B" /> : <Moon size={16} color="#475569" />}
+          {isDark ? <Sun size={17} color="#F59E0B" /> : <Moon size={17} color="#475569" />}
         </button>
 
         {/* User profile bubble (Clickable to change photo) */}
         <div 
           onClick={() => setShowAvatarModal(true)}
-          className="flex items-center gap-1.5 hover-lift"
-          style={{ cursor: 'pointer', padding: '2px 4px', borderRadius: '20px', background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)', flexShrink: 0 }}
+          className="flex items-center gap-2 hover-lift"
+          style={{ cursor: 'pointer', padding: '3px 5px', borderRadius: '20px', background: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)', flexShrink: 0, marginLeft: '2px' }}
           title="ចុចទីនេះដើម្បីប្ដូររូបថតគណនី (Click to change photo)"
         >
           <div 
