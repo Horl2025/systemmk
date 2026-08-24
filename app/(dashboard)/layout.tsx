@@ -487,7 +487,7 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
         )}
       </div>
 
-      <div className="flex items-center gap-2.5 sm:gap-3.5" style={{ flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
         
         {/* 🌟 GLOBAL YEAR SWITCHER DROPDOWN */}
         <div ref={yearDropdownRef} style={{ position: 'relative' }}>
@@ -794,7 +794,8 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
             justifyContent: 'center',
             boxShadow: '0 2px 6px rgba(0,0,0,0.03)',
             color: isDark ? '#FDE68A' : '#0F172A',
-            transition: 'all 0.2s ease'
+            transition: 'all 0.2s ease',
+            flexShrink: 0
           }}
           aria-label="Toggle Theme Mode"
         >
@@ -805,14 +806,20 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
         <div 
           onClick={() => setShowAvatarModal(true)}
           className="flex items-center gap-2 hover-lift"
-          style={{ cursor: 'pointer', padding: '3px 5px', borderRadius: '20px', background: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)', flexShrink: 0, marginLeft: '2px' }}
+          style={{ 
+            cursor: 'pointer', 
+            padding: '2px 3px', 
+            borderRadius: '50%', 
+            background: 'transparent',
+            flexShrink: 0
+          }}
           title="ចុចទីនេះដើម្បីប្ដូររូបថតគណនី (Click to change photo)"
         >
           <div 
             className="avatar avatar-sm" 
             style={{ 
-              width: 30, 
-              height: 30, 
+              width: '34px', 
+              height: '34px', 
               borderRadius: '50%', 
               background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)', 
               color: '#1C1917', 
@@ -820,9 +827,10 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
               alignItems: 'center', 
               justifyContent: 'center', 
               fontWeight: 800,
-              fontSize: '0.8rem',
+              fontSize: '0.85rem',
               overflow: 'hidden',
-              boxShadow: '0 2px 6px rgba(217, 119, 6, 0.3)',
+              boxShadow: '0 3px 8px rgba(217, 119, 6, 0.35)',
+              border: '2px solid #FFFFFF',
               position: 'relative'
             }}
           >
