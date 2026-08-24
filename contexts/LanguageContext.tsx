@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
 
@@ -34,6 +34,12 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     reports: 'របាយការណ៍',
     chat: 'ការសន្ទនា',
     settings: 'ការកំណត់',
+    // Sections
+    sectionMonks: 'ព្រះសង្ឃ',
+    sectionActivity: 'សកម្មភាព',
+    sectionFinance: 'ហិរញ្ញវត្ថុ',
+    sectionConnect: 'ទំនាក់ទំនង',
+    sectionSystem: 'ប្រព័ន្ធ',
     // Actions & Common
     save: 'រក្សាទុក',
     saveChanges: 'រក្សាទុកការផ្លាស់ប្ដូរ',
@@ -70,6 +76,12 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     reports: 'Reports',
     chat: 'Chat',
     settings: 'Settings',
+    // Sections
+    sectionMonks: 'Monks',
+    sectionActivity: 'Activity',
+    sectionFinance: 'Finance',
+    sectionConnect: 'Connect',
+    sectionSystem: 'System',
     save: 'Save',
     saveChanges: 'Save Changes',
     cancel: 'Cancel',

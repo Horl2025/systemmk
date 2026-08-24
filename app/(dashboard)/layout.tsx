@@ -20,20 +20,20 @@ import {
 
 const navItems = [
   { label: 'ផ្ទាំងគ្រប់គ្រង', labelEn: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { section: 'ព្រះសង្ឃ / Monks' },
+  { sectionKey: 'sectionMonks', sectionDefault: 'ព្រះសង្ឃ' },
   { label: 'ព្រះសង្ឃ', labelEn: 'Monks', href: '/monks', icon: Users },
   { label: 'ទីកន្លែង', labelEn: 'Rooms', href: '/rooms', icon: Building2 },
   { label: 'សិស្ស', labelEn: 'Students', href: '/students', icon: GraduationCap },
-  { section: 'សកម្មភាព / Activity' },
+  { sectionKey: 'sectionActivity', sectionDefault: 'សកម្មភាព' },
   { label: 'វត្តមាន', labelEn: 'Attendance', href: '/attendance', icon: CalendarCheck },
   { label: 'កាលវិភាគ', labelEn: 'Schedule', href: '/schedule', icon: Calendar },
-  { section: 'ហិរញ្ញវត្ថុ / Finance' },
+  { sectionKey: 'sectionFinance', sectionDefault: 'ហិរញ្ញវត្ថុ' },
   { label: 'ហិរញ្ញវត្ថុ', labelEn: 'Finance', href: '/finance', icon: DollarSign },
   { label: 'សម្ភារៈ', labelEn: 'Inventory', href: '/inventory', icon: Package },
   { label: 'របាយការណ៍', labelEn: 'Reports', href: '/reports', icon: BarChart3 },
-  { section: 'ទំនាក់ទំនង / Connect' },
+  { sectionKey: 'sectionConnect', sectionDefault: 'ទំនាក់ទំនង' },
   { label: 'ការសន្ទនា', labelEn: 'Chat', href: '/chat', icon: MessageSquare },
-  { section: 'ប្រព័ន្ធ / System' },
+  { sectionKey: 'sectionSystem', sectionDefault: 'ប្រព័ន្ធ' },
   { label: 'ការកំណត់', labelEn: 'Settings', href: '/settings', icon: Settings },
 ]
 
@@ -153,21 +153,21 @@ function Sidebar({
             const accessibleHrefs = allowedHrefs[currentRole] || allowedHrefs.guest
 
             const filteredNav = navItems.filter((item, idx, arr) => {
-              if ('section' in item) {
+              if ('sectionKey' in item) {
                 // Check if any following item belongs to this section until next section
                 const subsequentItems = []
                 for (let j = idx + 1; j < arr.length; j++) {
-                  if ('section' in arr[j]) break
+                  if ('sectionKey' in arr[j]) break
                   subsequentItems.push(arr[j])
                 }
-                return subsequentItems.some(sub => !('section' in sub) && accessibleHrefs.includes(sub.href))
+                return subsequentItems.some(sub => !('sectionKey' in sub) && accessibleHrefs.includes(sub.href))
               }
               return accessibleHrefs.includes(item.href)
             })
 
             return filteredNav.map((item, i) => {
-              if ('section' in item) {
-                return <div key={i} className="sidebar-section-label">{item.section}</div>
+              if ('sectionKey' in item) {
+                return <div key={i} className="sidebar-section-label">{t(item.sectionKey || '', item.sectionDefault || '')}</div>
               }
               const Icon = item.icon
               const isActive = pathname === item.href ||
@@ -192,7 +192,7 @@ function Sidebar({
                   href={item.href}
                   onClick={onMobileClose}
                   className={`nav-item ${isActive ? 'nav-item--active' : ''}`}
-                  title={collapsed ? `${translatedLabel} / ${item.labelEn}` : ''}
+                  title={collapsed ? translatedLabel : ''}
                 >
                   <span className="nav-item-icon">
                     <Icon size={18} />
@@ -330,6 +330,7 @@ function Sidebar({
 function Header({ onMenuClick }: { onMenuClick: () => void }) {
   const pathname = usePathname()
   const { user, customAvatar, setCustomAvatar } = useAuth()
+  const { t } = useLanguage()
   const [showNotifications, setShowNotifications] = useState(false)
   const [showAvatarModal, setShowAvatarModal] = useState(false)
   const [unreadCount, setUnreadCount] = useState(1)
@@ -423,7 +424,7 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
   }
 
   const currentItem = navItems.find(item =>
-    !('section' in item) && (
+    !('sectionKey' in item) && (
       pathname === item.href ||
       (item.href !== '/dashboard' && pathname?.startsWith(item.href))
     )
@@ -457,9 +458,9 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
             <h2 
               className="text-truncate"
               style={{ 
-                fontSize: '0.95rem', 
+                fontSize: '1rem', 
                 fontWeight: 800, 
-                lineHeight: 1.15, 
+                lineHeight: 1.2, 
                 color: isDark ? '#FFFFFF' : '#0F172A', 
                 margin: 0,
                 whiteSpace: 'nowrap',
@@ -467,22 +468,24 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
                 textOverflow: 'ellipsis'
               }}
             >
-              {!('section' in currentItem) && currentItem.label}
+              {(() => {
+                if (!currentItem || !currentItem.href) return ''
+                const keyMap: Record<string, string> = {
+                  '/dashboard': 'dashboard',
+                  '/monks': 'monks',
+                  '/rooms': 'rooms',
+                  '/students': 'students',
+                  '/attendance': 'attendance',
+                  '/schedule': 'schedule',
+                  '/finance': 'finance',
+                  '/inventory': 'inventory',
+                  '/reports': 'reports',
+                  '/chat': 'chat',
+                  '/settings': 'settings',
+                }
+                return t(keyMap[currentItem.href] || '', currentItem.label || '')
+              })()}
             </h2>
-            <p 
-              className="hidden sm:block text-truncate"
-              style={{ 
-                fontSize: '0.66rem', 
-                color: isDark ? '#94A3B8' : 'var(--color-text-muted)', 
-                fontFamily: 'var(--font-latin)', 
-                margin: 0,
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis'
-              }}
-            >
-              {!('section' in currentItem) && currentItem.labelEn}
-            </p>
           </div>
         )}
       </div>
