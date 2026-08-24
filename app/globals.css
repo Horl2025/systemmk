@@ -184,22 +184,26 @@ body {
   border-color: rgba(245, 158, 11, 0.45) !important;
 }
 
-/* 🌟 Card Shimmer Highlight on Hover */
-.hover-lift::after {
+/* 🌟 Card Shimmer Highlight on Hover (Only for Large Cards & Buttons, NOT small circular icons) */
+.card.hover-lift::after,
+.btn.hover-lift::after,
+.stat-card.hover-lift::after {
   content: '';
   position: absolute;
   top: 0;
   left: -150%;
   width: 80%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
   transform: skewX(-25deg);
   transition: none;
   pointer-events: none;
   border-radius: inherit;
 }
 
-.hover-lift:hover::after {
+.card.hover-lift:hover::after,
+.btn.hover-lift:hover::after,
+.stat-card.hover-lift:hover::after {
   left: 200%;
   transition: left 0.75s ease-in-out;
 }
@@ -1086,6 +1090,12 @@ nextjs-portal,
     padding: 0 6px;
     z-index: 99;
     border: 1.5px solid rgba(226, 232, 240, 0.9);
+  }
+
+  [data-theme="dark"] .mobile-bottom-nav {
+    background: rgba(15, 23, 42, 0.92) !important;
+    border-color: rgba(51, 65, 85, 0.8) !important;
+    box-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
   }
 
   .page-wrapper {

@@ -603,7 +603,7 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
         </div>
 
         {/* 🌟 NOTIFICATION BELL BUTTON & CONTAINER */}
-        <div ref={dropdownRef} style={{ position: 'relative' }}>
+        <div ref={dropdownRef} style={{ position: 'relative', flexShrink: 0 }}>
           <button
             onClick={() => {
               setShowNotifications(!showNotifications)
@@ -630,20 +630,20 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
               <span 
                 style={{
                   position: 'absolute',
-                  top: '-4px',
-                  right: '-4px',
+                  top: '-3px',
+                  right: '-3px',
                   background: '#EF4444',
                   color: '#FFFFFF',
-                  width: '18px',
-                  height: '18px',
+                  width: '16px',
+                  height: '16px',
                   borderRadius: '50%',
-                  fontSize: '0.62rem',
+                  fontSize: '0.6rem',
                   fontWeight: 800,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   boxShadow: '0 2px 6px rgba(239, 68, 68, 0.4)',
-                  border: '2px solid #FFFFFF'
+                  border: '1.5px solid #FFFFFF'
                 }}
               >
                 {unreadCount}
