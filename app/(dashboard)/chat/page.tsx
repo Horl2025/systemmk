@@ -291,7 +291,7 @@ export default function TelegramChatPage() {
       <input type="file" ref={videoInputRef} accept="video/*" style={{ display: 'none' }} onChange={handleVideoSelect} />
       <input type="file" ref={fileInputRef} accept=".pdf,.doc,.docx,.xls,.xlsx,.zip" style={{ display: 'none' }} onChange={handleFileSelect} />
 
-      <div className="md:hidden flex gap-2 overflow-x-auto pb-1">
+      <div className="md:hidden flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {CHANNELS.map(ch => {
           const Icon = ch.icon
           const active = currentChannel === ch.id
@@ -304,19 +304,19 @@ export default function TelegramChatPage() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
-                padding: '7px 12px',
-                borderRadius: '14px',
-                border: active ? 'none' : '1px solid #E2E8F0',
+                padding: '8px 14px',
+                borderRadius: '16px',
+                border: active ? 'none' : '1.5px solid #E2E8F0',
                 background: active ? 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)' : '#FFFFFF',
                 color: active ? '#FFFFFF' : '#475569',
                 fontWeight: 800,
-                fontSize: '0.78rem',
+                fontSize: '0.82rem',
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
-                boxShadow: active ? '0 4px 12px rgba(37, 99, 235, 0.35)' : 'none'
+                boxShadow: active ? '0 4px 14px rgba(37, 99, 235, 0.35)' : '0 2px 6px rgba(0,0,0,0.03)'
               }}
             >
-              <Icon size={14} />
+              <Icon size={15} />
               <span>{ch.name.split(' (')[0]}</span>
             </button>
           )
@@ -326,11 +326,11 @@ export default function TelegramChatPage() {
       <div 
         style={{ 
           background: '#FFFFFF', 
-          borderRadius: '24px', 
+          borderRadius: '26px', 
           border: '1.5px solid #E2E8F0', 
-          boxShadow: '0 12px 35px -10px rgba(0,0,0,0.08)',
-          height: 'calc(100vh - 210px)', 
-          minHeight: '520px',
+          boxShadow: '0 16px 40px -10px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(0,0,0,0.02)',
+          height: 'calc(100vh - 245px)', 
+          minHeight: '480px',
           display: 'flex', 
           overflow: 'hidden',
           position: 'relative'
@@ -410,43 +410,45 @@ export default function TelegramChatPage() {
           </div>
         </div>
 
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#F0F2F5', position: 'relative' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#F8FAFC', position: 'relative' }}>
           <div 
             style={{ 
               padding: '12px 18px', 
               background: '#FFFFFF', 
-              borderBottom: '1.5px solid #E2E8F0', 
+              borderBottom: '1.5px solid #F1F5F9', 
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'space-between',
-              zIndex: 10
+              zIndex: 10,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div 
                 style={{ 
-                  width: '40px', 
-                  height: '40px', 
-                  borderRadius: '50%', 
-                  background: activeCh.color, 
+                  width: '42px', 
+                  height: '42px', 
+                  borderRadius: '14px', 
+                  background: `linear-gradient(135deg, ${activeCh.color} 0%, ${activeCh.color}DD 100%)`, 
                   color: '#FFFFFF', 
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center',
                   fontWeight: 900,
                   fontSize: '1rem',
-                  boxShadow: `0 4px 12px ${activeCh.color}40`
+                  boxShadow: `0 6px 16px ${activeCh.color}35`,
+                  flexShrink: 0
                 }}
               >
-                <activeCh.icon size={18} />
+                <activeCh.icon size={20} />
               </div>
-              <div>
-                <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#0F172A' }}>
+              <div style={{ minWidth: 0 }}>
+                <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {activeCh.name}
                 </h3>
-                <div style={{ fontSize: '0.72rem', color: '#10B981', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#10B981', display: 'inline-block' }} />
-                  <span>{activeCh.online} អង្គ/នាក់ កំពុងអនឡាញ (Online)</span>
+                <div style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '5px', marginTop: '2px' }}>
+                  <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#10B981', display: 'inline-block', boxShadow: '0 0 8px #10B981' }} />
+                  <span>{activeCh.online} អង្គ/នាក់ កំពុងអនឡាញ</span>
                 </div>
               </div>
             </div>
@@ -460,7 +462,7 @@ export default function TelegramChatPage() {
                 style={{
                   width: '38px',
                   height: '38px',
-                  borderRadius: '50%',
+                  borderRadius: '12px',
                   background: '#EFF6FF',
                   border: '1.5px solid #BFDBFE',
                   color: '#2563EB',
@@ -470,7 +472,7 @@ export default function TelegramChatPage() {
                   cursor: 'pointer'
                 }}
               >
-                <Phone size={18} />
+                <Phone size={17} />
               </button>
 
               <button
@@ -481,7 +483,7 @@ export default function TelegramChatPage() {
                 style={{
                   width: '38px',
                   height: '38px',
-                  borderRadius: '50%',
+                  borderRadius: '12px',
                   background: '#ECFDF5',
                   border: '1.5px solid #A7F3D0',
                   color: '#059669',
@@ -491,7 +493,7 @@ export default function TelegramChatPage() {
                   cursor: 'pointer'
                 }}
               >
-                <VideoCallIcon size={18} />
+                <VideoCallIcon size={17} />
               </button>
             </div>
           </div>
@@ -500,13 +502,13 @@ export default function TelegramChatPage() {
             style={{ 
               flex: 1, 
               overflowY: 'auto', 
-              padding: '16px 20px', 
+              padding: '16px', 
               display: 'flex', 
               flexDirection: 'column', 
               gap: '12px',
               backgroundImage: 'radial-gradient(#CBD5E1 0.75px, transparent 0.75px)',
               backgroundSize: '16px 16px',
-              backgroundColor: '#E5EBF1'
+              backgroundColor: '#F1F5F9'
             }}
           >
             {messages.length === 0 ? (
@@ -760,12 +762,13 @@ export default function TelegramChatPage() {
 
           <div 
             style={{ 
-              padding: '10px 16px', 
+              padding: '12px 14px', 
               background: '#FFFFFF', 
-              borderTop: '1.5px solid #E2E8F0',
+              borderTop: '1.5px solid #F1F5F9',
               display: 'flex',
               alignItems: 'center',
-              gap: '10px'
+              gap: '8px',
+              boxShadow: '0 -4px 16px rgba(0,0,0,0.02)'
             }}
           >
             <button
@@ -774,27 +777,40 @@ export default function TelegramChatPage() {
                 setShowAttachMenu(!showAttachMenu)
                 setShowStickerPicker(false)
               }}
-              style={{ background: 'transparent', border: 'none', color: '#64748B', cursor: 'pointer', padding: '6px', borderRadius: '50%' }}
+              className="hover-lift"
+              style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '12px',
+                background: '#F8FAFC',
+                border: '1px solid #E2E8F0',
+                color: '#64748B',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0
+              }}
               title="Attach Media / File"
             >
-              <Paperclip size={20} />
+              <Paperclip size={18} />
             </button>
 
             {isRecording ? (
-              <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#FEE2E2', padding: '8px 16px', borderRadius: '20px', border: '1px solid #FECACA' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#DC2626', fontWeight: 800, fontSize: '0.85rem' }}>
-                  <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#DC2626', animation: 'pulse 1s infinite' }} />
-                  <span>កំពុងថតសំឡេង: {formatTimer(recordTime)}</span>
+              <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#FEF2F2', padding: '8px 14px', borderRadius: '16px', border: '1.5px solid #FECACA' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#DC2626', fontWeight: 800, fontSize: '0.82rem' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#DC2626', animation: 'pulse 1s infinite' }} />
+                  <span>កំពុងថត: {formatTimer(recordTime)}</span>
                 </div>
                 <button
                   onClick={stopRecording}
-                  style={{ background: '#DC2626', color: '#FFF', border: 'none', padding: '5px 12px', borderRadius: '10px', fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer' }}
+                  style={{ background: '#DC2626', color: '#FFF', border: 'none', padding: '5px 12px', borderRadius: '10px', fontWeight: 800, fontSize: '0.74rem', cursor: 'pointer' }}
                 >
-                  ផ្ញើសំឡេង (Send)
+                  ផ្ញើសំឡេង
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSendText} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <form onSubmit={handleSendText} style={{ flex: 1, display: 'flex', alignItems: 'center', position: 'relative' }}>
                 <input 
                   type="text" 
                   value={inputText}
@@ -802,29 +818,29 @@ export default function TelegramChatPage() {
                   placeholder="សរសេរសារផ្ញើ..." 
                   style={{
                     width: '100%',
-                    background: '#F1F5F9',
+                    background: '#F8FAFC',
                     border: '1.5px solid #E2E8F0',
-                    borderRadius: '20px',
-                    padding: '10px 16px',
-                    fontSize: '0.9rem',
+                    borderRadius: '18px',
+                    padding: '9px 40px 9px 14px',
+                    fontSize: '0.88rem',
                     outline: 'none',
-                    fontWeight: 600
+                    fontWeight: 600,
+                    color: '#0F172A'
                   }}
                 />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowStickerPicker(!showStickerPicker)
+                    setShowAttachMenu(false)
+                  }}
+                  style={{ position: 'absolute', right: '10px', background: 'transparent', border: 'none', color: '#94A3B8', cursor: 'pointer', padding: '4px' }}
+                  title="Sticker"
+                >
+                  <Smile size={18} />
+                </button>
               </form>
             )}
-
-            <button
-              type="button"
-              onClick={() => {
-                setShowStickerPicker(!showStickerPicker)
-                setShowAttachMenu(false)
-              }}
-              style={{ background: 'transparent', border: 'none', color: '#64748B', cursor: 'pointer', padding: '6px' }}
-              title="Sticker"
-            >
-              <Smile size={20} />
-            </button>
 
             {inputText.trim() ? (
               <button
@@ -832,9 +848,9 @@ export default function TelegramChatPage() {
                 onClick={() => handleSendText()}
                 className="hover-lift"
                 style={{
-                  width: '42px',
-                  height: '42px',
-                  borderRadius: '50%',
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '12px',
                   background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
                   color: '#FFFFFF',
                   border: 'none',
@@ -842,10 +858,11 @@ export default function TelegramChatPage() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(37, 99, 235, 0.4)'
+                  boxShadow: '0 4px 12px rgba(37, 99, 235, 0.35)',
+                  flexShrink: 0
                 }}
               >
-                <Send size={18} style={{ marginLeft: '2px' }} />
+                <Send size={16} style={{ marginLeft: '1px' }} />
               </button>
             ) : (
               <button
@@ -853,9 +870,9 @@ export default function TelegramChatPage() {
                 onClick={isRecording ? stopRecording : startRecording}
                 className="hover-lift"
                 style={{
-                  width: '42px',
-                  height: '42px',
-                  borderRadius: '50%',
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '12px',
                   background: isRecording ? '#DC2626' : 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
                   color: '#FFFFFF',
                   border: 'none',
@@ -863,11 +880,12 @@ export default function TelegramChatPage() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(37, 99, 235, 0.4)'
+                  boxShadow: isRecording ? '0 4px 12px rgba(220, 38, 38, 0.4)' : '0 4px 12px rgba(37, 99, 235, 0.35)',
+                  flexShrink: 0
                 }}
-                title="Voice Note / សារសំឡេង"
+                title={isRecording ? 'បញ្ឈប់ការថត' : 'ថតសំឡេង (Voice Message)'}
               >
-                {isRecording ? <MicOff size={18} /> : <Mic size={18} />}
+                {isRecording ? <MicOff size={16} /> : <Mic size={16} />}
               </button>
             )}
 
