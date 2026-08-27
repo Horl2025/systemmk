@@ -286,7 +286,7 @@ export default function DashboardPage() {
             </div>
 
             <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#FEF3C7', lineHeight: 1.3 }}>
-              សូមស្វាគមន៍មកកាន់ មជ្ឈមណ្ឌលគ្រប់គ្រងវត្តអារាម
+              សូមស្វាគមន៍ មកកាន់SystemMK
             </h1>
             <p style={{ color: '#D1D5DB', marginTop: '6px', fontSize: '0.82rem', lineHeight: 1.5 }}>
               តាមដានស្ថិតិព្រះសង្ឃ បន្ទប់ស្នាក់នៅ វត្តមានសង្ឃកិច្ច តុល្យភាពហិរញ្ញវត្ថុ និងរបាយការណ៍បានយ៉ាងរហ័ស។
