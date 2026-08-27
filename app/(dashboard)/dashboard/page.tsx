@@ -77,6 +77,8 @@ export default function DashboardPage() {
 
   const [rankDistribution, setRankDistribution] = useState<{ name: string; value: number }[]>([])
   const [financeData, setFinanceData] = useState<{ month: string; income: number; expense: number }[]>([])
+  const [flipIncome, setFlipIncome] = useState(false)
+  const [flipExpense, setFlipExpense] = useState(false)
 
   // Load and calculate stats filtered by selectedYear and local persisted data
   useEffect(() => {
@@ -401,60 +403,132 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Card 3: Monthly Income */}
+        {/* Card 3: Monthly Income with 3D Flip to USD */}
         <div 
+          onClick={() => setFlipIncome(!flipIncome)}
           className="hover-lift"
           style={{ 
-            background: 'linear-gradient(145deg, #ECFDF5 0%, #D1FAE5 100%)', 
+            background: flipIncome 
+              ? 'linear-gradient(145deg, #064E3B 0%, #065F46 100%)' 
+              : 'linear-gradient(145deg, #ECFDF5 0%, #D1FAE5 100%)', 
             borderRadius: '18px', 
             padding: '12px 14px', 
-            border: '1.5px solid #A7F3D0', 
-            boxShadow: '0 8px 20px -5px rgba(5, 150, 105, 0.15)',
-            overflow: 'hidden'
+            border: flipIncome ? '1.5px solid #059669' : '1.5px solid #A7F3D0', 
+            boxShadow: '0 8px 20px -5px rgba(5, 150, 105, 0.2)',
+            cursor: 'pointer',
+            transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
+            transform: flipIncome ? 'scale(1.02)' : 'none',
+            userSelect: 'none'
           }}
+          title="ចុចដើម្បីត្រឡប់មើលជាប្រាក់ដុល្លារ ($ USD) / ប្រាក់រៀល (៛ KHR)"
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#065F46', display: 'block', whiteSpace: 'nowrap' }}>ចំណូលបច្ច័យ</span>
-              <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#064E3B', marginTop: '2px', lineHeight: 1.1, whiteSpace: 'nowrap' }} className="font-latin">
-                {formatCurrency(stats.monthlyIncome)}
+          {!flipIncome ? (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#065F46', display: 'block', whiteSpace: 'nowrap' }}>ចំណូលបច្ច័យ</span>
+                    <span style={{ fontSize: '0.55rem', background: '#A7F3D0', color: '#065F46', padding: '1px 4px', borderRadius: '4px', fontWeight: 800 }}>៛</span>
+                  </div>
+                  <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#064E3B', marginTop: '2px', lineHeight: 1.1, whiteSpace: 'nowrap' }} className="font-latin">
+                    {formatCurrency(stats.monthlyIncome)}
+                  </div>
+                </div>
+                <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'linear-gradient(135deg, #6EE7B7 0%, #10B981 100%)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(16, 185, 129, 0.3)', flexShrink: 0 }}>
+                  <ArrowUpRight size={16} />
+                </div>
+              </div>
+              <div style={{ marginTop: '8px', paddingTop: '6px', borderTop: '1px dashed #A7F3D0', fontSize: '0.62rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: '#047857', fontWeight: 700 }}>+១២% ខែនេះ</span>
+                <span style={{ color: '#059669', fontSize: '0.6rem', fontWeight: 700 }}>🔄 ចុចមើល $</span>
               </div>
             </div>
-            <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'linear-gradient(135deg, #6EE7B7 0%, #10B981 100%)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(16, 185, 129, 0.3)', flexShrink: 0 }}>
-              <ArrowUpRight size={16} />
+          ) : (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#A7F3D0', display: 'block', whiteSpace: 'nowrap' }}>ចំណូលបច្ច័យ ($)</span>
+                    <span style={{ fontSize: '0.55rem', background: '#047857', color: '#D1FAE5', padding: '1px 4px', borderRadius: '4px', fontWeight: 800 }}>USD</span>
+                  </div>
+                  <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#FFFFFF', marginTop: '2px', lineHeight: 1.1, whiteSpace: 'nowrap' }} className="font-latin">
+                    ${(stats.monthlyIncome / 4100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </div>
+                </div>
+                <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: '#10B981', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(16, 185, 129, 0.5)', flexShrink: 0, fontWeight: 900, fontSize: '0.9rem' }}>
+                  $
+                </div>
+              </div>
+              <div style={{ marginTop: '8px', paddingTop: '6px', borderTop: '1px dashed rgba(167, 243, 208, 0.3)', fontSize: '0.62rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: '#A7F3D0', fontWeight: 600 }}>អត្រា $1 = 4,100 ៛</span>
+                <span style={{ color: '#FEF3C7', fontSize: '0.6rem', fontWeight: 700 }}>🔄 ត្រឡប់មើល ៛</span>
+              </div>
             </div>
-          </div>
-          <div style={{ marginTop: '8px', paddingTop: '6px', borderTop: '1px dashed #A7F3D0', fontSize: '0.62rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            <span style={{ color: '#047857', fontWeight: 700 }}>+១២% ខែនេះ</span>
-          </div>
+          )}
         </div>
 
-        {/* Card 4: Monthly Expense */}
+        {/* Card 4: Monthly Expense with 3D Flip to USD */}
         <div 
+          onClick={() => setFlipExpense(!flipExpense)}
           className="hover-lift"
           style={{ 
-            background: 'linear-gradient(145deg, #FEF2F2 0%, #FEE2E2 100%)', 
+            background: flipExpense 
+              ? 'linear-gradient(145deg, #7F1D1D 0%, #991B1B 100%)' 
+              : 'linear-gradient(145deg, #FEF2F2 0%, #FEE2E2 100%)', 
             borderRadius: '18px', 
             padding: '12px 14px', 
-            border: '1.5px solid #FECACA', 
-            boxShadow: '0 8px 20px -5px rgba(220, 38, 38, 0.15)',
-            overflow: 'hidden'
+            border: flipExpense ? '1.5px solid #EF4444' : '1.5px solid #FECACA', 
+            boxShadow: '0 8px 20px -5px rgba(220, 38, 38, 0.2)',
+            cursor: 'pointer',
+            transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
+            transform: flipExpense ? 'scale(1.02)' : 'none',
+            userSelect: 'none'
           }}
+          title="ចុចដើម្បីត្រឡប់មើលជាប្រាក់ដុល្លារ ($ USD) / ប្រាក់រៀល (៛ KHR)"
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#991B1B', display: 'block', whiteSpace: 'nowrap' }}>ចំណាយសរុប</span>
-              <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#7F1D1D', marginTop: '2px', lineHeight: 1.1, whiteSpace: 'nowrap' }} className="font-latin">
-                {formatCurrency(stats.monthlyExpense)}
+          {!flipExpense ? (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#991B1B', display: 'block', whiteSpace: 'nowrap' }}>ចំណាយសរុប</span>
+                    <span style={{ fontSize: '0.55rem', background: '#FECACA', color: '#991B1B', padding: '1px 4px', borderRadius: '4px', fontWeight: 800 }}>៛</span>
+                  </div>
+                  <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#7F1D1D', marginTop: '2px', lineHeight: 1.1, whiteSpace: 'nowrap' }} className="font-latin">
+                    {formatCurrency(stats.monthlyExpense)}
+                  </div>
+                </div>
+                <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'linear-gradient(135deg, #FCA5A5 0%, #EF4444 100%)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(239, 68, 68, 0.3)', flexShrink: 0 }}>
+                  <ArrowDownRight size={16} />
+                </div>
+              </div>
+              <div style={{ marginTop: '8px', paddingTop: '6px', borderTop: '1px dashed #FECACA', fontSize: '0.62rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: '#991B1B' }}>សល់: <strong>{formatCurrency(stats.monthlyIncome - stats.monthlyExpense)}</strong></span>
+                <span style={{ color: '#DC2626', fontSize: '0.6rem', fontWeight: 700 }}>🔄 ចុចមើល $</span>
               </div>
             </div>
-            <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'linear-gradient(135deg, #FCA5A5 0%, #EF4444 100%)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(239, 68, 68, 0.3)', flexShrink: 0 }}>
-              <ArrowDownRight size={16} />
+          ) : (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#FECACA', display: 'block', whiteSpace: 'nowrap' }}>ចំណាយសរុប ($)</span>
+                    <span style={{ fontSize: '0.55rem', background: '#991B1B', color: '#FEE2E2', padding: '1px 4px', borderRadius: '4px', fontWeight: 800 }}>USD</span>
+                  </div>
+                  <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#FFFFFF', marginTop: '2px', lineHeight: 1.1, whiteSpace: 'nowrap' }} className="font-latin">
+                    ${(stats.monthlyExpense / 4100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </div>
+                </div>
+                <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: '#EF4444', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(239, 68, 68, 0.5)', flexShrink: 0, fontWeight: 900, fontSize: '0.9rem' }}>
+                  $
+                </div>
+              </div>
+              <div style={{ marginTop: '8px', paddingTop: '6px', borderTop: '1px dashed rgba(254, 202, 202, 0.3)', fontSize: '0.62rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: '#FECACA' }}>សល់: <strong>${((stats.monthlyIncome - stats.monthlyExpense) / 4100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></span>
+                <span style={{ color: '#FEF3C7', fontSize: '0.6rem', fontWeight: 700 }}>🔄 ត្រឡប់មើល ៛</span>
+              </div>
             </div>
-          </div>
-          <div style={{ marginTop: '8px', paddingTop: '6px', borderTop: '1px dashed #FECACA', fontSize: '0.62rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            <span style={{ color: '#991B1B' }}>សល់: <strong>{formatCurrency(stats.monthlyIncome - stats.monthlyExpense)}</strong></span>
-          </div>
+          )}
         </div>
 
       </div>
