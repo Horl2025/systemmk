@@ -259,29 +259,32 @@ export default function DashboardPage() {
           <div style={{ maxWidth: '640px' }}>
             
             {/* Top Badges & Real-time Date Badge */}
-            <div className="flex items-center gap-2 mb-2.5 flex-wrap">
+            <div className="flex items-center gap-2 mb-2.5" style={{ maxWidth: '100%', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
 
               {/* 📅 LIVE DATE BADGE */}
               <div 
                 style={{ 
-                  background: 'rgba(0, 0, 0, 0.35)', 
-                  border: '1px solid rgba(245, 158, 11, 0.3)', 
+                  background: 'rgba(0, 0, 0, 0.4)', 
+                  border: '1px solid rgba(245, 158, 11, 0.35)', 
                   color: '#FEF3C7', 
-                  padding: '4px 14px', 
+                  padding: '5px 12px', 
                   borderRadius: '20px', 
-                  fontSize: '0.75rem', 
+                  fontSize: '0.73rem', 
                   fontWeight: 700, 
                   display: 'inline-flex', 
                   alignItems: 'center', 
-                  gap: '8px',
-                  backdropFilter: 'blur(8px)'
+                  gap: '6px',
+                  backdropFilter: 'blur(10px)',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
                 }}
               >
-                <Calendar size={14} className="text-amber-400" />
-                <span>{currentDateTime.khmerDate || 'កំពុងទាញយកកាលបរិច្ឆេទ...'}</span>
-                <span style={{ opacity: 0.5 }}>|</span>
-                <Clock size={13} className="text-amber-400" />
-                <span className="font-latin">{currentDateTime.timeStr}</span>
+                <Calendar size={13} className="text-amber-400" style={{ flexShrink: 0 }} />
+                <span style={{ whiteSpace: 'nowrap' }}>{currentDateTime.khmerDate || 'កំពុងទាញយក...'}</span>
+                <span style={{ opacity: 0.4, margin: '0 2px' }}>|</span>
+                <Clock size={13} className="text-amber-400" style={{ flexShrink: 0 }} />
+                <span className="font-latin" style={{ whiteSpace: 'nowrap', letterSpacing: '0.02em' }}>{currentDateTime.timeStr}</span>
               </div>
             </div>
 
