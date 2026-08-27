@@ -398,6 +398,13 @@ body {
   z-index: 100;
 }
 
+@media (max-width: 640px) {
+  .header {
+    padding: 0 10px !important;
+    gap: 8px !important;
+  }
+}
+
 /* 📱 Mobile Notification Dropdown Responsive Adjustments */
 @media (max-width: 640px) {
   .notification-dropdown {

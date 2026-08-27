@@ -453,19 +453,16 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
           <Menu size={19} color={isDark ? '#FDE68A' : '#0F172A'} />
         </button>
 
-        {currentItem && !('section' in currentItem) && (
-          <div style={{ minWidth: 0, overflow: 'hidden' }}>
+        {currentItem && !('sectionKey' in currentItem) && (
+          <div style={{ minWidth: 0, flexShrink: 1, overflow: 'visible' }}>
             <h2 
-              className="text-truncate"
               style={{ 
-                fontSize: '1rem', 
+                fontSize: '0.92rem', 
                 fontWeight: 800, 
                 lineHeight: 1.2, 
                 color: isDark ? '#FFFFFF' : '#0F172A', 
                 margin: 0,
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis'
+                whiteSpace: 'nowrap'
               }}
             >
               {(() => {
@@ -490,7 +487,7 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
         )}
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
         
         {/* 🌟 GLOBAL YEAR SWITCHER DROPDOWN */}
         <div ref={yearDropdownRef} style={{ position: 'relative' }}>
