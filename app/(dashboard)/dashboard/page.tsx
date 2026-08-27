@@ -291,8 +291,17 @@ export default function DashboardPage() {
             <h1 style={{ fontSize: '1.45rem', fontWeight: 800, color: '#FEF3C7', lineHeight: 1.4, margin: '6px 0 0 0' }}>
               សូមស្វាគមន៍ មកកាន់SystemMK
             </h1>
-            <p style={{ color: '#D1D5DB', marginTop: '8px', fontSize: '0.82rem', lineHeight: 1.55 }}>
-              តាមដានស្ថិតិព្រះសង្ឃ បន្ទប់ស្នាក់នៅ វត្តមានសង្ឃកិច្ច តុល្យភាពហិរញ្ញវត្ថុ និងរបាយការណ៍បានយ៉ាងរហ័ស។
+            <p 
+              className="animate-shimmer-text"
+              style={{ 
+                marginTop: '8px', 
+                fontSize: '0.84rem', 
+                lineHeight: 1.6, 
+                fontWeight: 500,
+                letterSpacing: '0.01em'
+              }}
+            >
+              ✨ តាមដានស្ថិតិព្រះសង្ឃ បន្ទប់ស្នាក់នៅ វត្តមានសង្ឃកិច្ច តុល្យភាពហិរញ្ញវត្ថុ និងរបាយការណ៍បានយ៉ាងរហ័ស។
             </p>
           </div>
         </div>

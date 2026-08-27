@@ -165,6 +165,28 @@ body {
   100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
 }
 
+@keyframes textShimmerGolden {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-shimmer-text {
+  background: linear-gradient(90deg, #E2E8F0 0%, #FEF3C7 35%, #F59E0B 50%, #FEF3C7 65%, #CBD5E1 100%);
+  background-size: 200% auto;
+  color: transparent !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  animation: textShimmerGolden 6s ease-in-out infinite;
+  display: inline-block;
+}
+
 .animate-fadeIn {
   animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
