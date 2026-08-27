@@ -259,12 +259,12 @@ export default function DashboardPage() {
           <div style={{ maxWidth: '640px' }}>
             
             {/* Top Badges & Real-time Date Badge */}
-            <div className="flex items-center gap-2 mb-2.5" style={{ maxWidth: '100%', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+            <div className="flex items-center gap-2 mb-3.5" style={{ maxWidth: '100%', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
 
               {/* 📅 LIVE DATE BADGE */}
               <div 
                 style={{ 
-                  background: 'rgba(0, 0, 0, 0.4)', 
+                  background: 'rgba(0, 0, 0, 0.45)', 
                   border: '1px solid rgba(245, 158, 11, 0.35)', 
                   color: '#FEF3C7', 
                   padding: '5px 12px', 
@@ -288,10 +288,10 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#FEF3C7', lineHeight: 1.3 }}>
+            <h1 style={{ fontSize: '1.45rem', fontWeight: 800, color: '#FEF3C7', lineHeight: 1.4, margin: '6px 0 0 0' }}>
               សូមស្វាគមន៍ មកកាន់SystemMK
             </h1>
-            <p style={{ color: '#D1D5DB', marginTop: '6px', fontSize: '0.82rem', lineHeight: 1.5 }}>
+            <p style={{ color: '#D1D5DB', marginTop: '8px', fontSize: '0.82rem', lineHeight: 1.55 }}>
               តាមដានស្ថិតិព្រះសង្ឃ បន្ទប់ស្នាក់នៅ វត្តមានសង្ឃកិច្ច តុល្យភាពហិរញ្ញវត្ថុ និងរបាយការណ៍បានយ៉ាងរហ័ស។
             </p>
           </div>
