@@ -292,55 +292,6 @@ export default function DashboardPage() {
               តាមដានស្ថិតិព្រះសង្ឃ បន្ទប់ស្នាក់នៅ វត្តមានសង្ឃកិច្ច តុល្យភាពហិរញ្ញវត្ថុ និងរបាយការណ៍បានយ៉ាងរហ័ស។
             </p>
           </div>
-
-          <div className="flex gap-2.5 flex-wrap w-full sm:w-auto">
-            <Link 
-              href="/monks" 
-              className="hover-lift"
-              style={{ 
-                background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)', 
-                color: '#1C1917', 
-                fontWeight: 700, 
-                padding: '10px 16px', 
-                borderRadius: '12px', 
-                display: 'inline-flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                gap: '6px', 
-                textDecoration: 'none', 
-                boxShadow: '0 8px 20px rgba(217, 119, 6, 0.35)', 
-                fontSize: '0.82rem', 
-                flex: '1 1 auto' 
-              }}
-            >
-              <Users size={16} />
-              <span>មើលបញ្ជីព្រះសង្ឃ</span>
-            </Link>
-
-            <Link 
-              href="/attendance" 
-              className="hover-lift"
-              style={{ 
-                background: 'rgba(255, 255, 255, 0.12)', 
-                color: '#FFFFFF', 
-                fontWeight: 600, 
-                padding: '10px 16px', 
-                borderRadius: '12px', 
-                display: 'inline-flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                gap: '6px', 
-                textDecoration: 'none', 
-                backdropFilter: 'blur(10px)', 
-                border: '1px solid rgba(255, 255, 255, 0.25)', 
-                fontSize: '0.82rem', 
-                flex: '1 1 auto' 
-              }}
-            >
-              <CalendarCheck size={16} />
-              <span>កត់វត្តមានថ្ងៃនេះ</span>
-            </Link>
-          </div>
         </div>
       </div>
 
