@@ -56,7 +56,7 @@ function Sidebar({
   async function handleSignOut() {
     try {
       localStorage.removeItem('systemmk_current_user')
-      localStorage.removeItem('systemmk_user_avatar')
+      // Do NOT delete user profile photos (preserve avatar per account)
       await signOut()
     } catch {}
     window.location.href = '/login'

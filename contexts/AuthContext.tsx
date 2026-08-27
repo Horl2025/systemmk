@@ -44,23 +44,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return null
   })
 
-  // Load custom user profile avatar from localStorage
+  // Load custom user profile avatar from account-specific localStorage
   useEffect(() => {
     try {
+      if (user?.id) {
+        const userSpecificAvatar = localStorage.getItem(`systemmk_avatar_${user.id}`)
+        if (userSpecificAvatar) {
+          setCustomAvatarState(userSpecificAvatar)
+          return
+        }
+      }
       const savedAvatar = localStorage.getItem('systemmk_user_avatar')
       if (savedAvatar) {
         setCustomAvatarState(savedAvatar)
       }
     } catch {}
-  }, [])
+  }, [user?.id])
 
   const setCustomAvatar = (url: string | null) => {
     setCustomAvatarState(url)
     try {
       if (url) {
         localStorage.setItem('systemmk_user_avatar', url)
+        if (user?.id) {
+          localStorage.setItem(`systemmk_avatar_${user.id}`, url)
+        }
       } else {
         localStorage.removeItem('systemmk_user_avatar')
+        if (user?.id) {
+          localStorage.removeItem(`systemmk_avatar_${user.id}`)
+        }
       }
     } catch {}
   }
