@@ -320,79 +320,78 @@ export default function DashboardPage() {
       </div>
 
       {/* 🌟 2. STATS KPI CARDS - Compact Mobile Responsive Grid */}
-      <div className="mobile-2-col-grid" style={{ gap: '10px' }}>
+      <div className="mobile-2-col-grid" style={{ gap: '12px' }}>
         
-        {/* Card 1: Monks Total */}
+        {/* Card 1: Monks Total - Vibrant Amber Gold */}
         <div 
           className="hover-lift"
           style={{ 
-            background: 'linear-gradient(145deg, #FFFBEB 0%, #FEF3C7 100%)', 
-            borderRadius: '18px', 
-            padding: '12px 14px', 
-            border: '1.5px solid #FDE68A', 
-            boxShadow: '0 8px 20px -5px rgba(217, 119, 6, 0.15)',
+            background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 50%, #FCD34D 100%)', 
+            borderRadius: '20px', 
+            padding: '14px 16px', 
+            border: '2px solid #F59E0B', 
+            boxShadow: '0 10px 25px -5px rgba(217, 119, 6, 0.25), 0 0 0 1px rgba(245, 158, 11, 0.2)',
             overflow: 'hidden'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#92400E', display: 'block', whiteSpace: 'nowrap' }}>ព្រះសង្ឃសរុប</span>
-              <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#78350F', marginTop: '2px', lineHeight: 1.1 }}>
-                {stats.monksCount} <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#B45309' }}>អង្គ</span>
+              <span style={{ fontSize: '0.76rem', fontWeight: 800, color: '#78350F', display: 'block', whiteSpace: 'nowrap' }}>ព្រះសង្ឃសរុប</span>
+              <div style={{ fontSize: '1.55rem', fontWeight: 900, color: '#451A03', marginTop: '2px', lineHeight: 1.1 }}>
+                {stats.monksCount} <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#92400E' }}>អង្គ</span>
               </div>
             </div>
-            <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'linear-gradient(135deg, #FDE68A 0%, #F59E0B 100%)', color: '#78350F', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(245, 158, 11, 0.3)', flexShrink: 0 }}>
-              <Users size={16} />
+            <div style={{ width: '36px', height: '36px', borderRadius: '12px', background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)', color: '#1C1917', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(217, 119, 6, 0.4)', flexShrink: 0 }}>
+              <Users size={18} strokeWidth={2.5} />
             </div>
           </div>
-          <div style={{ marginTop: '8px', paddingTop: '6px', borderTop: '1px dashed #FDE68A', fontSize: '0.62rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            <span style={{ color: '#B45309' }}>ភិក្ខុ: <strong>{stats.bhikkhuCount}</strong> | សាមណេរ: <strong>{stats.samaneraCount}</strong></span>
+          <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1.5px dashed rgba(180, 83, 9, 0.35)', fontSize: '0.66rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <span style={{ color: '#78350F', fontWeight: 700 }}>ភិក្ខុ: <strong>{stats.bhikkhuCount}</strong> | សាមណេរ: <strong>{stats.samaneraCount}</strong></span>
           </div>
         </div>
 
-        {/* Card 2: Rooms Status */}
+        {/* Card 2: Rooms Status - Vibrant Royal Ocean Blue */}
         <div 
           className="hover-lift"
           style={{ 
-            background: 'linear-gradient(145deg, #EFF6FF 0%, #DBEAFE 100%)', 
-            borderRadius: '18px', 
-            padding: '12px 14px', 
-            border: '1.5px solid #BFDBFE', 
-            boxShadow: '0 8px 20px -5px rgba(37, 99, 235, 0.15)',
+            background: 'linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 50%, #93C5FD 100%)', 
+            borderRadius: '20px', 
+            padding: '14px 16px', 
+            border: '2px solid #3B82F6', 
+            boxShadow: '0 10px 25px -5px rgba(37, 99, 235, 0.25), 0 0 0 1px rgba(59, 130, 246, 0.2)',
             overflow: 'hidden'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#1E40AF', display: 'block', whiteSpace: 'nowrap' }}>បន្ទប់ស្នាក់នៅ</span>
-              <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#1E3A8A', marginTop: '2px', lineHeight: 1.1 }}>
-                {stats.availableRooms}<span style={{ fontSize: '0.9rem', color: '#60A5FA', fontWeight: 500 }}>/{stats.roomsCount}</span> <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#2563EB' }}>ទំនេរ</span>
+              <span style={{ fontSize: '0.76rem', fontWeight: 800, color: '#1E3A8A', display: 'block', whiteSpace: 'nowrap' }}>បន្ទប់ស្នាក់នៅ</span>
+              <div style={{ fontSize: '1.55rem', fontWeight: 900, color: '#0F172A', marginTop: '2px', lineHeight: 1.1 }}>
+                {stats.availableRooms}<span style={{ fontSize: '0.95rem', color: '#1D4ED8', fontWeight: 700 }}>/{stats.roomsCount}</span> <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#1E40AF' }}>ទំនេរ</span>
               </div>
             </div>
-            <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'linear-gradient(135deg, #93C5FD 0%, #3B82F6 100%)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(59, 130, 246, 0.3)', flexShrink: 0 }}>
-              <Building2 size={16} />
+            <div style={{ width: '36px', height: '36px', borderRadius: '12px', background: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(29, 78, 216, 0.4)', flexShrink: 0 }}>
+              <Building2 size={18} strokeWidth={2.5} />
             </div>
           </div>
-          <div style={{ marginTop: '8px', paddingTop: '6px', borderTop: '1px dashed #BFDBFE', fontSize: '0.62rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            <span style={{ color: '#1E40AF' }}>ស្នាក់នៅ: <strong>{stats.occupiedRooms} បន្ទប់</strong></span>
+          <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1.5px dashed rgba(29, 78, 216, 0.35)', fontSize: '0.66rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <span style={{ color: '#1E3A8A', fontWeight: 700 }}>ស្នាក់នៅ: <strong>{stats.occupiedRooms} បន្ទប់</strong></span>
           </div>
         </div>
 
-        {/* Card 3: Monthly Income with 3D Flip to USD */}
+        {/* Card 3: Monthly Income - Vibrant Emerald Jade Green */}
         <div 
           onClick={() => setFlipIncome(!flipIncome)}
           className="hover-lift"
           style={{ 
             background: flipIncome 
-              ? 'linear-gradient(145deg, #064E3B 0%, #065F46 100%)' 
-              : 'linear-gradient(145deg, #ECFDF5 0%, #D1FAE5 100%)', 
-            borderRadius: '18px', 
-            padding: '12px 14px', 
-            border: flipIncome ? '1.5px solid #059669' : '1.5px solid #A7F3D0', 
-            boxShadow: '0 8px 20px -5px rgba(5, 150, 105, 0.2)',
+              ? 'linear-gradient(135deg, #064E3B 0%, #065F46 100%)' 
+              : 'linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 50%, #6EE7B7 100%)', 
+            borderRadius: '20px', 
+            padding: '14px 16px', 
+            border: flipIncome ? '2px solid #10B981' : '2px solid #10B981', 
+            boxShadow: '0 10px 25px -5px rgba(5, 150, 105, 0.3), 0 0 0 1px rgba(16, 185, 129, 0.2)',
             cursor: 'pointer',
             transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
-            transform: flipIncome ? 'scale(1.02)' : 'none',
             userSelect: 'none'
           }}
           title="ចុចដើម្បីត្រឡប់មើលជាប្រាក់ដុល្លារ ($ USD) / ប្រាក់រៀល (៛ KHR)"
@@ -401,62 +400,61 @@ export default function DashboardPage() {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#065F46', display: 'block', whiteSpace: 'nowrap' }}>ចំណូលបច្ច័យ</span>
-                    <span style={{ fontSize: '0.55rem', background: '#A7F3D0', color: '#065F46', padding: '1px 4px', borderRadius: '4px', fontWeight: 800 }}>៛</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <span style={{ fontSize: '0.76rem', fontWeight: 800, color: '#064E3B', display: 'block', whiteSpace: 'nowrap' }}>ចំណូលបច្ច័យ</span>
+                    <span style={{ fontSize: '0.6rem', background: '#047857', color: '#FFFFFF', padding: '1px 5px', borderRadius: '5px', fontWeight: 900 }}>៛</span>
                   </div>
-                  <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#064E3B', marginTop: '2px', lineHeight: 1.1, whiteSpace: 'nowrap' }} className="font-latin">
+                  <div style={{ fontSize: '1.18rem', fontWeight: 900, color: '#064E3B', marginTop: '2px', lineHeight: 1.1, whiteSpace: 'nowrap' }} className="font-latin">
                     {formatCurrency(stats.monthlyIncome)}
                   </div>
                 </div>
-                <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'linear-gradient(135deg, #6EE7B7 0%, #10B981 100%)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(16, 185, 129, 0.3)', flexShrink: 0 }}>
-                  <ArrowUpRight size={16} />
+                <div style={{ width: '36px', height: '36px', borderRadius: '12px', background: 'linear-gradient(135deg, #10B981 0%, #047857 100%)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(4, 120, 87, 0.4)', flexShrink: 0 }}>
+                  <ArrowUpRight size={18} strokeWidth={2.5} />
                 </div>
               </div>
-              <div style={{ marginTop: '8px', paddingTop: '6px', borderTop: '1px dashed #A7F3D0', fontSize: '0.62rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: '#047857', fontWeight: 700 }}>+១២% ខែនេះ</span>
-                <span style={{ color: '#059669', fontSize: '0.6rem', fontWeight: 700 }}>🔄 ចុចមើល $</span>
+              <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1.5px dashed rgba(4, 120, 87, 0.35)', fontSize: '0.66rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: '#064E3B', fontWeight: 800 }}>+១២% ខែនេះ</span>
+                <span style={{ color: '#047857', fontSize: '0.62rem', fontWeight: 800, background: 'rgba(255,255,255,0.6)', padding: '2px 6px', borderRadius: '6px' }}>🔄 ចុចមើល $</span>
               </div>
             </div>
           ) : (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#A7F3D0', display: 'block', whiteSpace: 'nowrap' }}>ចំណូលបច្ច័យ ($)</span>
-                    <span style={{ fontSize: '0.55rem', background: '#047857', color: '#D1FAE5', padding: '1px 4px', borderRadius: '4px', fontWeight: 800 }}>USD</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <span style={{ fontSize: '0.76rem', fontWeight: 800, color: '#A7F3D0', display: 'block', whiteSpace: 'nowrap' }}>ចំណូលបច្ច័យ ($)</span>
+                    <span style={{ fontSize: '0.6rem', background: '#10B981', color: '#064E3B', padding: '1px 5px', borderRadius: '5px', fontWeight: 900 }}>USD</span>
                   </div>
-                  <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#FFFFFF', marginTop: '2px', lineHeight: 1.1, whiteSpace: 'nowrap' }} className="font-latin">
+                  <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#FFFFFF', marginTop: '2px', lineHeight: 1.1, whiteSpace: 'nowrap' }} className="font-latin">
                     ${(stats.monthlyIncome / 4100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </div>
                 </div>
-                <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: '#10B981', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(16, 185, 129, 0.5)', flexShrink: 0, fontWeight: 900, fontSize: '0.9rem' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '12px', background: '#10B981', color: '#064E3B', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.5)', flexShrink: 0, fontWeight: 900, fontSize: '1rem' }}>
                   $
                 </div>
               </div>
-              <div style={{ marginTop: '8px', paddingTop: '6px', borderTop: '1px dashed rgba(167, 243, 208, 0.3)', fontSize: '0.62rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: '#A7F3D0', fontWeight: 600 }}>អត្រា $1 = 4,100 ៛</span>
-                <span style={{ color: '#FEF3C7', fontSize: '0.6rem', fontWeight: 700 }}>🔄 ត្រឡប់មើល ៛</span>
+              <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1.5px dashed rgba(167, 243, 208, 0.4)', fontSize: '0.66rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: '#A7F3D0', fontWeight: 700 }}>អត្រា $1 = 4,100 ៛</span>
+                <span style={{ color: '#FEF3C7', fontSize: '0.62rem', fontWeight: 800, background: 'rgba(255,255,255,0.15)', padding: '2px 6px', borderRadius: '6px' }}>🔄 ត្រឡប់មើល ៛</span>
               </div>
             </div>
           )}
         </div>
 
-        {/* Card 4: Monthly Expense with 3D Flip to USD */}
+        {/* Card 4: Monthly Expense - Vibrant Crimson Ruby Red */}
         <div 
           onClick={() => setFlipExpense(!flipExpense)}
           className="hover-lift"
           style={{ 
             background: flipExpense 
-              ? 'linear-gradient(145deg, #7F1D1D 0%, #991B1B 100%)' 
-              : 'linear-gradient(145deg, #FEF2F2 0%, #FEE2E2 100%)', 
-            borderRadius: '18px', 
-            padding: '12px 14px', 
-            border: flipExpense ? '1.5px solid #EF4444' : '1.5px solid #FECACA', 
-            boxShadow: '0 8px 20px -5px rgba(220, 38, 38, 0.2)',
+              ? 'linear-gradient(135deg, #7F1D1D 0%, #991B1B 100%)' 
+              : 'linear-gradient(135deg, #FEE2E2 0%, #FECACA 50%, #FCA5A5 100%)', 
+            borderRadius: '20px', 
+            padding: '14px 16px', 
+            border: flipExpense ? '2px solid #EF4444' : '2px solid #EF4444', 
+            boxShadow: '0 10px 25px -5px rgba(220, 38, 38, 0.3), 0 0 0 1px rgba(239, 68, 68, 0.2)',
             cursor: 'pointer',
             transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
-            transform: flipExpense ? 'scale(1.02)' : 'none',
             userSelect: 'none'
           }}
           title="ចុចដើម្បីត្រឡប់មើលជាប្រាក់ដុល្លារ ($ USD) / ប្រាក់រៀល (៛ KHR)"
@@ -465,42 +463,42 @@ export default function DashboardPage() {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#991B1B', display: 'block', whiteSpace: 'nowrap' }}>ចំណាយសរុប</span>
-                    <span style={{ fontSize: '0.55rem', background: '#FECACA', color: '#991B1B', padding: '1px 4px', borderRadius: '4px', fontWeight: 800 }}>៛</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <span style={{ fontSize: '0.76rem', fontWeight: 800, color: '#7F1D1D', display: 'block', whiteSpace: 'nowrap' }}>ចំណាយសរុប</span>
+                    <span style={{ fontSize: '0.6rem', background: '#DC2626', color: '#FFFFFF', padding: '1px 5px', borderRadius: '5px', fontWeight: 900 }}>៛</span>
                   </div>
-                  <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#7F1D1D', marginTop: '2px', lineHeight: 1.1, whiteSpace: 'nowrap' }} className="font-latin">
+                  <div style={{ fontSize: '1.18rem', fontWeight: 900, color: '#7F1D1D', marginTop: '2px', lineHeight: 1.1, whiteSpace: 'nowrap' }} className="font-latin">
                     {formatCurrency(stats.monthlyExpense)}
                   </div>
                 </div>
-                <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'linear-gradient(135deg, #FCA5A5 0%, #EF4444 100%)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(239, 68, 68, 0.3)', flexShrink: 0 }}>
-                  <ArrowDownRight size={16} />
+                <div style={{ width: '36px', height: '36px', borderRadius: '12px', background: 'linear-gradient(135deg, #EF4444 0%, #B91C1C 100%)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(185, 28, 28, 0.4)', flexShrink: 0 }}>
+                  <ArrowDownRight size={18} strokeWidth={2.5} />
                 </div>
               </div>
-              <div style={{ marginTop: '8px', paddingTop: '6px', borderTop: '1px dashed #FECACA', fontSize: '0.62rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: '#991B1B' }}>សល់: <strong>{formatCurrency(stats.monthlyIncome - stats.monthlyExpense)}</strong></span>
-                <span style={{ color: '#DC2626', fontSize: '0.6rem', fontWeight: 700 }}>🔄 ចុចមើល $</span>
+              <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1.5px dashed rgba(185, 28, 28, 0.35)', fontSize: '0.66rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: '#7F1D1D', fontWeight: 800 }}>សល់: <strong>{formatCurrency(stats.monthlyIncome - stats.monthlyExpense)}</strong></span>
+                <span style={{ color: '#DC2626', fontSize: '0.62rem', fontWeight: 800, background: 'rgba(255,255,255,0.6)', padding: '2px 6px', borderRadius: '6px' }}>🔄 ចុចមើល $</span>
               </div>
             </div>
           ) : (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#FECACA', display: 'block', whiteSpace: 'nowrap' }}>ចំណាយសរុប ($)</span>
-                    <span style={{ fontSize: '0.55rem', background: '#991B1B', color: '#FEE2E2', padding: '1px 4px', borderRadius: '4px', fontWeight: 800 }}>USD</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <span style={{ fontSize: '0.76rem', fontWeight: 800, color: '#FECACA', display: 'block', whiteSpace: 'nowrap' }}>ចំណាយសរុប ($)</span>
+                    <span style={{ fontSize: '0.6rem', background: '#EF4444', color: '#FFFFFF', padding: '1px 5px', borderRadius: '5px', fontWeight: 900 }}>USD</span>
                   </div>
-                  <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#FFFFFF', marginTop: '2px', lineHeight: 1.1, whiteSpace: 'nowrap' }} className="font-latin">
+                  <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#FFFFFF', marginTop: '2px', lineHeight: 1.1, whiteSpace: 'nowrap' }} className="font-latin">
                     ${(stats.monthlyExpense / 4100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </div>
                 </div>
-                <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: '#EF4444', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(239, 68, 68, 0.5)', flexShrink: 0, fontWeight: 900, fontSize: '0.9rem' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '12px', background: '#EF4444', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(239, 68, 68, 0.5)', flexShrink: 0, fontWeight: 900, fontSize: '1rem' }}>
                   $
                 </div>
               </div>
-              <div style={{ marginTop: '8px', paddingTop: '6px', borderTop: '1px dashed rgba(254, 202, 202, 0.3)', fontSize: '0.62rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: '#FECACA' }}>សល់: <strong>${((stats.monthlyIncome - stats.monthlyExpense) / 4100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></span>
-                <span style={{ color: '#FEF3C7', fontSize: '0.6rem', fontWeight: 700 }}>🔄 ត្រឡប់មើល ៛</span>
+              <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1.5px dashed rgba(254, 202, 202, 0.4)', fontSize: '0.66rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: '#FECACA', fontWeight: 700 }}>សល់: <strong>${((stats.monthlyIncome - stats.monthlyExpense) / 4100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></span>
+                <span style={{ color: '#FEF3C7', fontSize: '0.62rem', fontWeight: 800, background: 'rgba(255,255,255,0.15)', padding: '2px 6px', borderRadius: '6px' }}>🔄 ត្រឡប់មើល ៛</span>
               </div>
             </div>
           )}
