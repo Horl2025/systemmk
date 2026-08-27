@@ -288,9 +288,21 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <h1 style={{ fontSize: '1.45rem', fontWeight: 800, color: '#FEF3C7', lineHeight: 1.4, margin: '6px 0 0 0' }}>
-              សូមស្វាគមន៍ មកកាន់SystemMK
-            </h1>
+            <div style={{ overflow: 'hidden', width: '100%', maxWidth: '100%' }}>
+              <h1 
+                className="animate-welcome-flow"
+                style={{ 
+                  fontSize: '1.45rem', 
+                  fontWeight: 800, 
+                  color: '#FEF3C7', 
+                  lineHeight: 1.4, 
+                  margin: '6px 0 0 0',
+                  textShadow: '0 2px 10px rgba(0,0,0,0.3)'
+                }}
+              >
+                សូមស្វាគមន៍ មកកាន់SystemMK
+              </h1>
+            </div>
             <p 
               className="animate-shimmer-text"
               style={{ 

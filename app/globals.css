@@ -177,6 +177,37 @@ body {
   }
 }
 
+/* 🌟 Smooth Flowing Welcome Text: Left -> Center (Pause) -> Right (Exit) -> Loop from Left */
+@keyframes marqueePassThrough {
+  0% {
+    transform: translateX(-110%);
+    opacity: 0;
+  }
+  15% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  75% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  90% {
+    transform: translateX(110%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(-110%);
+    opacity: 0;
+  }
+}
+
+.animate-welcome-flow {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marqueePassThrough 8s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+  will-change: transform, opacity;
+}
+
 .animate-shimmer-text {
   background: linear-gradient(90deg, #E2E8F0 0%, #FEF3C7 35%, #F59E0B 50%, #FEF3C7 65%, #CBD5E1 100%);
   background-size: 200% auto;
