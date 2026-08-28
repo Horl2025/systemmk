@@ -340,15 +340,31 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
   const loadNotifications = () => {
     try {
       const savedEvents = localStorage.getItem('systemmk_custom_events')
+      let readIds: string[] = []
+      try {
+        const savedRead = localStorage.getItem('systemmk_read_notification_ids')
+        if (savedRead) readIds = JSON.parse(savedRead)
+      } catch {}
+
       if (savedEvents) {
         const parsed = JSON.parse(savedEvents)
         if (Array.isArray(parsed)) {
           setOfficialNotifications(parsed)
-          setUnreadCount(parsed.length)
+          // Count only items that have not been marked as read
+          const unread = parsed.filter(item => item?.id && !readIds.includes(item.id))
+          setUnreadCount(unread.length)
           return
         }
       }
       setOfficialNotifications([])
+      setUnreadCount(0)
+    } catch {}
+  }
+
+  const markAllNotificationsAsRead = () => {
+    try {
+      const ids = officialNotifications.map(item => item.id).filter(Boolean)
+      localStorage.setItem('systemmk_read_notification_ids', JSON.stringify(ids))
       setUnreadCount(0)
     } catch {}
   }
@@ -642,8 +658,11 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
         <div ref={dropdownRef} style={{ position: 'relative', flexShrink: 0 }}>
           <button
             onClick={() => {
-              setShowNotifications(!showNotifications)
-              setUnreadCount(0)
+              const nextState = !showNotifications
+              setShowNotifications(nextState)
+              if (nextState) {
+                markAllNotificationsAsRead()
+              }
             }}
             className="hover-lift"
             style={{
