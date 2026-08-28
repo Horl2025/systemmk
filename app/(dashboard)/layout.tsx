@@ -759,18 +759,6 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
 
               </div>
 
-              {/* Footer Link */}
-              <div style={{ padding: '10px', background: '#FFFFFF', borderTop: '1.5px solid #F1F5F9', textAlign: 'center' }}>
-                <Link 
-                  href="/schedule" 
-                  onClick={() => setShowNotifications(false)}
-                  style={{ fontSize: '0.74rem', fontWeight: 800, color: '#D97706', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-                >
-                  <span>ពិនិត្យកាលវិភាគ & ពិធីបុណ្យទាំងអស់</span>
-                  <span>→</span>
-                </Link>
-              </div>
-
             </div>
           )}
         </div>
