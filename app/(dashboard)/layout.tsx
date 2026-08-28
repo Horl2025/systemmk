@@ -333,7 +333,22 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
   const { t } = useLanguage()
   const [showNotifications, setShowNotifications] = useState(false)
   const [showAvatarModal, setShowAvatarModal] = useState(false)
-  const [unreadCount, setUnreadCount] = useState(1)
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [officialNotifications, setOfficialNotifications] = useState<any[]>([])
+
+  // Load real official announcements & events from localStorage
+  useEffect(() => {
+    try {
+      const savedEvents = localStorage.getItem('systemmk_custom_events')
+      if (savedEvents) {
+        const parsed = JSON.parse(savedEvents)
+        if (Array.isArray(parsed)) {
+          setOfficialNotifications(parsed)
+          setUnreadCount(parsed.length)
+        }
+      }
+    } catch {}
+  }, [showNotifications])
   const [isDark, setIsDark] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const avatarFileRef = useRef<HTMLInputElement>(null)
@@ -693,70 +708,73 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
               {/* Notification List Container */}
               <div style={{ maxHeight: '360px', overflowY: 'auto', padding: '12px', display: 'flex', flexDirection: 'column', gap: '10px', background: '#FAFAFA' }}>
                 
-                {/* 1. Official Ceremony Broadcast Notification */}
-                <div 
-                  className="hover-lift"
-                  style={{ 
-                    background: '#FFFFFF', 
-                    borderRadius: '14px', 
-                    padding: '10px 12px', 
-                    border: '1.5px solid #FDE68A',
-                    boxShadow: '0 4px 12px rgba(217, 119, 6, 0.08)'
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
-                    <span style={{ background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)', color: '#78350F', border: '1px solid #F59E0B', padding: '2px 6px', borderRadius: '6px', fontSize: '0.62rem', fontWeight: 800 }}>
-                      📢 ពិធីបុណ្យវត្ត
-                    </span>
-                    <span style={{ fontSize: '0.62rem', color: '#94A3B8' }}>ថ្មីៗនេះ</span>
-                  </div>
+                {officialNotifications.length > 0 ? (
+                  officialNotifications.map((notif, idx) => (
+                    <div 
+                      key={notif.id || idx}
+                      className="hover-lift"
+                      style={{ 
+                        background: '#FFFFFF', 
+                        borderRadius: '14px', 
+                        padding: '10px 12px', 
+                        border: '1.5px solid #FDE68A',
+                        boxShadow: '0 4px 12px rgba(217, 119, 6, 0.08)'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
+                        <span style={{ background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)', color: '#78350F', border: '1px solid #F59E0B', padding: '2px 6px', borderRadius: '6px', fontSize: '0.62rem', fontWeight: 800 }}>
+                          📢 {notif.event_type || 'សេចក្តីជូនដំណឹងផ្លូវការ'}
+                        </span>
+                        <span style={{ fontSize: '0.62rem', color: '#94A3B8' }}>{notif.start_date || 'ថ្មីៗនេះ'}</span>
+                      </div>
 
-                  <h5 style={{ fontWeight: 800, fontSize: '0.82rem', color: '#0F172A', lineHeight: 1.3, margin: '0 0 3px 0' }}>
-                    ពិធីបុណ្យកឋិនទានសាមគ្គី
-                  </h5>
-                  <p style={{ fontSize: '0.72rem', color: '#475569', lineHeight: 1.35, margin: '0 0 4px 0' }}>
-                    ពិធីដង្ហែត្រៃចីវរ និងបច្ច័យបូជាទូទាំងវត្ត នឹងប្រព្រឹត្តទៅនៅសាលាឆាន់ និងព្រះវិហារ។
-                  </p>
+                      <h5 style={{ fontWeight: 800, fontSize: '0.82rem', color: '#0F172A', lineHeight: 1.3, margin: '0 0 3px 0' }}>
+                        {notif.title}
+                      </h5>
+                      {notif.description && (
+                        <p style={{ fontSize: '0.72rem', color: '#475569', lineHeight: 1.35, margin: '0 0 4px 0' }}>
+                          {notif.description}
+                        </p>
+                      )}
 
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px dashed #E2E8F0', paddingTop: '4px', fontSize: '0.66rem' }}>
-                    <span style={{ color: '#D97706', fontWeight: 700 }}>📅 កាលបរិច្ឆេទ: ២៥ តុលា ២០២៦</span>
-                    <Link href="/schedule" onClick={() => setShowNotifications(false)} style={{ color: '#2563EB', fontWeight: 700, textDecoration: 'none' }}>
-                      មើលលម្អិត →
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px dashed #E2E8F0', paddingTop: '4px', fontSize: '0.66rem' }}>
+                        <span style={{ color: '#D97706', fontWeight: 700 }}>📍 {notif.location || 'វត្តអារាម'}</span>
+                        <Link href="/schedule" onClick={() => setShowNotifications(false)} style={{ color: '#2563EB', fontWeight: 700, textDecoration: 'none' }}>
+                          មើលលម្អិត →
+                        </Link>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div style={{ padding: '24px 16px', textAlign: 'center', color: '#64748B' }}>
+                    <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#F1F5F9', color: '#94A3B8', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px auto' }}>
+                      <Bell size={20} />
+                    </div>
+                    <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#1E293B' }}>មិនទាន់មានសេចក្តីជូនដំណឹងផ្លូវការនៅឡើយ</div>
+                    <p style={{ fontSize: '0.72rem', color: '#64748B', marginTop: '4px', marginBottom: '12px', lineHeight: 1.4 }}>
+                      លោកអ្នកអាចចាប់ផ្តើមបង្កើតសេចក្តីជូនដំណឹង ឬកម្មវិធីបុណ្យផ្លូវការថ្មីៗបានយ៉ាងងាយស្រួល។
+                    </p>
+                    <Link
+                      href="/schedule"
+                      onClick={() => setShowNotifications(false)}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                        color: '#1C1917',
+                        fontWeight: 800,
+                        fontSize: '0.75rem',
+                        padding: '6px 14px',
+                        borderRadius: '10px',
+                        textDecoration: 'none',
+                        boxShadow: '0 4px 10px rgba(217, 119, 6, 0.25)'
+                      }}
+                    >
+                      <span>+ បង្កើតការជូនដំណឹងថ្មី</span>
                     </Link>
                   </div>
-                </div>
-
-                {/* 2. Internal Chat Notification */}
-                <div 
-                  className="hover-lift"
-                  style={{ 
-                    background: '#FFFFFF', 
-                    borderRadius: '14px', 
-                    padding: '10px 12px', 
-                    border: '1.5px solid #E2E8F0',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
-                    <span style={{ background: '#EFF6FF', color: '#1E40AF', border: '1px solid #BFDBFE', padding: '2px 6px', borderRadius: '6px', fontSize: '0.62rem', fontWeight: 800 }}>
-                      💬 សារសន្ទនាផ្ទៃក្នុង
-                    </span>
-                    <span style={{ fontSize: '0.62rem', color: '#94A3B8' }}>០៨:១៥ ព្រឹក</span>
-                  </div>
-
-                  <h5 style={{ fontWeight: 800, fontSize: '0.8rem', color: '#0F172A', margin: '0 0 2px 0' }}>
-                    ព្រះមហា សុខ វិបុល
-                  </h5>
-                  <p style={{ fontSize: '0.7rem', color: '#64748B', lineHeight: 1.35, margin: 0 }}>
-                    «ថ្ងៃនេះម៉ោង ២ រសៀលមានកម្មវិធីសូត្រធម៌ និងថ្វាយបង្គំនៅសាលាឆាន់...»
-                  </p>
-
-                  <div style={{ textAlign: 'right', marginTop: '4px' }}>
-                    <Link href="/chat" onClick={() => setShowNotifications(false)} style={{ color: '#2563EB', fontSize: '0.66rem', fontWeight: 700, textDecoration: 'none' }}>
-                      ចូលបន្ទប់សន្ទនា →
-                    </Link>
-                  </div>
-                </div>
+                )}
 
               </div>
 
