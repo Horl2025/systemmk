@@ -177,16 +177,19 @@ export default function ReportsPage() {
   }
 
   // Handle Broadcasting Report to Telegram
+  const yearIncomes = incomes.filter(i => (i.income_date || '').startsWith(year))
+  const yearExpenses = expenses.filter(e => (e.expense_date || '').startsWith(year))
+  const totalIncome = yearIncomes.reduce((s, i) => s + Number(i.amount || 0), 0)
+  const totalExpense = yearExpenses.reduce((s, e) => s + Number(e.amount || 0), 0)
+  const balance = totalIncome - totalExpense
+
   const handleSendTelegram = async () => {
     setSendingTelegram(true)
-    const totalInc = incomes.reduce((s, i) => s + Number(i.amount || 0), 0)
-    const totalExp = expenses.reduce((s, e) => s + Number(e.amount || 0), 0)
-    const balance = totalInc - totalExp
     const goodInv = inventory.filter(i => i.status === 'good').length
 
     let msg = ''
     if (reportType === 'monthly' || reportType === 'annual') {
-      msg = `🏛️ <b>វត្តអារាម SystemMK - របាយការណ៍បូកសរុប (${year} ខែទី ${month})</b>
+      msg = `🏛️ <b>វត្តអារាម SystemMK - របាយការណ៍បូកសរុប (ឆ្នាំ ${year} ${reportType === 'monthly' ? `ខែទី ${month}` : ''})</b>
 📅 កាលបរិច្ឆេទ: ${new Date().toLocaleDateString('km-KH')}
 ━━━━━━━━━━━━━━━━━━━━━━
 🧘‍♂️ <b>ស្ថិតិព្រះសង្ឃសរុប:</b> <b>${monks.length} អង្គ</b>
@@ -194,29 +197,29 @@ export default function ReportsPage() {
 • សាមណេរ: ${monks.filter(m => m.rank === 'samanera' || !m.rank).length} អង្គ
 • សុខភាពល្អ: ${monks.filter(m => m.health_status === 'good').length} អង្គ
 
-💰 <b>របាយការណ៍ហិរញ្ញវត្ថុ:</b>
-• ចំណូលសរុប: <b>+ ${formatCurrency(totalInc)}</b>
-• ចំណាយសរុប: <b>- ${formatCurrency(totalExp)}</b>
+💰 <b>របាយការណ៍ហិរញ្ញវត្ថុ (${year}):</b>
+• ចំណូលសរុប: <b>+ ${formatCurrency(totalIncome)}</b>
+• ចំណាយសរុប: <b>- ${formatCurrency(totalExpense)}</b>
 • សមតុល្យសល់: <b>${formatCurrency(balance)}</b>
 
 📦 <b>សារពើភណ្ឌសម្ភារៈ:</b> <b>${inventory.length} មុខ</b> (ល្អ ${goodInv} មុខ)
 ━━━━━━━━━━━━━━━━━━━━━━
 <i>របាយការណ៍ចេញពីប្រព័ន្ធគ្រប់គ្រងវត្តអារាម SystemMK</i>`
     } else if (reportType === 'finance') {
-      msg = `💰 <b>វត្តអារាម SystemMK - របាយការណ៍សមតុល្យបច្ច័យ</b>
-📅 ឆ្នាំ ${year} ខែទី ${month}
+      msg = `💰 <b>វត្តអារាម SystemMK - របាយការណ៍សមតុល្យបច្ច័យ (${year})</b>
+📅 ឆ្នាំ ${year}
 ━━━━━━━━━━━━━━━━━━━━━━
-🟢 ចំណូលបច្ច័យសរុប: <b>+ ${formatCurrency(totalInc)}</b>
-🔴 ចំណាយវត្តសរុប: <b>- ${formatCurrency(totalExp)}</b>
+🟢 ចំណូលបច្ច័យសរុប: <b>+ ${formatCurrency(totalIncome)}</b>
+🔴 ចំណាយវត្តសរុប: <b>- ${formatCurrency(totalExpense)}</b>
 ━━━━━━━━━━━━━━━━━━━━━━
 💵 <b>សមតុល្យបច្ច័យនៅសល់: ${formatCurrency(balance)}</b>
 📈 ស្ថានភាព: ${balance >= 0 ? 'ថវិកាសល់វិជ្ជមាន' : 'ចំណាយលើសចំណូល'}`
     } else {
-      msg = `📋 <b>វត្តអារាម SystemMK - របាយការណ៍ទូទៅ</b>
+      msg = `📋 <b>វត្តអារាម SystemMK - របាយការណ៍ទូទៅ (${year})</b>
 📅 ឆ្នាំ ${year}
 ━━━━━━━━━━━━━━━━━━━━━━
 • ព្រះសង្ឃសរុប: <b>${monks.length} អង្គ</b>
-• សមតុល្យបច្ច័យ: <b>${formatCurrency(balance)}</b>
+• សមតុល្យបច្ច័យ (${year}): <b>${formatCurrency(balance)}</b>
 • សម្ភារៈវត្ត: <b>${inventory.length} មុខ</b>
 ━━━━━━━━━━━━━━━━━━━━━━
 <i>ចេញពីប្រព័ន្ធ SystemMK</i>`
@@ -415,12 +418,9 @@ export default function ReportsPage() {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#BFDBFE', letterSpacing: '0.02em', whiteSpace: 'nowrap' }}>សមតុល្យ / BALANCE</div>
+              <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#BFDBFE', letterSpacing: '0.02em', whiteSpace: 'nowrap' }}>សមតុល្យ ({year}) / BALANCE</div>
               <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#FFFFFF', marginTop: '2px', lineHeight: 1.1 }} className="font-latin">
-                {formatCurrency(
-                  incomes.reduce((s, i) => s + Number(i.amount || 0), 0) -
-                  expenses.reduce((s, e) => s + Number(e.amount || 0), 0)
-                )}
+                {formatCurrency(balance)}
               </div>
             </div>
             <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(10px)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -428,7 +428,7 @@ export default function ReportsPage() {
             </div>
           </div>
           <div style={{ fontSize: '0.62rem', color: '#93C5FD', marginTop: '8px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            សល់ពីចំណូល/ចំណាយ
+            សល់ពីចំណូល/ចំណាយ ឆ្នាំ {year}
           </div>
         </div>
 
