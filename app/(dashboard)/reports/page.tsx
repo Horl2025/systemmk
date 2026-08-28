@@ -148,29 +148,200 @@ export default function ReportsPage() {
   const handleExportPDF = () => {
     setExporting(true)
     try {
-      const doc = new jsPDF()
-      doc.text(`SystemMK - Monastery Report (${year})`, 14, 20)
-      
-      const tableData = monks.length > 0 ? monks.map((m, idx) => [
-        idx + 1,
-        m.khmer_name + (m.dhamma_name ? ` (${m.dhamma_name})` : ''),
-        MONK_RANK_LABELS[m.rank]?.kh || m.rank,
-        `${calculateVassa(m.date_of_ordination) || 0} វស្សា`,
-        m.health_status === 'good' ? 'សុខភាពល្អ' : 'មានបញ្ហាសុខភាព',
-        MONK_STATUS_LABELS[m.status]?.kh || m.status
-      ]) : [
-        [1, 'មិនទាន់មានទិន្នន័យ', '—', '0 វស្សា', '—', '—']
-      ]
+      // Create a dedicated printable HTML report window with full Khmer font support
+      const printWindow = window.open('', '_blank', 'width=900,height=1100')
+      if (!printWindow) {
+        alert('សូមអនុញ្ញាត (Allow Popups) ដើម្បីមើល និងទាញយក PDF!')
+        setExporting(false)
+        return
+      }
 
-      ;(doc as any).autoTable({
-        head: [['No.', 'Monk Name', 'Rank', 'Vassa', 'Health', 'Status']],
-        body: tableData,
-        startY: 30,
-      })
+      const totalInc = yearIncomes.reduce((s, i) => s + Number(i.amount || 0), 0)
+      const totalExp = yearExpenses.reduce((s, e) => s + Number(e.amount || 0), 0)
+      const bal = totalInc - totalExp
+      const goodInvCount = inventory.filter(i => i.status === 'good').length
 
-      doc.save(`SystemMK_Report_${year}_${month}.pdf`)
+      const monksRows = monks.length > 0 ? monks.map((m, idx) => `
+        <tr style="border-bottom: 1px solid #E2E8F0; text-align: left;">
+          <td style="padding: 10px 12px; font-weight: 700; text-align: center;">${idx + 1}</td>
+          <td style="padding: 10px 12px; font-weight: 700; color: #1E293B;">${m.khmer_name} ${m.dhamma_name ? `(${m.dhamma_name})` : ''}</td>
+          <td style="padding: 10px 12px; color: #D97706; font-weight: 700;">${MONK_RANK_LABELS[m.rank]?.kh || m.rank || '—'}</td>
+          <td style="padding: 10px 12px; text-align: center;">${calculateVassa(m.date_of_ordination) || 0} វស្សា</td>
+          <td style="padding: 10px 12px; color: ${m.health_status === 'good' ? '#059669' : '#DC2626'}; font-weight: 600;">${m.health_status === 'good' ? '🟢 សុខភាពល្អ' : '🔴 មានបញ្ហា'}</td>
+          <td style="padding: 10px 12px; color: #475569;">${m.origin_temple || '—'}</td>
+          <td style="padding: 10px 12px; font-weight: 700; color: #0284C7;">${MONK_STATUS_LABELS[m.status]?.kh || m.status || '—'}</td>
+        </tr>
+      `).join('') : `
+        <tr>
+          <td colspan="7" style="padding: 20px; text-align: center; color: #64748B;">មិនទាន់មានទិន្នន័យព្រះសង្ឃនៅឡើយ</td>
+        </tr>
+      `
+
+      const reportHtml = `
+        <!DOCTYPE html>
+        <html lang="km">
+        <head>
+          <meta charset="UTF-8">
+          <title>SystemMK_Report_${year}_${month}</title>
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+          <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+          <style>
+            body {
+              font-family: 'Kantumruy Pro', sans-serif;
+              color: #0F172A;
+              margin: 0;
+              padding: 30px 40px;
+              background: #FFFFFF;
+            }
+            @media print {
+              body { padding: 0; }
+              .no-print { display: none !important; }
+            }
+            .header-banner {
+              border-bottom: 2.5px solid #F59E0B;
+              padding-bottom: 16px;
+              margin-bottom: 24px;
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-end;
+            }
+            .stats-grid {
+              display: grid;
+              grid-template-columns: repeat(4, 1fr);
+              gap: 12px;
+              margin-bottom: 28px;
+            }
+            .stat-box {
+              border: 1.5px solid #E2E8F0;
+              border-radius: 12px;
+              padding: 12px 14px;
+              background: #F8FAFC;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 14px;
+              font-size: 0.88rem;
+            }
+            th {
+              background: #F1F5F9;
+              color: #334155;
+              padding: 10px 12px;
+              font-weight: 800;
+              border-bottom: 2px solid #CBD5E1;
+              text-align: left;
+            }
+            .print-bar {
+              background: #1E293B;
+              color: #FFFFFF;
+              padding: 12px 20px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              border-radius: 12px;
+              margin-bottom: 20px;
+            }
+            .btn-action {
+              background: #F59E0B;
+              color: #1E293B;
+              border: none;
+              font-weight: 800;
+              padding: 8px 18px;
+              border-radius: 8px;
+              cursor: pointer;
+              font-family: 'Kantumruy Pro', sans-serif;
+              font-size: 0.9rem;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="print-bar no-print">
+            <span style="font-weight: 700;">📄 ផ្ទាំងទស្សនា និងទាញយករបាយការណ៍ជា PDF (Print / Save as PDF)</span>
+            <button class="btn-action" onclick="window.print()">🖨️ បោះពុម្ព ឬរក្សាទុកជា PDF</button>
+          </div>
+
+          <div class="header-banner">
+            <div>
+              <div style="font-size: 0.85rem; color: #B45309; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;">ព្រះរាជាណាចក្រកម្ពុជា • ជាតិ សាសនា ព្រះមហាក្សត្រ</div>
+              <h1 style="font-size: 1.5rem; color: #1E293B; margin: 4px 0 0 0; font-weight: 800;">របាយការណ៍បូកសរុបការងារវត្តអារាម (SystemMK)</h1>
+              <div style="font-size: 0.9rem; color: #64748B; margin-top: 4px;">កាលបរិច្ឆេទរបាយការណ៍៖ <strong>ឆ្នាំ ${year} ${reportType === 'monthly' ? `ខែទី ${month}` : ''}</strong></div>
+            </div>
+            <div style="text-align: right; font-size: 0.82rem; color: #64748B;">
+              <div>ចេញពីប្រព័ន្ធ៖ <strong>SystemMK</strong></div>
+              <div>កាលបរិច្ឆេទចេញ៖ <strong>${new Date().toLocaleDateString('km-KH')}</strong></div>
+            </div>
+          </div>
+
+          <!-- KPI Summary Boxes -->
+          <div class="stats-grid">
+            <div class="stat-box" style="border-color: #FDE68A; background: #FFFBEB;">
+              <div style="font-size: 0.75rem; color: #92400E; font-weight: 800;">ព្រះសង្ឃសរុប</div>
+              <div style="font-size: 1.35rem; color: #78350F; font-weight: 900; margin-top: 4px;">${monks.length} អង្គ</div>
+            </div>
+            <div class="stat-box" style="border-color: #A7F3D0; background: #ECFDF5;">
+              <div style="font-size: 0.75rem; color: #065F46; font-weight: 800;">ចំណូលបច្ច័យ (${year})</div>
+              <div style="font-size: 1.15rem; color: #064E3B; font-weight: 900; margin-top: 4px;">${formatCurrency(totalInc)}</div>
+            </div>
+            <div class="stat-box" style="border-color: #FECACA; background: #FEF2F2;">
+              <div style="font-size: 0.75rem; color: #991B1B; font-weight: 800;">ចំណាយវត្ត (${year})</div>
+              <div style="font-size: 1.15rem; color: #7F1D1D; font-weight: 900; margin-top: 4px;">${formatCurrency(totalExp)}</div>
+            </div>
+            <div class="stat-box" style="border-color: #DDD6FE; background: #F5F3FF;">
+              <div style="font-size: 0.75rem; color: #5B21B6; font-weight: 800;">សមតុល្យសល់ (${year})</div>
+              <div style="font-size: 1.15rem; color: #4C1D95; font-weight: 900; margin-top: 4px;">${formatCurrency(bal)}</div>
+            </div>
+          </div>
+
+          <!-- Monks Detailed Table -->
+          <h3 style="font-size: 1.05rem; font-weight: 800; color: #1E293B; margin: 0 0 8px 0;">បញ្ជីព្រះសង្ឃវត្តអារាម</h3>
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 50px; text-align: center;">ល.រ</th>
+                <th>ព្រះនាម / ឈ្មោះ</th>
+                <th>ឋានៈ</th>
+                <th style="text-align: center;">វស្សា</th>
+                <th>សុខភាព</th>
+                <th>វត្តកំណើត</th>
+                <th>ស្ថានភាព</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${monksRows}
+            </tbody>
+          </table>
+
+          <!-- Footer Signature Section -->
+          <div style="display: flex; justify-content: space-between; margin-top: 50px; padding-top: 20px; page-break-inside: avoid;">
+            <div style="text-align: center; width: 220px;">
+              <div style="font-size: 0.85rem; font-weight: 700; color: #64748B;">អ្នកធ្វើរបាយការណ៍</div>
+              <div style="margin-top: 60px; font-weight: 800; border-top: 1.5px dashed #CBD5E1; padding-top: 6px;">លេខាធិការ / គណៈកម្មការ</div>
+            </div>
+            <div style="text-align: center; width: 220px;">
+              <div style="font-size: 0.85rem; font-weight: 700; color: #64748B;">បានឃើញ និងឯកភាព</div>
+              <div style="margin-top: 60px; font-weight: 800; border-top: 1.5px dashed #CBD5E1; padding-top: 6px;">ព្រះចៅអធិការវត្ត</div>
+            </div>
+          </div>
+
+          <script>
+            // Automatically prompt print dialog after content loads
+            window.onload = function() {
+              setTimeout(function() {
+                window.print();
+              }, 400);
+            };
+          </script>
+        </body>
+        </html>
+      `
+
+      printWindow.document.open()
+      printWindow.document.write(reportHtml)
+      printWindow.document.close()
     } catch (err) {
       console.error(err)
+      alert('មានបញ្ហាក្នុងការបង្កើត PDF សូមព្យាយាមម្តងទៀត!')
     } finally {
       setExporting(false)
     }
