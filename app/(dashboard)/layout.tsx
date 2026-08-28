@@ -759,7 +759,9 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
                       )}
 
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px dashed #E2E8F0', paddingTop: '4px', fontSize: '0.66rem' }}>
-                        <span style={{ color: '#D97706', fontWeight: 700 }}>📍 {notif.location || 'វត្តអារាម'}</span>
+                        <span style={{ color: '#D97706', fontWeight: 700 }}>
+                          📍 {notif.location || 'វត្តអារាម'} {notif.start_time ? `| ⏰ ${notif.start_time}` : ''}
+                        </span>
                         <Link href="/schedule" onClick={() => setShowNotifications(false)} style={{ color: '#2563EB', fontWeight: 700, textDecoration: 'none' }}>
                           មើលលម្អិត →
                         </Link>

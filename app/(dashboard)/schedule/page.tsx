@@ -44,6 +44,8 @@ export interface EventItem {
   event_type?: string
   start_date: string
   end_date?: string | null
+  start_time?: string
+  end_time?: string
   location?: string
   budget?: number
 }
@@ -568,6 +570,13 @@ export default function SchedulePage() {
                       <span>កាលបរិច្ឆេទ: <strong style={{ color: '#0F172A' }}>{event.start_date || '—'}</strong> {event.end_date ? ` ដល់ ${event.end_date}` : ''}</span>
                     </div>
 
+                    {(event.start_time || event.end_time) && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#334155' }}>
+                        <Clock size={14} className="text-amber-500 flex-shrink-0" />
+                        <span>ពេលវេលា/ម៉ោង: <strong style={{ color: '#92400E' }}>{event.start_time || '—'}{event.end_time ? ` - ${event.end_time}` : ''}</strong></span>
+                      </div>
+                    )}
+
                     {event.location && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#334155' }}>
                         <MapPin size={14} className="text-blue-600 flex-shrink-0" />
@@ -1024,6 +1033,8 @@ function AddEventModal({ initialData, onClose, onSave }: { initialData?: EventIt
     event_type: initialData?.event_type || 'ceremony',
     start_date: initialData?.start_date || '',
     end_date: initialData?.end_date || '',
+    start_time: initialData?.start_time || '០៨:០០',
+    end_time: initialData?.end_time || '',
     location: initialData?.location || '',
     budget: initialData?.budget ? String(initialData.budget) : '',
   })
@@ -1038,6 +1049,8 @@ function AddEventModal({ initialData, onClose, onSave }: { initialData?: EventIt
       event_type: form.event_type,
       start_date: form.start_date,
       end_date: form.end_date || null,
+      start_time: form.start_time || undefined,
+      end_time: form.end_time || undefined,
       location: form.location || undefined,
       budget: form.budget ? Number(form.budget) : 0,
     }
@@ -1045,7 +1058,7 @@ function AddEventModal({ initialData, onClose, onSave }: { initialData?: EventIt
     onSave(item)
 
     if (!initialData) {
-      alert(`📢 ដំណឹងពិធីបុណ្យត្រូវបានបញ្ជូនទៅរាល់អ្នកប្រើប្រាស់គ្រប់គ្នា!\n\nកម្មវិធី៖ ${form.title}\nកាលបរិច្ឆេទ៖ ${form.start_date}${form.end_date ? ' ដល់ ' + form.end_date : ''}\nទីកន្លែង៖ ${form.location || 'វត្តអារាម'}\n\n✓ សារនេះត្រូវបានប្រកាសជាផ្លូវការនៅក្នុងបន្ទប់សន្ទនាផ្ទៃក្នុង និងសេចក្ដីជូនដំណឹងវត្តរួចរាល់។`)
+      alert(`📢 ដំណឹងពិធីបុណ្យត្រូវបានបញ្ជូនទៅរាល់អ្នកប្រើប្រាស់គ្រប់គ្នា!\n\nកម្មវិធី៖ ${form.title}\nកាលបរិច្ឆេទ៖ ${form.start_date}${form.end_date ? ' ដល់ ' + form.end_date : ''}\nពេលវេលា៖ ${form.start_time || '—'}${form.end_time ? ' ដល់ ' + form.end_time : ''}\nទីកន្លែង៖ ${form.location || 'វត្តអារាម'}\n\n✓ សារនេះត្រូវបានប្រកាសជាផ្លូវការនៅក្នុងបន្ទប់សន្ទនាផ្ទៃក្នុង និងសេចក្ដីជូនដំណឹងវត្តរួចរាល់។`)
     }
 
     onClose()
@@ -1130,7 +1143,33 @@ function AddEventModal({ initialData, onClose, onSave }: { initialData?: EventIt
               </div>
             </div>
 
-            {/* 3. Location & Budget */}
+            {/* ⏰ 3. Start Time & End Time */}
+            <div className="grid-cols-2 gap-3" style={{ display: 'grid' }}>
+              <div className="form-group">
+                <label className="form-label" style={{ fontWeight: 800, color: '#1E293B' }}>ម៉ោងចាប់ផ្ដើម</label>
+                <input 
+                  type="text" 
+                  className="form-control hover-lift" 
+                  value={form.start_time} 
+                  onChange={e => setForm({...form, start_time: e.target.value})} 
+                  placeholder="ឧ. ០៨:០០ ឬ 08:00 AM" 
+                  style={{ borderRadius: '14px', border: '1.5px solid #CBD5E1', padding: '10px 14px', background: '#FFFFFF' }}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label" style={{ fontWeight: 800, color: '#1E293B' }}>ម៉ោងបញ្ចប់</label>
+                <input 
+                  type="text" 
+                  className="form-control hover-lift" 
+                  value={form.end_time} 
+                  onChange={e => setForm({...form, end_time: e.target.value})} 
+                  placeholder="ឧ. ១១:៣០ ឬ 11:30 AM" 
+                  style={{ borderRadius: '14px', border: '1.5px solid #CBD5E1', padding: '10px 14px', background: '#FFFFFF' }}
+                />
+              </div>
+            </div>
+
+            {/* 4. Location & Budget */}
             <div className="grid-cols-2 gap-3" style={{ display: 'grid' }}>
               <div className="form-group">
                 <label className="form-label" style={{ fontWeight: 800, color: '#1E293B' }}>ទីកន្លែងរៀបចំ</label>
