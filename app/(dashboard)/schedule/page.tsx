@@ -501,7 +501,7 @@ export default function SchedulePage() {
 
       {/* 🌟 TAB 2: CEREMONIES & EVENTS (With Edit & Delete Buttons) */}
       {viewTab === 'events' && (
-        <div className="mobile-2-col-grid" style={{ gap: '12px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
           {events.map((event, idx) => {
             const eventGradients = [
               { border: '#FDE68A', strip: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)', badgeBg: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)', badgeText: '#78350F', badgeBorder: '#F59E0B' },
@@ -516,77 +516,78 @@ export default function SchedulePage() {
                 className="hover-lift"
                 style={{
                   background: '#FFFFFF',
-                  borderRadius: '24px',
+                  borderRadius: '20px',
                   border: `1.5px solid ${eventGradients.border}`,
-                  padding: '22px',
-                  boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05)',
+                  padding: '16px 18px',
+                  boxShadow: '0 8px 24px -4px rgba(15, 23, 42, 0.08)',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  gap: '16px',
+                  gap: '14px',
                   position: 'relative',
                   overflow: 'hidden'
                 }}
               >
-                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '5px', background: eventGradients.strip }} />
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '4px', background: eventGradients.strip }} />
 
                 <div>
                   {/* Header: Title & Event Type Badge */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px', marginBottom: '10px' }}>
-                    <div>
-                      <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', lineHeight: 1.3 }}>{event.title}</h3>
-                      {event.title_en && <p style={{ fontSize: '0.74rem', color: '#64748B', fontFamily: 'Plus Jakarta Sans', marginTop: '2px' }}>{event.title_en}</p>}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px', marginBottom: '8px' }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0F172A', lineHeight: 1.4, margin: 0 }}>{event.title}</h3>
+                      {event.title_en && <p style={{ fontSize: '0.72rem', color: '#64748B', marginTop: '2px', margin: 0 }}>{event.title_en}</p>}
                     </div>
                     <span 
                       style={{ 
                         background: eventGradients.badgeBg, 
                         border: `1px solid ${eventGradients.badgeBorder}`, 
                         color: eventGradients.badgeText, 
-                        padding: '4px 12px', 
-                        borderRadius: '12px', 
-                        fontSize: '0.72rem', 
+                        padding: '3px 10px', 
+                        borderRadius: '10px', 
+                        fontSize: '0.7rem', 
                         fontWeight: 800,
                         whiteSpace: 'nowrap',
+                        flexShrink: 0
                       }}
                     >
-                      🎪 {event.event_type || 'ពិធីបុណ្យ'}
+                      📢 {event.event_type === 'ceremony' ? 'ពិធីបុណ្យវត្ត' : (event.event_type || 'ពិធីបុណ្យ')}
                     </span>
                   </div>
 
                   {/* Description */}
                   {event.description && (
-                    <p style={{ fontSize: '0.82rem', color: '#334155', lineHeight: 1.5, marginBottom: '14px' }}>
+                    <p style={{ fontSize: '0.78rem', color: '#475569', lineHeight: 1.5, marginBottom: '10px', marginTop: '6px' }}>
                       {event.description}
                     </p>
                   )}
 
-                  {/* Information Cards */}
-                  <div style={{ background: 'linear-gradient(145deg, #F8FAFC 0%, #F1F5F9 100%)', borderRadius: '16px', padding: '14px', border: '1.5px solid #E2E8F0', fontSize: '0.78rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <CalendarIcon size={15} className="text-amber-600 flex-shrink-0" />
-                      <span>កាលបរិច្ឆេទ: <strong style={{ color: '#0F172A' }}>{formatDate(event.start_date)}</strong> {event.end_date ? ` ដល់ ${formatDate(event.end_date)}` : ''}</span>
+                  {/* Information Details Card */}
+                  <div style={{ background: '#F8FAFC', borderRadius: '14px', padding: '10px 12px', border: '1px solid #E2E8F0', fontSize: '0.75rem', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#334155' }}>
+                      <CalendarIcon size={14} className="text-amber-600 flex-shrink-0" />
+                      <span>កាលបរិច្ឆេទ: <strong style={{ color: '#0F172A' }}>{event.start_date || '—'}</strong> {event.end_date ? ` ដល់ ${event.end_date}` : ''}</span>
                     </div>
 
                     {event.location && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <MapPin size={15} className="text-blue-600 flex-shrink-0" />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#334155' }}>
+                        <MapPin size={14} className="text-blue-600 flex-shrink-0" />
                         <span>ទីតាំង: <strong style={{ color: '#1E293B' }}>{event.location}</strong></span>
                       </div>
                     )}
 
-                    {event.budget && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Tag size={15} className="text-emerald-600 flex-shrink-0" />
-                        <span>ថវិកាគ្រោង: <strong style={{ color: '#065F46', fontSize: '0.86rem' }}>{event.budget.toLocaleString()} ៛</strong></span>
+                    {event.budget ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#334155' }}>
+                        <Tag size={14} className="text-emerald-600 flex-shrink-0" />
+                        <span>ថវិកាគ្រោង: <strong style={{ color: '#065F46' }}>{Number(event.budget).toLocaleString()} ៛</strong></span>
                       </div>
-                    )}
+                    ) : null}
                   </div>
                 </div>
 
                 {/* Footer Action with Edit & Delete Buttons */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #F1F5F9', paddingTop: '12px' }}>
-                  <span style={{ fontSize: '0.7rem', color: '#059669', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                    <Sparkles size={13} /> ត្រៀមរៀបចំពិធី
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #F1F5F9', paddingTop: '10px' }}>
+                  <span style={{ fontSize: '0.68rem', color: '#059669', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <Sparkles size={12} /> ត្រៀមរៀបចំពិធី
                   </span>
 
                   <div style={{ display: 'flex', gap: '8px' }}>
@@ -600,9 +601,9 @@ export default function SchedulePage() {
                         background: '#EFF6FF', 
                         border: '1px solid #BFDBFE', 
                         color: '#2563EB', 
-                        padding: '5px 12px', 
-                        borderRadius: '10px', 
-                        fontSize: '0.74rem', 
+                        padding: '4px 10px', 
+                        borderRadius: '8px', 
+                        fontSize: '0.72rem', 
                         fontWeight: 800, 
                         cursor: 'pointer', 
                         display: 'inline-flex', 
@@ -610,7 +611,7 @@ export default function SchedulePage() {
                         gap: '4px' 
                       }}
                     >
-                      <Edit3 size={13} />
+                      <Edit3 size={12} />
                       <span>កែប្រែ</span>
                     </button>
 
@@ -621,9 +622,9 @@ export default function SchedulePage() {
                         background: '#FEF2F2', 
                         border: '1px solid #FECACA', 
                         color: '#DC2626', 
-                        padding: '5px 12px', 
-                        borderRadius: '10px', 
-                        fontSize: '0.74rem', 
+                        padding: '4px 10px', 
+                        borderRadius: '8px', 
+                        fontSize: '0.72rem', 
                         fontWeight: 800, 
                         cursor: 'pointer', 
                         display: 'inline-flex', 
@@ -631,7 +632,7 @@ export default function SchedulePage() {
                         gap: '4px' 
                       }}
                     >
-                      <Trash2 size={13} />
+                      <Trash2 size={12} />
                       <span>លុប</span>
                     </button>
                   </div>
