@@ -71,16 +71,43 @@ export default function SchedulePage() {
     return item.days.includes(selectedDayFilter)
   })
 
+  // Load events and daily schedules from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedEvents = localStorage.getItem('systemmk_custom_events')
+      if (savedEvents) {
+        const parsed = JSON.parse(savedEvents)
+        if (Array.isArray(parsed)) setEvents(parsed)
+      }
+      const savedDaily = localStorage.getItem('systemmk_custom_daily_schedules')
+      if (savedDaily) {
+        const parsed = JSON.parse(savedDaily)
+        if (Array.isArray(parsed)) setDailySchedules(parsed)
+      }
+    } catch {}
+  }, [])
+
   // Delete handlers
   const handleDeleteSchedule = (id: string) => {
     if (confirm('តើអ្នកពិតជាចង់លុបកាលវិភាគនេះមែនទេ?')) {
-      setDailySchedules(prev => prev.filter(s => s.id !== id))
+      setDailySchedules(prev => {
+        const updated = prev.filter(s => s.id !== id)
+        try { localStorage.setItem('systemmk_custom_daily_schedules', JSON.stringify(updated)) } catch {}
+        return updated
+      })
     }
   }
 
   const handleDeleteEvent = (id: string) => {
     if (confirm('តើអ្នកពិតជាចង់លុបពិធីបុណ្យ/ព្រឹត្តិការណ៍នេះមែនទេ?')) {
-      setEvents(prev => prev.filter(e => e.id !== id))
+      setEvents(prev => {
+        const updated = prev.filter(e => e.id !== id)
+        try { 
+          localStorage.setItem('systemmk_custom_events', JSON.stringify(updated))
+          window.dispatchEvent(new CustomEvent('systemmk_data_updated', { detail: { collection: 'events' } }))
+        } catch {}
+        return updated
+      })
     }
   }
 
@@ -625,11 +652,11 @@ export default function SchedulePage() {
             setEditingSchedule(null)
           }} 
           onSave={(item) => {
-            if (editingSchedule) {
-              setDailySchedules(prev => prev.map(s => s.id === item.id ? item : s))
-            } else {
-              setDailySchedules(prev => [...prev, item])
-            }
+            setDailySchedules(prev => {
+              const updated = editingSchedule ? prev.map(s => s.id === item.id ? item : s) : [...prev, item]
+              try { localStorage.setItem('systemmk_custom_daily_schedules', JSON.stringify(updated)) } catch {}
+              return updated
+            })
           }} 
         />
       )}
@@ -643,11 +670,14 @@ export default function SchedulePage() {
             setEditingEvent(null)
           }} 
           onSave={(item) => {
-            if (editingEvent) {
-              setEvents(prev => prev.map(e => e.id === item.id ? item : e))
-            } else {
-              setEvents(prev => [item, ...prev])
-            }
+            setEvents(prev => {
+              const updated = editingEvent ? prev.map(e => e.id === item.id ? item : e) : [item, ...prev]
+              try { 
+                localStorage.setItem('systemmk_custom_events', JSON.stringify(updated))
+                window.dispatchEvent(new CustomEvent('systemmk_data_updated', { detail: { collection: 'events' } }))
+              } catch {}
+              return updated
+            })
           }} 
         />
       )}

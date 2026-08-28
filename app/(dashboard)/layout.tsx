@@ -336,8 +336,8 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
   const [unreadCount, setUnreadCount] = useState(0)
   const [officialNotifications, setOfficialNotifications] = useState<any[]>([])
 
-  // Load real official announcements & events from localStorage
-  useEffect(() => {
+  // Load real official announcements & events from localStorage & Cloud
+  const loadNotifications = () => {
     try {
       const savedEvents = localStorage.getItem('systemmk_custom_events')
       if (savedEvents) {
@@ -345,9 +345,30 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
         if (Array.isArray(parsed)) {
           setOfficialNotifications(parsed)
           setUnreadCount(parsed.length)
+          return
         }
       }
+      setOfficialNotifications([])
+      setUnreadCount(0)
     } catch {}
+  }
+
+  useEffect(() => {
+    loadNotifications()
+    const handleUpdate = (e: any) => {
+      if (!e.detail?.collection || e.detail.collection === 'events') {
+        loadNotifications()
+      }
+    }
+    window.addEventListener('systemmk_data_updated', handleUpdate)
+    window.addEventListener('storage', loadNotifications)
+    const timer = setInterval(loadNotifications, 2000)
+
+    return () => {
+      window.removeEventListener('systemmk_data_updated', handleUpdate)
+      window.removeEventListener('storage', loadNotifications)
+      clearInterval(timer)
+    }
   }, [showNotifications])
   const [isDark, setIsDark] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
