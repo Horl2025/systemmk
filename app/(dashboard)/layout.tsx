@@ -746,33 +746,14 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
                     </div>
                   ))
                 ) : (
-                  <div style={{ padding: '24px 16px', textAlign: 'center', color: '#64748B' }}>
-                    <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#F1F5F9', color: '#94A3B8', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px auto' }}>
-                      <Bell size={20} />
+                  <div style={{ padding: '28px 16px 20px', textAlign: 'center', color: '#64748B' }}>
+                    <div style={{ width: '46px', height: '46px', borderRadius: '50%', background: '#F1F5F9', color: '#94A3B8', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px auto' }}>
+                      <Bell size={22} />
                     </div>
-                    <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#1E293B' }}>មិនទាន់មានសេចក្តីជូនដំណឹងផ្លូវការនៅឡើយ</div>
-                    <p style={{ fontSize: '0.72rem', color: '#64748B', marginTop: '4px', marginBottom: '12px', lineHeight: 1.4 }}>
-                      លោកអ្នកអាចចាប់ផ្តើមបង្កើតសេចក្តីជូនដំណឹង ឬកម្មវិធីបុណ្យផ្លូវការថ្មីៗបានយ៉ាងងាយស្រួល។
+                    <div style={{ fontSize: '0.86rem', fontWeight: 800, color: '#1E293B' }}>មិនទាន់មានសេចក្តីជូនដំណឹងផ្លូវការនៅឡើយ</div>
+                    <p style={{ fontSize: '0.74rem', color: '#64748B', marginTop: '4px', lineHeight: 1.45, margin: '4px 0 0 0' }}>
+                      រាល់សេចក្តីជូនដំណឹង និងកម្មវិធីបុណ្យដែលបានបញ្ចូលក្នុងកាលវិភាគ នឹងបង្ហាញនៅទីនេះ។
                     </p>
-                    <Link
-                      href="/schedule"
-                      onClick={() => setShowNotifications(false)}
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
-                        color: '#1C1917',
-                        fontWeight: 800,
-                        fontSize: '0.75rem',
-                        padding: '6px 14px',
-                        borderRadius: '10px',
-                        textDecoration: 'none',
-                        boxShadow: '0 4px 10px rgba(217, 119, 6, 0.25)'
-                      }}
-                    >
-                      <span>+ បង្កើតការជូនដំណឹងថ្មី</span>
-                    </Link>
                   </div>
                 )}
 
