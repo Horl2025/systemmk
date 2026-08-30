@@ -141,14 +141,14 @@ function Sidebar({
             // - guest (ភ្ញៀវ): Attendance, Schedule, Chat, Settings (Edit Profile only)
             
             const allowedHrefs: Record<string, string[]> = {
-              chief_monk: ['/dashboard', '/monks', '/rooms', '/students', '/attendance', '/schedule', '/finance', '/inventory', '/reports', '/chat', '/settings'],
-              admin: ['/dashboard', '/monks', '/rooms', '/students', '/attendance', '/schedule', '/finance', '/inventory', '/reports', '/chat', '/settings'],
-              recorder: ['/dashboard', '/monks', '/rooms', '/students', '/attendance', '/schedule', '/finance', '/inventory', '/reports', '/chat', '/settings'],
-              acharya: ['/dashboard', '/attendance', '/schedule', '/chat', '/settings'],
-              committee: ['/dashboard', '/attendance', '/schedule', '/chat', '/settings'],
-              devotee: ['/dashboard', '/attendance', '/schedule', '/chat', '/settings'],
-              student: ['/dashboard', '/attendance', '/schedule', '/chat', '/settings'],
-              guest: ['/dashboard', '/attendance', '/schedule', '/chat', '/settings'],
+              chief_monk: ['/dashboard', '/monks', '/rooms', '/students', '/idcards', '/attendance', '/schedule', '/finance', '/inventory', '/reports', '/chat', '/settings'],
+              admin: ['/dashboard', '/monks', '/rooms', '/students', '/idcards', '/attendance', '/schedule', '/finance', '/inventory', '/reports', '/chat', '/settings'],
+              recorder: ['/dashboard', '/monks', '/rooms', '/students', '/idcards', '/attendance', '/schedule', '/finance', '/inventory', '/reports', '/chat', '/settings'],
+              acharya: ['/dashboard', '/idcards', '/attendance', '/schedule', '/chat', '/settings'],
+              committee: ['/dashboard', '/idcards', '/attendance', '/schedule', '/chat', '/settings'],
+              devotee: ['/dashboard', '/idcards', '/attendance', '/schedule', '/chat', '/settings'],
+              student: ['/dashboard', '/idcards', '/attendance', '/schedule', '/chat', '/settings'],
+              guest: ['/dashboard', '/idcards', '/attendance', '/schedule', '/chat', '/settings'],
             }
 
             const accessibleHrefs = allowedHrefs[currentRole] || allowedHrefs.guest
@@ -178,6 +178,7 @@ function Sidebar({
                 '/monks': 'monks',
                 '/rooms': 'rooms',
                 '/students': 'students',
+                '/idcards': 'idcards',
                 '/attendance': 'attendance',
                 '/schedule': 'schedule',
                 '/finance': 'finance',
