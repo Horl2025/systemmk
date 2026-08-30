@@ -277,19 +277,21 @@ export default function IDCardsPage() {
           }
           .cards-wrapper {
             display: flex;
-            gap: 25px;
+            gap: 20px;
             flex-wrap: wrap;
             justify-content: center;
           }
           .id-card {
-            width: 340px;
-            height: 520px;
-            border-radius: 20px;
+            width: 54mm;
+            height: 85.6mm;
+            max-width: 54mm;
+            max-height: 85.6mm;
+            border-radius: 4mm;
             background: #FFFFFF;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.1);
             position: relative;
             overflow: hidden;
-            border: 2px solid ${member.type === 'monk' ? '#F59E0B' : '#3B82F6'};
+            border: 1.5px solid ${member.type === 'monk' ? '#F59E0B' : '#3B82F6'};
             display: flex;
             flex-direction: column;
             page-break-inside: avoid;
@@ -297,33 +299,34 @@ export default function IDCardsPage() {
           .card-header {
             background: ${member.type === 'monk' ? 'linear-gradient(135deg, #1C1917 0%, #351C06 60%, #78350F 100%)' : 'linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%)'};
             color: #FFFFFF;
-            padding: 16px;
+            padding: 2.2mm 2mm;
             text-align: center;
-            border-bottom: 3px solid ${member.type === 'monk' ? '#F59E0B' : '#60A5FA'};
+            border-bottom: 2px solid ${member.type === 'monk' ? '#F59E0B' : '#60A5FA'};
           }
           .card-header h2 {
-            font-size: 14px;
+            font-size: 8.5pt;
             font-weight: 800;
             color: #FEF3C7;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.2px;
+            line-height: 1.2;
           }
           .card-header p {
-            font-size: 10px;
+            font-size: 5.5pt;
             color: #E2E8F0;
-            margin-top: 2px;
+            margin-top: 1px;
           }
           .photo-container {
-            width: 105px;
-            height: 125px;
-            margin: 14px auto 8px auto;
-            border-radius: 14px;
-            border: 3px solid ${member.type === 'monk' ? '#F59E0B' : '#3B82F6'};
+            width: 20mm;
+            height: 25mm;
+            margin: 2mm auto 1.5mm auto;
+            border-radius: 2.5mm;
+            border: 1.5px solid ${member.type === 'monk' ? '#F59E0B' : '#3B82F6'};
             background: #F8FAFC;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
           }
           .photo-container img {
             width: 100%;
@@ -332,43 +335,44 @@ export default function IDCardsPage() {
           }
           .member-name {
             text-align: center;
-            font-size: 16px;
+            font-size: 9.5pt;
             font-weight: 800;
             color: #0F172A;
-            margin-top: 2px;
+            line-height: 1.2;
           }
           .member-latin {
             text-align: center;
-            font-size: 11px;
+            font-size: 6.5pt;
             color: #64748B;
             font-weight: 600;
             font-family: 'Plus Jakarta Sans', sans-serif;
+            margin-top: 0.5px;
           }
           .role-badge {
-            margin: 6px auto 10px auto;
+            margin: 1.5mm auto 2mm auto;
             background: ${member.type === 'monk' ? '#FEF3C7' : '#EFF6FF'};
             color: ${member.type === 'monk' ? '#92400E' : '#1E40AF'};
             border: 1px solid ${member.type === 'monk' ? '#FDE68A' : '#BFDBFE'};
-            font-size: 11px;
+            font-size: 6.5pt;
             font-weight: 800;
-            padding: 3px 12px;
-            border-radius: 12px;
+            padding: 1px 6px;
+            border-radius: 6px;
             display: inline-block;
           }
           .details-box {
             background: #F8FAFC;
-            border-radius: 12px;
-            margin: 0 16px;
-            padding: 10px 12px;
+            border-radius: 2.5mm;
+            margin: 0 2.5mm;
+            padding: 1.8mm 2.2mm;
             border: 1px solid #E2E8F0;
-            font-size: 11px;
-            line-height: 1.6;
+            font-size: 6.2pt;
+            line-height: 1.45;
           }
           .details-row {
             display: flex;
             justify-content: space-between;
             border-bottom: 1px dashed #E2E8F0;
-            padding: 2px 0;
+            padding: 0.8px 0;
           }
           .details-row:last-child {
             border-bottom: none;
@@ -382,7 +386,7 @@ export default function IDCardsPage() {
           }
           .card-footer {
             margin-top: auto;
-            padding: 10px 16px;
+            padding: 1.8mm 2.5mm;
             background: #FFFFFF;
             border-top: 1px solid #F1F5F9;
             display: flex;
@@ -390,42 +394,42 @@ export default function IDCardsPage() {
             align-items: center;
           }
           .card-id-text {
-            font-size: 11px;
+            font-size: 6.5pt;
             font-weight: 800;
             font-family: monospace;
             color: #0F172A;
           }
           .qr-box {
-            width: 46px;
-            height: 46px;
+            width: 9mm;
+            height: 9mm;
             border: 1px solid #CBD5E1;
-            border-radius: 8px;
-            padding: 2px;
+            border-radius: 1.5mm;
+            padding: 1px;
             background: #FFFFFF;
           }
           .back-card {
             background: #FFFFFF;
-            padding: 20px 16px;
+            padding: 3mm 2.5mm;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
           }
           .rules-list {
-            font-size: 10.5px;
+            font-size: 6pt;
             color: #334155;
-            line-height: 1.6;
-            margin-top: 10px;
+            line-height: 1.45;
+            margin-top: 2mm;
           }
           .seal-section {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: flex-end;
-            margin-top: 20px;
-            padding-top: 10px;
+            margin-top: 2mm;
+            padding-top: 1.5mm;
             border-top: 1px solid #E2E8F0;
           }
           .print-actions {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             display: flex;
             gap: 10px;
           }
@@ -433,9 +437,9 @@ export default function IDCardsPage() {
             background: #F59E0B;
             color: #1C1917;
             font-weight: 800;
-            font-size: 14px;
-            padding: 10px 20px;
-            border-radius: 12px;
+            font-size: 13px;
+            padding: 8px 18px;
+            border-radius: 10px;
             border: none;
             cursor: pointer;
             box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
@@ -450,26 +454,26 @@ export default function IDCardsPage() {
             }
             .id-card {
               box-shadow: none;
-              border: 1.5px solid #CBD5E1;
+              border: 1px solid #CBD5E1;
             }
           }
         </style>
       </head>
       <body>
         <div class="print-actions">
-          <button class="btn-print" onclick="window.print()">🖨️ ចុចបោះពុម្ពកាតសម្គាល់ខ្លួន (Print ID Card)</button>
+          <button class="btn-print" onclick="window.print()">🖨️ ចុចបោះពុម្ពកាតសម្គាល់ខ្លួន (Print ID Card - 54x86mm)</button>
         </div>
 
         <div class="cards-wrapper">
           <!-- FRONT SIDE -->
           <div class="id-card">
             <div class="card-header">
-              <h2>វត្តអារាមពុទ្ធសាសនា SYSTEMMK</h2>
-              <p>MONASTERY RESIDENCE IDENTIFICATION CARD</p>
+              <h2>វត្តអារាម SYSTEMMK</h2>
+              <p>MONASTERY RESIDENCE ID CARD</p>
             </div>
 
             <div class="photo-container">
-              ${member.photo_url ? `<img src="${member.photo_url}" alt="${member.khmer_name}">` : `<span style="font-size: 32px; font-weight: 800; color: #94A3B8;">${member.khmer_name.charAt(0)}</span>`}
+              ${member.photo_url ? `<img src="${member.photo_url}" alt="${member.khmer_name}">` : `<span style="font-size: 18pt; font-weight: 800; color: #94A3B8;">${member.khmer_name.charAt(0)}</span>`}
             </div>
 
             <div class="member-name">${member.khmer_name}</div>
@@ -481,50 +485,50 @@ export default function IDCardsPage() {
 
             <div class="details-box">
               ${member.dhamma_name ? `<div class="details-row"><span class="details-label">ឆាយា:</span><span class="details-val">${member.dhamma_name}</span></div>` : ''}
-              ${member.date_of_birth ? `<div class="details-row"><span class="details-label">ថ្ងៃកំណើត:</span><span class="details-val">${formatDate(member.date_of_birth)} (${calculateAge(member.date_of_birth)} ឆ្នាំ)</span></div>` : ''}
+              ${member.date_of_birth ? `<div class="details-row"><span class="details-label">កំណើត:</span><span class="details-val">${formatDate(member.date_of_birth)} (${calculateAge(member.date_of_birth)} ឆ្នាំ)</span></div>` : ''}
               ${member.date_of_ordination ? `<div class="details-row"><span class="details-label">ថ្ងៃបួស:</span><span class="details-val">${formatDate(member.date_of_ordination)} (${calculateVassa(member.date_of_ordination)} វស្សា)</span></div>` : ''}
-              ${member.school_name ? `<div class="details-row"><span class="details-label">សាលារៀន:</span><span class="details-val">${member.school_name} ${member.grade ? `(${member.grade})` : ''}</span></div>` : ''}
-              <div class="details-row"><span class="details-label">ទីកន្លែងស្នាក់នៅ:</span><span class="details-val">${member.room_number || 'កុដិវត្ត'}</span></div>
-              <div class="details-row"><span class="details-label">ស្រុកកំណើត:</span><span class="details-val">${member.home_province || 'ព្រះរាជាណាចក្រកម្ពុជា'}</span></div>
+              ${member.school_name ? `<div class="details-row"><span class="details-label">សាលា:</span><span class="details-val">${member.school_name}</span></div>` : ''}
+              <div class="details-row"><span class="details-label">ស្នាក់នៅ:</span><span class="details-val">${member.room_number || 'កុដិវត្ត'}</span></div>
+              <div class="details-row"><span class="details-label">ខេត្ត:</span><span class="details-val">${member.home_province || 'កម្ពុជា'}</span></div>
             </div>
 
             <div class="card-footer">
               <div>
-                <div style="font-size: 8px; color: #64748B;">CARD IDENTIFICATION</div>
+                <div style="font-size: 5pt; color: #64748B;">CARD ID</div>
                 <div class="card-id-text">${cardIdFormatted}</div>
               </div>
-              <img class="qr-box" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`SYSTEMMK:ID:${member.id}:${member.khmer_name}`)}" alt="QR Code" />
+              <img class="qr-box" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(`SYSTEMMK:ID:${member.id}:${member.khmer_name}`)}" alt="QR Code" />
             </div>
           </div>
 
           <!-- BACK SIDE -->
           <div class="id-card back-card">
             <div>
-              <div style="text-align: center; border-bottom: 2px solid #E2E8F0; padding-bottom: 8px;">
-                <h3 style="font-size: 13px; font-weight: 800; color: #1E293B;">លក្ខន្តិកៈ និងការប្រើប្រាស់កាត</h3>
-                <p style="font-size: 9px; color: #64748B;">TERMS OF RESIDENCE IDENTIFICATION</p>
+              <div style="text-align: center; border-bottom: 1.5px solid #E2E8F0; padding-bottom: 1.5mm;">
+                <h3 style="font-size: 7.5pt; font-weight: 800; color: #1E293B;">លក្ខន្តិកៈ និងការប្រើប្រាស់កាត</h3>
+                <p style="font-size: 5.2pt; color: #64748B;">TERMS OF RESIDENCE ID</p>
               </div>
 
               <div class="rules-list">
-                <p>១. កាតនេះជាសម្គាល់ខ្លួនផ្លូវការរបស់អ្នកស្នាក់នៅក្នុងវត្តអារាម។</p>
-                <p>២. ត្រូវរក្សាកាតនេះឱ្យបានគង់វង្ស និងពាក់ពេលបំពេញកិច្ចការវត្ត។</p>
-                <p>៣. ករណីបាត់បង់ សូមរាយការណ៍បន្ទាន់ទៅកាន់លេខាធិការដ្ឋានវត្ត។</p>
-                <p>៤. បុគ្គលរើសបាន សូមយកមកប្រគល់ជូនគណៈកម្មការវត្តវិញ។</p>
+                <p>១. កាតសម្គាល់ផ្លូវការអ្នកស្នាក់នៅក្នុងវត្ត។</p>
+                <p>២. ត្រូវពាក់កាតពេលបំពេញកិច្ចការវត្ត។</p>
+                <p>៣. បាត់បង់រាយការណ៍បន្ទាន់ទៅមេកុដិ។</p>
+                <p>៤. រើសបានសូមប្រគល់ជូនកុដិវិញ។</p>
               </div>
             </div>
 
-            <div style="background: #F8FAFC; border-radius: 10px; padding: 8px; border: 1px solid #E2E8F0; text-align: center; font-size: 10px;">
-              <div style="color: #64748B;">ទំនាក់ទំនងសង្គ្រោះបន្ទាន់ (Emergency Contact):</div>
-              <div style="font-weight: 800; color: #0F172A; margin-top: 2px;">☎️ ${member.phone || '០១២ ៣៤៥ ៦៧៨ / ០៩៨ ៧៦៥ ៤៣២'}</div>
+            <div style="background: #F8FAFC; border-radius: 2mm; padding: 1.5mm; border: 1px solid #E2E8F0; text-align: center; font-size: 5.8pt;">
+              <div style="color: #64748B;">សង្គ្រោះបន្ទាន់ (Emergency):</div>
+              <div style="font-weight: 800; color: #0F172A; margin-top: 0.5px;">☎️ ${member.phone || '០១២ ៣៤៥ ៦៧៨'}</div>
             </div>
 
             <div class="seal-section" style="justify-content: flex-end;">
-              <div style="text-align: center; width: 50%;">
-                <div style="font-size: 10px; font-weight: 700; color: #1E293B;">ព្រះមេកុដិ</div>
-                <div style="height: 40px; display: flex; align-items: center; justify-content: center; color: #DC2626; font-size: 10.5px; font-weight: 800;">
+              <div style="text-align: center; width: 55%;">
+                <div style="font-size: 6.8pt; font-weight: 700; color: #1E293B;">ព្រះមេកុដិ</div>
+                <div style="height: 7mm; display: flex; align-items: center; justify-content: center; color: #DC2626; font-size: 6.5pt; font-weight: 800;">
                   [ សម្គាល់ត្រាកុដិ ]
                 </div>
-                <div style="font-size: 10px; font-weight: 700; border-top: 1px dotted #94A3B8; padding-top: 2px;">ហត្ថលេខា និងត្រា</div>
+                <div style="font-size: 6pt; font-weight: 700; border-top: 1px dotted #94A3B8; padding-top: 1px;">ហត្ថលេខា និងត្រា</div>
               </div>
             </div>
 
@@ -553,12 +557,12 @@ export default function IDCardsPage() {
       return `
         <div class="id-card">
           <div class="card-header ${member.type}">
-            <h2>វត្តអារាមពុទ្ធសាសនា SYSTEMMK</h2>
+            <h2>វត្តអារាម SYSTEMMK</h2>
             <p>MONASTERY RESIDENCE ID CARD</p>
           </div>
 
           <div class="photo-container ${member.type}">
-            ${member.photo_url ? `<img src="${member.photo_url}" alt="${member.khmer_name}">` : `<span style="font-size: 28px; font-weight: 800; color: #94A3B8;">${member.khmer_name.charAt(0)}</span>`}
+            ${member.photo_url ? `<img src="${member.photo_url}" alt="${member.khmer_name}">` : `<span style="font-size: 16pt; font-weight: 800; color: #94A3B8;">${member.khmer_name.charAt(0)}</span>`}
           </div>
 
           <div class="member-name">${member.khmer_name}</div>
@@ -570,7 +574,7 @@ export default function IDCardsPage() {
 
           <div class="details-box">
             ${member.dhamma_name ? `<div class="details-row"><span>ឆាយា:</span><strong>${member.dhamma_name}</strong></div>` : ''}
-            ${member.date_of_birth ? `<div class="details-row"><span>ថ្ងៃកំណើត:</span><strong>${formatDate(member.date_of_birth)} (${calculateAge(member.date_of_birth)} ឆ្នាំ)</strong></div>` : ''}
+            ${member.date_of_birth ? `<div class="details-row"><span>កំណើត:</span><strong>${formatDate(member.date_of_birth)} (${calculateAge(member.date_of_birth)} ឆ្នាំ)</strong></div>` : ''}
             ${member.school_name ? `<div class="details-row"><span>សាលា:</span><strong>${member.school_name}</strong></div>` : ''}
             <div class="details-row"><span>ស្នាក់នៅ:</span><strong>${member.room_number || 'កុដិវត្ត'}</strong></div>
             <div class="details-row"><span>ខេត្ត:</span><strong>${member.home_province || 'កម្ពុជា'}</strong></div>
@@ -578,7 +582,7 @@ export default function IDCardsPage() {
 
           <div class="card-footer">
             <div>
-              <div style="font-size: 7.5px; color: #64748B;">CARD ID</div>
+              <div style="font-size: 5pt; color: #64748B;">CARD ID</div>
               <div class="card-id-text">${cardIdFormatted}</div>
             </div>
             <img class="qr-box" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(`SYSTEMMK:ID:${member.id}:${member.khmer_name}`)}" alt="QR" />
@@ -603,29 +607,31 @@ export default function IDCardsPage() {
           body {
             font-family: 'Kantumruy Pro', 'Plus Jakarta Sans', sans-serif;
             background: #F8FAFC;
-            padding: 20px;
+            padding: 15px;
           }
           .grid-container {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
+            grid-template-columns: repeat(3, 54mm);
+            gap: 8mm 6mm;
             justify-content: center;
           }
           .id-card {
-            width: 100%;
-            height: 460px;
-            border-radius: 16px;
+            width: 54mm;
+            height: 85.6mm;
+            max-width: 54mm;
+            max-height: 85.6mm;
+            border-radius: 4mm;
             background: #FFFFFF;
             position: relative;
             overflow: hidden;
-            border: 1.5px solid #CBD5E1;
+            border: 1px solid #CBD5E1;
             display: flex;
             flex-direction: column;
             page-break-inside: avoid;
           }
           .card-header {
             color: #FFFFFF;
-            padding: 12px;
+            padding: 2mm;
             text-align: center;
           }
           .card-header.monk {
@@ -636,65 +642,66 @@ export default function IDCardsPage() {
             background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);
             border-bottom: 2px solid #3B82F6;
           }
-          .card-header h2 { font-size: 12px; font-weight: 800; color: #FEF3C7; }
-          .card-header p { font-size: 8.5px; color: #E2E8F0; margin-top: 1px; }
+          .card-header h2 { font-size: 8pt; font-weight: 800; color: #FEF3C7; line-height: 1.2; }
+          .card-header p { font-size: 5.2pt; color: #E2E8F0; margin-top: 1px; }
           .photo-container {
-            width: 85px;
-            height: 100px;
-            margin: 10px auto 6px auto;
-            border-radius: 10px;
+            width: 20mm;
+            height: 25mm;
+            margin: 2mm auto 1.5mm auto;
+            border-radius: 2.5mm;
             background: #F8FAFC;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
           }
-          .photo-container.monk { border: 2px solid #F59E0B; }
-          .photo-container.student { border: 2px solid #3B82F6; }
+          .photo-container.monk { border: 1.5px solid #F59E0B; }
+          .photo-container.student { border: 1.5px solid #3B82F6; }
           .photo-container img { width: 100%; height: 100%; object-fit: cover; }
-          .member-name { text-align: center; font-size: 14px; font-weight: 800; color: #0F172A; }
-          .member-latin { text-align: center; font-size: 10px; color: #64748B; font-weight: 600; }
+          .member-name { text-align: center; font-size: 9.5pt; font-weight: 800; color: #0F172A; line-height: 1.2; }
+          .member-latin { text-align: center; font-size: 6.5pt; color: #64748B; font-weight: 600; }
           .role-badge {
-            margin: 4px auto 8px auto;
-            font-size: 10px;
+            margin: 1.5mm auto 2mm auto;
+            font-size: 6.2pt;
             font-weight: 800;
-            padding: 2px 10px;
-            border-radius: 10px;
+            padding: 1px 6px;
+            border-radius: 6px;
             display: inline-block;
           }
           .role-badge.monk { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
           .role-badge.student { background: #EFF6FF; color: #1E40AF; border: 1px solid #BFDBFE; }
           .details-box {
             background: #F8FAFC;
-            border-radius: 10px;
-            margin: 0 12px;
-            padding: 8px 10px;
+            border-radius: 2mm;
+            margin: 0 2mm;
+            padding: 1.5mm 2mm;
             border: 1px solid #E2E8F0;
-            font-size: 10px;
-            line-height: 1.5;
+            font-size: 6pt;
+            line-height: 1.45;
           }
-          .details-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #E2E8F0; padding: 2px 0; }
+          .details-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #E2E8F0; padding: 0.8px 0; }
           .details-row:last-child { border-bottom: none; }
           .card-footer {
             margin-top: auto;
-            padding: 8px 12px;
+            padding: 1.8mm 2.2mm;
             background: #FFFFFF;
             border-top: 1px solid #F1F5F9;
             display: flex;
             justify-content: space-between;
             align-items: center;
           }
-          .card-id-text { font-size: 10px; font-weight: 800; font-family: monospace; }
-          .qr-box { width: 38px; height: 38px; }
+          .card-id-text { font-size: 6.2pt; font-weight: 800; font-family: monospace; }
+          .qr-box { width: 8.5mm; height: 8.5mm; }
           .print-btn {
             background: #F59E0B;
             color: #1C1917;
             font-weight: 800;
-            padding: 10px 24px;
-            border-radius: 12px;
+            padding: 8px 20px;
+            border-radius: 10px;
             border: none;
             cursor: pointer;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            font-size: 13px;
           }
           @media print {
             .print-btn { display: none; }
@@ -704,7 +711,7 @@ export default function IDCardsPage() {
       </head>
       <body>
         <div style="text-align: center;">
-          <button class="print-btn" onclick="window.print()">🖨️ ចុចបោះពុម្ពកាតទាំងអស់ (Print All ID Cards)</button>
+          <button class="print-btn" onclick="window.print()">🖨️ ចុចបោះពុម្ពកាតទាំងអស់ (Print All ID Cards - Standard 54x86mm)</button>
         </div>
         <div class="grid-container">
           ${cardsHtml}
