@@ -518,16 +518,11 @@ export default function IDCardsPage() {
               <div style="font-weight: 800; color: #0F172A; margin-top: 2px;">☎️ ${member.phone || '០១២ ៣៤៥ ៦៧៨ / ០៩៨ ៧៦៥ ៤៣២'}</div>
             </div>
 
-            <div class="seal-section">
-              <div style="text-align: center; width: 45%;">
-                <div style="font-size: 9px; color: #64748B;">ម្ចាស់កាត</div>
-                <div style="height: 35px;"></div>
-                <div style="font-size: 10px; font-weight: 700; border-top: 1px dotted #94A3B8; padding-top: 2px;">${member.khmer_name}</div>
-              </div>
-              <div style="text-align: center; width: 45%;">
-                <div style="font-size: 9px; color: #64748B;">ព្រះចៅអធិការ / ព្រះមេកុដិ</div>
-                <div style="height: 35px; display: flex; align-items: center; justify-content: center; color: #DC2626; font-size: 10px; font-weight: 800;">
-                  [ សម្គាល់ត្រាវត្ត ]
+            <div class="seal-section" style="justify-content: flex-end;">
+              <div style="text-align: center; width: 50%;">
+                <div style="font-size: 10px; font-weight: 700; color: #1E293B;">ព្រះមេកុដិ</div>
+                <div style="height: 40px; display: flex; align-items: center; justify-content: center; color: #DC2626; font-size: 10.5px; font-weight: 800;">
+                  [ សម្គាល់ត្រាកុដិ ]
                 </div>
                 <div style="font-size: 10px; font-weight: 700; border-top: 1px dotted #94A3B8; padding-top: 2px;">ហត្ថលេខា និងត្រា</div>
               </div>
