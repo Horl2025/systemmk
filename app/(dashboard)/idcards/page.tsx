@@ -1151,8 +1151,28 @@ export default function IDCardsPage() {
 
       {/* 🌟 1. SELECT MEMBER TYPE MODAL (MONK OR STUDENT) */}
       {showAddTypeModal && (
-        <div className="modal-overlay animate-fadeIn" style={{ zIndex: 99999 }} onClick={e => e.target === e.currentTarget && setShowAddTypeModal(false)}>
-          <div className="modal modal-md" style={{ maxWidth: '440px', borderRadius: '24px', overflow: 'hidden', padding: 0, border: '1.5px solid #FDE68A', boxShadow: '0 25px 50px -12px rgba(217, 119, 6, 0.25)' }}>
+        <div 
+          className="animate-fadeIn" 
+          style={{ 
+            position: 'fixed', 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            bottom: 0, 
+            width: '100vw', 
+            height: '100vh', 
+            background: 'rgba(15, 23, 42, 0.75)', 
+            backdropFilter: 'blur(8px)', 
+            WebkitBackdropFilter: 'blur(8px)', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            zIndex: 999999, 
+            padding: '16px' 
+          }} 
+          onClick={e => e.target === e.currentTarget && setShowAddTypeModal(false)}
+        >
+          <div className="modal modal-md" style={{ maxWidth: '440px', width: '100%', margin: 'auto', borderRadius: '24px', overflow: 'hidden', padding: 0, border: '1.5px solid #FDE68A', boxShadow: '0 25px 60px -12px rgba(0, 0, 0, 0.5)', background: '#FFFFFF' }}>
             <div style={{ background: 'linear-gradient(135deg, #1E1B18 0%, #2D2013 100%)', padding: '18px 22px', color: '#FFFFFF', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Sparkles size={18} color="#F59E0B" />
@@ -1314,8 +1334,28 @@ function MonkCardModal({ monkToEdit, onClose, onSave }: { monkToEdit: Monk | nul
   }
 
   return (
-    <div className="modal-overlay animate-fadeIn" style={{ zIndex: 99999 }} onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="modal modal-md" style={{ maxWidth: '580px', borderRadius: '24px', overflow: 'hidden', padding: 0, border: '1.5px solid #FDE68A', boxShadow: '0 25px 50px -12px rgba(217, 119, 6, 0.35)', background: '#FFFFFF' }}>
+    <div 
+      className="animate-fadeIn" 
+      style={{ 
+        position: 'fixed', 
+        top: 0, 
+        left: 0, 
+        right: 0, 
+        bottom: 0, 
+        width: '100vw', 
+        height: '100vh', 
+        background: 'rgba(15, 23, 42, 0.75)', 
+        backdropFilter: 'blur(8px)', 
+        WebkitBackdropFilter: 'blur(8px)', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        zIndex: 999999, 
+        padding: '16px' 
+      }} 
+      onClick={e => e.target === e.currentTarget && onClose()}
+    >
+      <div className="modal modal-md" style={{ maxWidth: '580px', width: '100%', margin: 'auto', borderRadius: '24px', overflow: 'hidden', padding: 0, border: '1.5px solid #FDE68A', boxShadow: '0 25px 60px -12px rgba(0, 0, 0, 0.5)', background: '#FFFFFF' }}>
         
         {/* Header */}
         <div style={{ background: 'linear-gradient(135deg, #1E1B18 0%, #2D2013 100%)', padding: '18px 22px', color: '#FFFFFF', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -1557,8 +1597,28 @@ function StudentCardModal({ studentToEdit, onClose, onSave }: { studentToEdit: S
   }
 
   return (
-    <div className="modal-overlay animate-fadeIn" style={{ zIndex: 99999 }} onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="modal modal-md" style={{ maxWidth: '580px', borderRadius: '24px', overflow: 'hidden', padding: 0, border: '1.5px solid #BFDBFE', boxShadow: '0 25px 50px -12px rgba(59, 130, 246, 0.35)', background: '#FFFFFF' }}>
+    <div 
+      className="animate-fadeIn" 
+      style={{ 
+        position: 'fixed', 
+        top: 0, 
+        left: 0, 
+        right: 0, 
+        bottom: 0, 
+        width: '100vw', 
+        height: '100vh', 
+        background: 'rgba(15, 23, 42, 0.75)', 
+        backdropFilter: 'blur(8px)', 
+        WebkitBackdropFilter: 'blur(8px)', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        zIndex: 999999, 
+        padding: '16px' 
+      }} 
+      onClick={e => e.target === e.currentTarget && onClose()}
+    >
+      <div className="modal modal-md" style={{ maxWidth: '580px', width: '100%', margin: 'auto', borderRadius: '24px', overflow: 'hidden', padding: 0, border: '1.5px solid #BFDBFE', boxShadow: '0 25px 60px -12px rgba(0, 0, 0, 0.5)', background: '#FFFFFF' }}>
         
         {/* Header */}
         <div style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%)', padding: '18px 22px', color: '#FFFFFF', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
