@@ -2,14 +2,14 @@
 
 export const dynamic = 'force-dynamic'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Monk, Student } from '@/lib/database.types'
 import { MONK_RANK_LABELS, formatDate, calculateVassa, calculateAge } from '@/lib/utils'
 import { 
-  Contact, Search, Printer, ChevronRight
+  Contact, Search, Printer, ChevronRight, Plus, Edit3, Trash2, UserPlus, Upload, Sparkles, X, Check
 } from 'lucide-react'
-import { fetchCloudCollection, subscribeToRealtimeSync } from '@/lib/cloudSync'
+import { fetchCloudCollection, syncToCloud, subscribeToRealtimeSync } from '@/lib/cloudSync'
 
 type MemberType = 'all' | 'monk' | 'student'
 
@@ -41,6 +41,13 @@ export default function IDCardsPage() {
   const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState<MemberType>('all')
+
+  // Modals state
+  const [showAddTypeModal, setShowAddTypeModal] = useState(false)
+  const [showMonkModal, setShowMonkModal] = useState(false)
+  const [editingMonk, setEditingMonk] = useState<Monk | null>(null)
+  const [showStudentModal, setShowStudentModal] = useState(false)
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null)
 
   // Load Monks and Students data
   const loadData = async () => {
@@ -95,6 +102,84 @@ export default function IDCardsPage() {
       window.removeEventListener('systemmk_data_updated', handleUpdate)
     }
   }, [])
+
+  // Save Monk (Add or Edit)
+  const handleSaveMonk = (savedMonk: Monk) => {
+    let updated: Monk[]
+    if (editingMonk) {
+      updated = monks.map(m => m.id === savedMonk.id ? savedMonk : m)
+      syncToCloud('edit', 'monks', savedMonk)
+    } else {
+      updated = [savedMonk, ...monks]
+      syncToCloud('add', 'monks', savedMonk)
+    }
+    setMonks(updated)
+    try {
+      localStorage.setItem('systemmk_custom_monks', JSON.stringify(updated))
+      window.dispatchEvent(new CustomEvent('systemmk_data_updated', { detail: { collection: 'monks' } }))
+    } catch {}
+    setEditingMonk(null)
+    setShowMonkModal(false)
+  }
+
+  // Save Student (Add or Edit)
+  const handleSaveStudent = (savedStudent: Student) => {
+    let updated: Student[]
+    if (editingStudent) {
+      updated = students.map(s => s.id === savedStudent.id ? savedStudent : s)
+      syncToCloud('edit', 'students', savedStudent)
+    } else {
+      updated = [savedStudent, ...students]
+      syncToCloud('add', 'students', savedStudent)
+    }
+    setStudents(updated)
+    try {
+      localStorage.setItem('systemmk_custom_students', JSON.stringify(updated))
+      window.dispatchEvent(new CustomEvent('systemmk_data_updated', { detail: { collection: 'students' } }))
+    } catch {}
+    setEditingStudent(null)
+    setShowStudentModal(false)
+  }
+
+  // Delete Member Handler
+  const handleDeleteMember = (member: UnifiedMember) => {
+    if (!confirm(`តើអ្នកពិតជាចង់លុបទិន្នន័យកាតរបស់ "${member.khmer_name}" មែនទេ?`)) return
+
+    if (member.type === 'monk') {
+      const updated = monks.filter(m => m.id !== member.id)
+      setMonks(updated)
+      try {
+        localStorage.setItem('systemmk_custom_monks', JSON.stringify(updated))
+        syncToCloud('delete', 'monks', { id: member.id })
+        window.dispatchEvent(new CustomEvent('systemmk_data_updated', { detail: { collection: 'monks' } }))
+      } catch {}
+    } else {
+      const updated = students.filter(s => s.id !== member.id)
+      setStudents(updated)
+      try {
+        localStorage.setItem('systemmk_custom_students', JSON.stringify(updated))
+        syncToCloud('delete', 'students', { id: member.id })
+        window.dispatchEvent(new CustomEvent('systemmk_data_updated', { detail: { collection: 'students' } }))
+      } catch {}
+    }
+  }
+
+  // Edit Member Handler
+  const handleEditMember = (member: UnifiedMember) => {
+    if (member.type === 'monk') {
+      const m = monks.find(item => item.id === member.id)
+      if (m) {
+        setEditingMonk(m)
+        setShowMonkModal(true)
+      }
+    } else {
+      const s = students.find(item => item.id === member.id)
+      if (s) {
+        setEditingStudent(s)
+        setShowStudentModal(true)
+      }
+    }
+  }
 
   // Combine into unified list
   const unifiedMembers: UnifiedMember[] = [
@@ -185,7 +270,7 @@ export default function IDCardsPage() {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justifyContent: center;
+            justify-content: center;
             min-height: 100vh;
             padding: 20px;
             color: #0F172A;
@@ -680,11 +765,11 @@ export default function IDCardsPage() {
           </div>
         </div>
 
-        {/* Print All Button */}
-        <div className="page-actions" style={{ display: 'flex', gap: '8px' }}>
+        {/* Action Buttons: Add New & Print All */}
+        <div className="page-actions" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           <button
             type="button"
-            onClick={handlePrintAll}
+            onClick={() => setShowAddTypeModal(true)}
             className="hover-lift"
             style={{
               background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
@@ -696,9 +781,32 @@ export default function IDCardsPage() {
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
+              gap: '6px',
               fontSize: '0.84rem',
               boxShadow: '0 4px 14px rgba(217, 119, 6, 0.35)'
+            }}
+          >
+            <Plus size={16} strokeWidth={3} />
+            <span>+ បន្ថែមកាតថ្មី (Add New)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handlePrintAll}
+            className="hover-lift"
+            style={{
+              background: '#FFFFFF',
+              color: '#1E293B',
+              fontWeight: 800,
+              padding: '9px 16px',
+              borderRadius: '12px',
+              border: '1.5px solid #CBD5E1',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              fontSize: '0.84rem',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.04)'
             }}
           >
             <Printer size={16} />
@@ -794,7 +902,29 @@ export default function IDCardsPage() {
         <div style={{ background: '#FFFFFF', borderRadius: '20px', padding: '50px 20px', textAlign: 'center', border: '1.5px dashed #CBD5E1', color: '#64748B' }}>
           <Contact size={48} color="#CBD5E1" style={{ margin: '0 auto 12px auto' }} />
           <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#1E293B' }}>មិនមានទិន្នន័យកាតសម្គាល់ខ្លួនឡើយ</h3>
-          <p style={{ fontSize: '0.8rem', marginTop: '4px' }}>សូមបញ្ចូលទិន្នន័យព្រះសង្ឃ ឬសិស្សស្នាក់នៅវត្តជាមុនសិន។</p>
+          <p style={{ fontSize: '0.8rem', marginTop: '4px', marginBottom: '16px' }}>ចុចប៊ូតុងខាងក្រោមដើម្បីបង្កើតកាតព្រះសង្ឃ ឬសិស្សស្នាក់នៅវត្តដំបូងរបស់អ្នក។</p>
+          <button
+            type="button"
+            onClick={() => setShowAddTypeModal(true)}
+            className="hover-lift"
+            style={{
+              background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+              color: '#1C1917',
+              fontWeight: 800,
+              padding: '10px 20px',
+              borderRadius: '12px',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '0.84rem',
+              boxShadow: '0 4px 14px rgba(217, 119, 6, 0.35)'
+            }}
+          >
+            <Plus size={16} strokeWidth={3} />
+            <span>+ បន្ថែមកាតថ្មីដំបូង</span>
+          </button>
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
@@ -923,13 +1053,62 @@ export default function IDCardsPage() {
                   </div>
                 </div>
 
-                {/* Footer Actions */}
+                {/* Footer Actions with Edit, Delete & Print Buttons */}
                 <div style={{ background: '#FAFAFA', padding: '10px 16px', borderTop: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'monospace', color: '#64748B' }}>
                     {cardIdFormatted}
                   </span>
 
                   <div style={{ display: 'flex', gap: '6px' }}>
+                    {/* Edit Button */}
+                    <button
+                      type="button"
+                      onClick={() => handleEditMember(member)}
+                      className="hover-lift"
+                      title="កែប្រែព័ត៌មានកាត"
+                      style={{
+                        background: '#EFF6FF',
+                        border: '1px solid #BFDBFE',
+                        color: '#2563EB',
+                        padding: '5px 10px',
+                        borderRadius: '8px',
+                        fontSize: '0.72rem',
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                    >
+                      <Edit3 size={13} />
+                      <span>កែប្រែ</span>
+                    </button>
+
+                    {/* Delete Button */}
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteMember(member)}
+                      className="hover-lift"
+                      title="លុបកាតចេញ"
+                      style={{
+                        background: '#FEF2F2',
+                        border: '1px solid #FECACA',
+                        color: '#DC2626',
+                        padding: '5px 10px',
+                        borderRadius: '8px',
+                        fontSize: '0.72rem',
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                    >
+                      <Trash2 size={13} />
+                      <span>លុប</span>
+                    </button>
+
+                    {/* Print Button */}
                     <button
                       type="button"
                       onClick={() => handlePrintCard(member)}
@@ -950,7 +1129,7 @@ export default function IDCardsPage() {
                       }}
                     >
                       <Printer size={13} />
-                      <span>បោះពុម្ពកាត</span>
+                      <span>បោះពុម្ព</span>
                     </button>
                   </div>
                 </div>
@@ -961,6 +1140,598 @@ export default function IDCardsPage() {
         </div>
       )}
 
+      {/* 🌟 1. SELECT MEMBER TYPE MODAL (MONK OR STUDENT) */}
+      {showAddTypeModal && (
+        <div className="modal-overlay animate-fadeIn" style={{ zIndex: 99999 }} onClick={e => e.target === e.currentTarget && setShowAddTypeModal(false)}>
+          <div className="modal modal-md" style={{ maxWidth: '440px', borderRadius: '24px', overflow: 'hidden', padding: 0, border: '1.5px solid #FDE68A', boxShadow: '0 25px 50px -12px rgba(217, 119, 6, 0.25)' }}>
+            <div style={{ background: 'linear-gradient(135deg, #1E1B18 0%, #2D2013 100%)', padding: '18px 22px', color: '#FFFFFF', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Sparkles size={18} color="#F59E0B" />
+                <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#FEF3C7', margin: 0 }}>ជ្រើសរើសប្រភេទកាតដែលត្រូវបង្កើត</h3>
+              </div>
+              <button onClick={() => setShowAddTypeModal(false)} style={{ background: 'none', border: 'none', color: '#FFFFFF', cursor: 'pointer', fontSize: '1.1rem' }}>✕</button>
+            </div>
+
+            <div style={{ padding: '24px', background: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {/* Option 1: Monk */}
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAddTypeModal(false)
+                  setEditingMonk(null)
+                  setShowMonkModal(true)
+                }}
+                className="hover-lift"
+                style={{
+                  background: 'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)',
+                  border: '2px solid #F59E0B',
+                  borderRadius: '16px',
+                  padding: '16px 18px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '14px',
+                  cursor: 'pointer',
+                  textAlign: 'left'
+                }}
+              >
+                <div style={{ width: '46px', height: '46px', borderRadius: '12px', background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)', color: '#1C1917', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem' }}>
+                  🙏
+                </div>
+                <div>
+                  <h4 style={{ margin: 0, fontSize: '0.96rem', fontWeight: 800, color: '#92400E' }}>បង្កើតកាតសម្រាប់ «ព្រះសង្ឃ»</h4>
+                  <p style={{ margin: '2px 0 0 0', fontSize: '0.74rem', color: '#B45309' }}>Monk ID Card (ភិក្ខុ សាមណេរ ព្រះមេកុដិ...)</p>
+                </div>
+              </button>
+
+              {/* Option 2: Student */}
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAddTypeModal(false)
+                  setEditingStudent(null)
+                  setShowStudentModal(true)
+                }}
+                className="hover-lift"
+                style={{
+                  background: 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)',
+                  border: '2px solid #3B82F6',
+                  borderRadius: '16px',
+                  padding: '16px 18px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '14px',
+                  cursor: 'pointer',
+                  textAlign: 'left'
+                }}
+              >
+                <div style={{ width: '46px', height: '46px', borderRadius: '12px', background: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem' }}>
+                  🎓
+                </div>
+                <div>
+                  <h4 style={{ margin: 0, fontSize: '0.96rem', fontWeight: 800, color: '#1E40AF' }}>បង្កើតកាតសម្រាប់ «សិស្សវត្ត»</h4>
+                  <p style={{ margin: '2px 0 0 0', fontSize: '0.74rem', color: '#2563EB' }}>Student ID Card (សិស្សស្នាក់នៅរៀនសូត្រ)</p>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 🌟 2. ADD/EDIT MONK MODAL */}
+      {showMonkModal && (
+        <MonkCardModal
+          monkToEdit={editingMonk}
+          onClose={() => {
+            setShowMonkModal(false)
+            setEditingMonk(null)
+          }}
+          onSave={handleSaveMonk}
+        />
+      )}
+
+      {/* 🌟 3. ADD/EDIT STUDENT MODAL */}
+      {showStudentModal && (
+        <StudentCardModal
+          studentToEdit={editingStudent}
+          onClose={() => {
+            setShowStudentModal(false)
+            setEditingStudent(null)
+          }}
+          onSave={handleSaveStudent}
+        />
+      )}
+
+    </div>
+  )
+}
+
+// ----------------------------------------------------
+// 🌟 SUBCOMPONENT: MONK FORM MODAL
+// ----------------------------------------------------
+function MonkCardModal({ monkToEdit, onClose, onSave }: { monkToEdit: Monk | null; onClose: () => void; onSave: (monk: Monk) => void }) {
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [photoPreview, setPhotoPreview] = useState<string | null>(monkToEdit?.photo_url || null)
+
+  const [form, setForm] = useState({
+    khmer_name: monkToEdit?.khmer_name || '',
+    latin_name: monkToEdit?.latin_name || '',
+    dhamma_name: monkToEdit?.dhamma_name || '',
+    status: monkToEdit?.status || 'existing',
+    rank: monkToEdit?.rank || 'bhikkhu',
+    date_of_birth: monkToEdit?.date_of_birth || '',
+    date_of_ordination: monkToEdit?.date_of_ordination || '',
+    home_province: monkToEdit?.home_province || '',
+    origin_temple: monkToEdit?.origin_temple || '',
+  })
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const savedMonk: Monk = {
+      id: monkToEdit?.id || Date.now().toString(),
+      khmer_name: form.khmer_name,
+      latin_name: form.latin_name || null,
+      dhamma_name: form.dhamma_name || null,
+      status: form.status as any,
+      rank: form.rank as any,
+      date_of_birth: form.date_of_birth || null,
+      date_of_ordination: form.date_of_ordination || null,
+      date_of_higher_ordination: null,
+      home_province: form.home_province || null,
+      home_district: null,
+      home_commune: null,
+      home_village: null,
+      origin_temple: form.origin_temple || null,
+      health_status: 'good',
+      health_notes: null,
+      photo_url: photoPreview || monkToEdit?.photo_url || null,
+      room_id: (monkToEdit as any)?.room_id || null,
+      is_active: true,
+      notes: null,
+      created_at: monkToEdit?.created_at || new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }
+    onSave(savedMonk)
+  }
+
+  return (
+    <div className="modal-overlay animate-fadeIn" style={{ zIndex: 99999 }} onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="modal modal-md" style={{ maxWidth: '580px', borderRadius: '24px', overflow: 'hidden', padding: 0, border: '1.5px solid #FDE68A', boxShadow: '0 25px 50px -12px rgba(217, 119, 6, 0.35)', background: '#FFFFFF' }}>
+        
+        {/* Header */}
+        <div style={{ background: 'linear-gradient(135deg, #1E1B18 0%, #2D2013 100%)', padding: '18px 22px', color: '#FFFFFF', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '1.2rem' }}>🙏</span>
+            <div>
+              <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#FEF3C7', margin: 0 }}>
+                {monkToEdit ? 'កែប្រែកាតព្រះសង្ឃ' : 'បន្ថែមព័ត៌មានកាតព្រះសង្ឃ'}
+              </h3>
+              <p style={{ fontSize: '0.66rem', color: '#CBD5E1', margin: 0 }}>Monk ID Card Information</p>
+            </div>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#FFFFFF', cursor: 'pointer', fontSize: '1.1rem' }}>✕</button>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px', maxHeight: '75vh', overflowY: 'auto' }}>
+          
+          {/* Photo Upload */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '12px', background: '#F8FAFC', borderRadius: '16px', border: '1.5px dashed #CBD5E1' }}>
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="hover-lift"
+              style={{
+                width: '68px',
+                height: '78px',
+                borderRadius: '12px',
+                background: '#FFFFFF',
+                border: '2px solid #F59E0B',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                overflow: 'hidden',
+                flexShrink: 0
+              }}
+            >
+              {photoPreview ? (
+                <img src={photoPreview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <Upload size={22} color="#F59E0B" />
+              )}
+            </div>
+            <div>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                style={{ background: '#FEF3C7', border: '1px solid #FDE68A', color: '#92400E', padding: '5px 12px', borderRadius: '8px', fontSize: '0.76rem', fontWeight: 800, cursor: 'pointer' }}
+              >
+                📸 ជ្រើសរើសរូបថតព្រះសង្ឃ
+              </button>
+              <p style={{ margin: '4px 0 0 0', fontSize: '0.68rem', color: '#64748B' }}>គាំទ្ររូបភាព JPG, PNG (រូបភាពច្បាស់សម្រាប់ដាក់លើកាត)</p>
+            </div>
+            <input type="file" ref={fileInputRef} accept="image/*" style={{ display: 'none' }} onChange={handlePhotoUpload} />
+          </div>
+
+          {/* Names */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#1E293B', marginBottom: '4px' }}>
+                ព្រះនាម (ភាសាខ្មែរ) <span style={{ color: '#DC2626' }}>*</span>
+              </label>
+              <input
+                required
+                value={form.khmer_name}
+                onChange={e => setForm({ ...form, khmer_name: e.target.value })}
+                placeholder="ឧ. ម៉េង ហ័រ"
+                style={{ width: '100%', padding: '9px 12px', borderRadius: '10px', border: '1.5px solid #CBD5E1', fontSize: '0.84rem' }}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#1E293B', marginBottom: '4px' }}>
+                ព្រះនាមឡាតាំង (Latin Name)
+              </label>
+              <input
+                value={form.latin_name}
+                onChange={e => setForm({ ...form, latin_name: e.target.value })}
+                placeholder="Ex. Meng Horl"
+                style={{ width: '100%', padding: '9px 12px', borderRadius: '10px', border: '1.5px solid #CBD5E1', fontSize: '0.84rem' }}
+              />
+            </div>
+          </div>
+
+          {/* Dhamma Name & Rank */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#1E293B', marginBottom: '4px' }}>
+                ឆាយា (Dhamma Name)
+              </label>
+              <input
+                value={form.dhamma_name}
+                onChange={e => setForm({ ...form, dhamma_name: e.target.value })}
+                placeholder="ឧ. ធម្មបាលោ"
+                style={{ width: '100%', padding: '9px 12px', borderRadius: '10px', border: '1.5px solid #CBD5E1', fontSize: '0.84rem' }}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#1E293B', marginBottom: '4px' }}>
+                ឋានៈ / តួនាទី <span style={{ color: '#DC2626' }}>*</span>
+              </label>
+              <select
+                value={form.rank}
+                onChange={e => setForm({ ...form, rank: e.target.value as any })}
+                style={{ width: '100%', padding: '9px 12px', borderRadius: '10px', border: '1.5px solid #CBD5E1', fontSize: '0.84rem', background: '#FFFFFF' }}
+              >
+                {Object.entries(MONK_RANK_LABELS).map(([k, v]) => (
+                  <option key={k} value={k}>{v.kh}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Dates */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#1E293B', marginBottom: '4px' }}>
+                ថ្ងៃខែឆ្នាំកំណើត
+              </label>
+              <input
+                type="date"
+                value={form.date_of_birth}
+                onChange={e => setForm({ ...form, date_of_birth: e.target.value })}
+                style={{ width: '100%', padding: '8px 12px', borderRadius: '10px', border: '1.5px solid #CBD5E1', fontSize: '0.84rem' }}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#1E293B', marginBottom: '4px' }}>
+                ថ្ងៃខែឆ្នាំបួស
+              </label>
+              <input
+                type="date"
+                value={form.date_of_ordination}
+                onChange={e => setForm({ ...form, date_of_ordination: e.target.value })}
+                style={{ width: '100%', padding: '8px 12px', borderRadius: '10px', border: '1.5px solid #CBD5E1', fontSize: '0.84rem' }}
+              />
+            </div>
+          </div>
+
+          {/* Province & Origin Temple */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#1E293B', marginBottom: '4px' }}>
+                ខេត្ត/រាជធានីកំណើត
+              </label>
+              <input
+                value={form.home_province}
+                onChange={e => setForm({ ...form, home_province: e.target.value })}
+                placeholder="ឧ. កំពង់ចាម"
+                style={{ width: '100%', padding: '9px 12px', borderRadius: '10px', border: '1.5px solid #CBD5E1', fontSize: '0.84rem' }}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#1E293B', marginBottom: '4px' }}>
+                វត្តដើមកំណើត
+              </label>
+              <input
+                value={form.origin_temple}
+                onChange={e => setForm({ ...form, origin_temple: e.target.value })}
+                placeholder="ឧ. វត្តជោតនារាម"
+                style={{ width: '100%', padding: '9px 12px', borderRadius: '10px', border: '1.5px solid #CBD5E1', fontSize: '0.84rem' }}
+              />
+            </div>
+          </div>
+
+          {/* Footer Buttons */}
+          <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{ flex: 1, padding: '10px', borderRadius: '12px', border: '1px solid #CBD5E1', background: '#F8FAFC', fontWeight: 800, fontSize: '0.84rem', cursor: 'pointer' }}
+            >
+              បោះបង់
+            </button>
+            <button
+              type="submit"
+              style={{ flex: 1, padding: '10px', borderRadius: '12px', border: 'none', background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)', color: '#1C1917', fontWeight: 800, fontSize: '0.84rem', cursor: 'pointer', boxShadow: '0 4px 12px rgba(217, 119, 6, 0.35)' }}
+            >
+              ✨ រក្សាទុកកាតព្រះសង្ឃ
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  )
+}
+
+// ----------------------------------------------------
+// 🌟 SUBCOMPONENT: STUDENT FORM MODAL
+// ----------------------------------------------------
+function StudentCardModal({ studentToEdit, onClose, onSave }: { studentToEdit: Student | null; onClose: () => void; onSave: (student: Student) => void }) {
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [photoPreview, setPhotoPreview] = useState<string | null>(studentToEdit?.photo_url || null)
+
+  const [form, setForm] = useState({
+    khmer_name: studentToEdit?.khmer_name || '',
+    latin_name: studentToEdit?.latin_name || '',
+    gender: studentToEdit?.gender || 'male',
+    date_of_birth: studentToEdit?.date_of_birth || '',
+    school_name: studentToEdit?.school_name || '',
+    grade_level: studentToEdit?.grade_level || '',
+    home_province: studentToEdit?.home_province || '',
+    phone: studentToEdit?.phone || '',
+  })
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const savedStudent: Student = {
+      id: studentToEdit?.id || Date.now().toString(),
+      khmer_name: form.khmer_name,
+      latin_name: form.latin_name || null,
+      date_of_birth: form.date_of_birth || null,
+      gender: form.gender,
+      school_name: form.school_name || null,
+      grade_level: form.grade_level || null,
+      room_id: studentToEdit?.room_id || null,
+      home_province: form.home_province || null,
+      phone: form.phone || null,
+      parent_phone: studentToEdit?.parent_phone || null,
+      photo_url: photoPreview || studentToEdit?.photo_url || null,
+      is_active: true,
+      joined_date: studentToEdit?.joined_date || new Date().toISOString(),
+      notes: studentToEdit?.notes || null,
+      created_at: studentToEdit?.created_at || new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }
+    onSave(savedStudent)
+  }
+
+  return (
+    <div className="modal-overlay animate-fadeIn" style={{ zIndex: 99999 }} onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="modal modal-md" style={{ maxWidth: '580px', borderRadius: '24px', overflow: 'hidden', padding: 0, border: '1.5px solid #BFDBFE', boxShadow: '0 25px 50px -12px rgba(59, 130, 246, 0.35)', background: '#FFFFFF' }}>
+        
+        {/* Header */}
+        <div style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%)', padding: '18px 22px', color: '#FFFFFF', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '1.2rem' }}>🎓</span>
+            <div>
+              <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#DBEAFE', margin: 0 }}>
+                {studentToEdit ? 'កែប្រែកាតសិស្សវត្ត' : 'បន្ថែមព័ត៌មានកាតសិស្សវត្ត'}
+              </h3>
+              <p style={{ fontSize: '0.66rem', color: '#93C5FD', margin: 0 }}>Student ID Card Information</p>
+            </div>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#FFFFFF', cursor: 'pointer', fontSize: '1.1rem' }}>✕</button>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px', maxHeight: '75vh', overflowY: 'auto' }}>
+          
+          {/* Photo Upload */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '12px', background: '#F8FAFC', borderRadius: '16px', border: '1.5px dashed #CBD5E1' }}>
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="hover-lift"
+              style={{
+                width: '68px',
+                height: '78px',
+                borderRadius: '12px',
+                background: '#FFFFFF',
+                border: '2px solid #3B82F6',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                overflow: 'hidden',
+                flexShrink: 0
+              }}
+            >
+              {photoPreview ? (
+                <img src={photoPreview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <Upload size={22} color="#3B82F6" />
+              )}
+            </div>
+            <div>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#1E40AF', padding: '5px 12px', borderRadius: '8px', fontSize: '0.76rem', fontWeight: 800, cursor: 'pointer' }}
+              >
+                📸 ជ្រើសរើសរូបថតសិស្ស
+              </button>
+              <p style={{ margin: '4px 0 0 0', fontSize: '0.68rem', color: '#64748B' }}>គាំទ្ររូបភាព JPG, PNG (រូបភាពច្បាស់សម្រាប់ដាក់លើកាត)</p>
+            </div>
+            <input type="file" ref={fileInputRef} accept="image/*" style={{ display: 'none' }} onChange={handlePhotoUpload} />
+          </div>
+
+          {/* Names */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#1E293B', marginBottom: '4px' }}>
+                ឈ្មោះខ្មែរ <span style={{ color: '#DC2626' }}>*</span>
+              </label>
+              <input
+                required
+                value={form.khmer_name}
+                onChange={e => setForm({ ...form, khmer_name: e.target.value })}
+                placeholder="ឧ. ជា វណ្ណា"
+                style={{ width: '100%', padding: '9px 12px', borderRadius: '10px', border: '1.5px solid #CBD5E1', fontSize: '0.84rem' }}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#1E293B', marginBottom: '4px' }}>
+                ឈ្មោះឡាតាំង (Latin Name)
+              </label>
+              <input
+                value={form.latin_name}
+                onChange={e => setForm({ ...form, latin_name: e.target.value })}
+                placeholder="Ex. Chea Vanna"
+                style={{ width: '100%', padding: '9px 12px', borderRadius: '10px', border: '1.5px solid #CBD5E1', fontSize: '0.84rem' }}
+              />
+            </div>
+          </div>
+
+          {/* Gender & Date of birth */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#1E293B', marginBottom: '4px' }}>
+                ភេទ <span style={{ color: '#DC2626' }}>*</span>
+              </label>
+              <select
+                value={form.gender}
+                onChange={e => setForm({ ...form, gender: e.target.value })}
+                style={{ width: '100%', padding: '9px 12px', borderRadius: '10px', border: '1.5px solid #CBD5E1', fontSize: '0.84rem', background: '#FFFFFF' }}
+              >
+                <option value="male">ប្រុស (Male)</option>
+                <option value="female">ស្រី (Female)</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#1E293B', marginBottom: '4px' }}>
+                ថ្ងៃខែឆ្នាំកំណើត
+              </label>
+              <input
+                type="date"
+                value={form.date_of_birth}
+                onChange={e => setForm({ ...form, date_of_birth: e.target.value })}
+                style={{ width: '100%', padding: '8px 12px', borderRadius: '10px', border: '1.5px solid #CBD5E1', fontSize: '0.84rem' }}
+              />
+            </div>
+          </div>
+
+          {/* School & Grade */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#1E293B', marginBottom: '4px' }}>
+                សាលារៀន
+              </label>
+              <input
+                value={form.school_name}
+                onChange={e => setForm({ ...form, school_name: e.target.value })}
+                placeholder="ឧ. សាកលវិទ្យាល័យភូមិន្ទភ្នំពេញ"
+                style={{ width: '100%', padding: '9px 12px', borderRadius: '10px', border: '1.5px solid #CBD5E1', fontSize: '0.84rem' }}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#1E293B', marginBottom: '4px' }}>
+                កម្រិតថ្នាក់ / ជំនាញ
+              </label>
+              <input
+                value={form.grade_level}
+                onChange={e => setForm({ ...form, grade_level: e.target.value })}
+                placeholder="ឧ. ឆ្នាំទី ២"
+                style={{ width: '100%', padding: '9px 12px', borderRadius: '10px', border: '1.5px solid #CBD5E1', fontSize: '0.84rem' }}
+              />
+            </div>
+          </div>
+
+          {/* Province & Phone */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#1E293B', marginBottom: '4px' }}>
+                ខេត្ត/ស្រុកកំណើត
+              </label>
+              <input
+                value={form.home_province}
+                onChange={e => setForm({ ...form, home_province: e.target.value })}
+                placeholder="ឧ. កំពង់ចាម"
+                style={{ width: '100%', padding: '9px 12px', borderRadius: '10px', border: '1.5px solid #CBD5E1', fontSize: '0.84rem' }}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#1E293B', marginBottom: '4px' }}>
+                លេខទូរស័ព្ទ
+              </label>
+              <input
+                value={form.phone}
+                onChange={e => setForm({ ...form, phone: e.target.value })}
+                placeholder="ឧ. ០១២ ៣៤៥ ៦៧៨"
+                style={{ width: '100%', padding: '9px 12px', borderRadius: '10px', border: '1.5px solid #CBD5E1', fontSize: '0.84rem' }}
+              />
+            </div>
+          </div>
+
+          {/* Footer Buttons */}
+          <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{ flex: 1, padding: '10px', borderRadius: '12px', border: '1px solid #CBD5E1', background: '#F8FAFC', fontWeight: 800, fontSize: '0.84rem', cursor: 'pointer' }}
+            >
+              បោះបង់
+            </button>
+            <button
+              type="submit"
+              style={{ flex: 1, padding: '10px', borderRadius: '12px', border: 'none', background: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)', color: '#FFFFFF', fontWeight: 800, fontSize: '0.84rem', cursor: 'pointer', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.35)' }}
+            >
+              ✨ រក្សាទុកកាតសិស្ស
+            </button>
+          </div>
+
+        </form>
+      </div>
     </div>
   )
 }
