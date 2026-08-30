@@ -15,7 +15,7 @@ import {
   LayoutDashboard, Users, Building2, GraduationCap, CalendarCheck,
   Calendar, DollarSign, Package, BarChart3, MessageSquare,
   Settings, LogOut, ChevronLeft, ChevronRight, Menu, X, Bell, CheckCircle2, Sparkles,
-  QrCode, Home, Search, User, Moon, Sun, Camera, Upload, Image as ImageIcon, Smartphone, Download, Share2, ChevronDown, Plus, Edit3, Trash2
+  QrCode, Home, Search, User, Moon, Sun, Camera, Upload, Image as ImageIcon, Smartphone, Download, Share2, ChevronDown, Plus, Edit3, Trash2, Contact, IdCard
 } from 'lucide-react'
 
 const navItems = [
@@ -24,6 +24,7 @@ const navItems = [
   { label: 'ព្រះសង្ឃ', labelEn: 'Monks', href: '/monks', icon: Users },
   { label: 'ទីកន្លែង', labelEn: 'Rooms', href: '/rooms', icon: Building2 },
   { label: 'សិស្ស', labelEn: 'Students', href: '/students', icon: GraduationCap },
+  { label: 'កាតសម្គាល់ខ្លួន', labelEn: 'ID Cards', href: '/idcards', icon: Contact },
   { sectionKey: 'sectionActivity', sectionDefault: 'សកម្មភាព' },
   { label: 'វត្តមាន', labelEn: 'Attendance', href: '/attendance', icon: CalendarCheck },
   { label: 'កាលវិភាគ', labelEn: 'Schedule', href: '/schedule', icon: Calendar },
@@ -545,6 +546,7 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
                   '/monks': 'monks',
                   '/rooms': 'rooms',
                   '/students': 'students',
+                  '/idcards': 'idcards',
                   '/attendance': 'attendance',
                   '/schedule': 'schedule',
                   '/finance': 'finance',
