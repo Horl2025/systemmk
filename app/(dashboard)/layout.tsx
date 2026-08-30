@@ -15,7 +15,7 @@ import {
   LayoutDashboard, Users, Building2, GraduationCap, CalendarCheck,
   Calendar, DollarSign, Package, BarChart3, MessageSquare,
   Settings, LogOut, ChevronLeft, ChevronRight, Menu, X, Bell, CheckCircle2, Sparkles,
-  QrCode, Home, Search, User, Moon, Sun, Camera, Upload, Image as ImageIcon, Smartphone, Download, Share2, ChevronDown, Plus
+  QrCode, Home, Search, User, Moon, Sun, Camera, Upload, Image as ImageIcon, Smartphone, Download, Share2, ChevronDown, Plus, Edit3, Trash2
 } from 'lucide-react'
 
 const navItems = [
@@ -444,11 +444,15 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
     }
   }, [showNotifications])
 
-  const { selectedYear, setSelectedYear, availableYears, addYear } = useYear()
+  const { selectedYear, setSelectedYear, availableYears, addYear, updateYear, deleteYear } = useYear()
   const [showYearDropdown, setShowYearDropdown] = useState(false)
   const [showAddYearModal, setShowAddYearModal] = useState(false)
+  const [editingYear, setEditingYear] = useState<string | null>(null)
+  const [editYearInput, setEditYearInput] = useState('')
   const [newYearInput, setNewYearInput] = useState('')
   const yearDropdownRef = useRef<HTMLDivElement>(null)
+
+  const isChiefMonkOrAdmin = user?.role === 'chief_monk' || user?.role === 'admin' || !user?.role || user?.role === 'guest'
 
   // Close year dropdown when clicking outside
   useEffect(() => {
@@ -472,6 +476,23 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
       setNewYearInput('')
       setShowAddYearModal(false)
       setShowYearDropdown(false)
+    }
+  }
+
+  const handleUpdateYear = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (editingYear && editYearInput.trim()) {
+      updateYear(editingYear, editYearInput.trim())
+      setEditingYear(null)
+      setEditYearInput('')
+      setShowYearDropdown(false)
+    }
+  }
+
+  const handleDeleteYear = (yearToDel: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (confirm(`តើព្រះតេជគុណ/លោកអ្នកពិតជាចង់លុបឆ្នាំ ${yearToDel} នេះមែនទេ?`)) {
+      deleteYear(yearToDel)
     }
   }
 
@@ -592,9 +613,9 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
                 </span>
               </div>
 
-              <div style={{ maxHeight: '180px', overflowY: 'auto', padding: '4px 0' }}>
+              <div style={{ maxHeight: '220px', overflowY: 'auto', padding: '4px 0' }}>
                 {availableYears.map(yr => (
-                  <button
+                  <div
                     key={yr}
                     onClick={() => {
                       setSelectedYear(yr)
@@ -602,10 +623,8 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
                     }}
                     style={{
                       width: '100%',
-                      textAlign: 'left',
-                      padding: '8px 12px',
-                      borderRadius: '10px',
-                      border: 'none',
+                      padding: '8px 10px',
+                      borderRadius: '12px',
                       background: selectedYear === yr ? 'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)' : 'transparent',
                       color: selectedYear === yr ? '#92400E' : '#334155',
                       fontWeight: selectedYear === yr ? 800 : 600,
@@ -614,12 +633,76 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      marginBottom: '2px'
+                      marginBottom: '3px',
+                      border: selectedYear === yr ? '1px solid #FDE68A' : '1px solid transparent'
                     }}
+                    className="hover-lift"
                   >
-                    <span>ឆ្នាំ {yr} {yr === '2026' ? '(បច្ចុប្បន្ន)' : ''}</span>
-                    {selectedYear === yr && <CheckCircle2 size={15} color="#D97706" />}
-                  </button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0, flex: 1 }}>
+                      {selectedYear === yr ? (
+                        <CheckCircle2 size={15} color="#D97706" style={{ flexShrink: 0 }} />
+                      ) : (
+                        <Calendar size={13} color="#94A3B8" style={{ flexShrink: 0 }} />
+                      )}
+                      <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        ឆ្នាំ {yr} {yr === '2026' ? '(បច្ចុប្បន្ន)' : ''}
+                      </span>
+                    </div>
+
+                    {/* Admin Action Buttons: Edit & Delete */}
+                    {isChiefMonkOrAdmin && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px', flexShrink: 0, marginLeft: '6px' }} onClick={e => e.stopPropagation()}>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setEditingYear(yr)
+                            setEditYearInput(yr)
+                            setShowYearDropdown(false)
+                          }}
+                          title={`កែប្រែឆ្នាំ ${yr}`}
+                          style={{
+                            width: '24px',
+                            height: '24px',
+                            borderRadius: '6px',
+                            border: '1px solid #CBD5E1',
+                            background: '#FFFFFF',
+                            color: '#2563EB',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: 0
+                          }}
+                          className="hover-lift"
+                        >
+                          <Edit3 size={11} />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={(e) => handleDeleteYear(yr, e)}
+                          title={`លុបឆ្នាំ ${yr}`}
+                          style={{
+                            width: '24px',
+                            height: '24px',
+                            borderRadius: '6px',
+                            border: '1px solid #FECACA',
+                            background: '#FEF2F2',
+                            color: '#DC2626',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: 0
+                          }}
+                          className="hover-lift"
+                        >
+                          <Trash2 size={11} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 ))}
               </div>
 
@@ -1089,6 +1172,92 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
                     style={{ flex: 1, padding: '10px', borderRadius: '12px', border: 'none', background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)', color: '#1C1917', fontWeight: 800, fontSize: '0.84rem', cursor: 'pointer', boxShadow: '0 4px 12px rgba(217, 119, 6, 0.35)' }}
                   >
                     + បង្កើតឆ្នាំ
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* ✏️ Edit Year Modal */}
+        {editingYear && (
+          <div 
+            className="animate-fadeIn" 
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(15, 23, 42, 0.75)',
+              backdropFilter: 'blur(8px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1100,
+              padding: '16px'
+            }}
+          >
+            <div 
+              className="hover-lift"
+              style={{
+                width: '100%',
+                maxWidth: '380px',
+                background: '#FFFFFF',
+                borderRadius: '24px',
+                border: '1.5px solid #BFDBFE',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                overflow: 'hidden'
+              }}
+            >
+              <div style={{ background: 'linear-gradient(135deg, #1E3A8A 0%, #172554 100%)', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#DBEAFE', fontWeight: 800, fontSize: '0.92rem' }}>
+                  <Edit3 size={18} color="#60A5FA" />
+                  <span>កែប្រែឆ្នាំគ្រប់គ្រង (Edit Year)</span>
+                </div>
+                <button 
+                  onClick={() => setEditingYear(null)}
+                  style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: 'none', color: '#CBD5E1', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleUpdateYear} style={{ padding: '20px' }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 800, color: '#334155', marginBottom: '8px' }}>
+                  កែប្រែឆ្នាំ {editingYear} ទៅជាឆ្នាំថ្មី :
+                </label>
+                <input 
+                  type="number" 
+                  min="2000" 
+                  max="2100"
+                  required
+                  autoFocus
+                  value={editYearInput}
+                  onChange={e => setEditYearInput(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    borderRadius: '12px',
+                    border: '1.5px solid #3B82F6',
+                    fontSize: '1rem',
+                    fontWeight: 800,
+                    color: '#0F172A',
+                    outline: 'none',
+                    marginBottom: '16px'
+                  }}
+                />
+
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setEditingYear(null)}
+                    style={{ flex: 1, padding: '10px', borderRadius: '12px', border: '1px solid #CBD5E1', background: '#F8FAFC', fontWeight: 700, fontSize: '0.84rem', cursor: 'pointer' }}
+                  >
+                    បោះបង់
+                  </button>
+                  <button
+                    type="submit"
+                    style={{ flex: 1, padding: '10px', borderRadius: '12px', border: 'none', background: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)', color: '#FFFFFF', fontWeight: 800, fontSize: '0.84rem', cursor: 'pointer', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.35)' }}
+                  >
+                    ✨ រក្សាទុក
                   </button>
                 </div>
               </form>
