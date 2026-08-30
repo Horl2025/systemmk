@@ -927,7 +927,7 @@ export default function IDCardsPage() {
           </button>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 170px), 1fr))', gap: '10px' }}>
           {filteredMembers.map((member) => {
             const isMonk = member.type === 'monk'
             const cardIdFormatted = `MK-${isMonk ? 'M' : 'S'}-${member.id.slice(-5).toUpperCase()}`
@@ -941,9 +941,9 @@ export default function IDCardsPage() {
                 className="hover-lift"
                 style={{
                   background: '#FFFFFF',
-                  borderRadius: '20px',
+                  borderRadius: '16px',
                   border: isMonk ? '1.5px solid #FDE68A' : '1.5px solid #BFDBFE',
-                  boxShadow: '0 8px 24px -4px rgba(15, 23, 42, 0.06)',
+                  boxShadow: '0 4px 14px -2px rgba(15, 23, 42, 0.06)',
                   overflow: 'hidden',
                   display: 'flex',
                   flexDirection: 'column',
@@ -957,7 +957,7 @@ export default function IDCardsPage() {
                     background: isMonk 
                       ? 'linear-gradient(135deg, #1C1917 0%, #351C06 60%, #78350F 100%)' 
                       : 'linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%)',
-                    padding: '12px 16px',
+                    padding: '8px 10px',
                     color: '#FFFFFF',
                     display: 'flex',
                     justifyContent: 'space-between',
@@ -965,123 +965,127 @@ export default function IDCardsPage() {
                     borderBottom: isMonk ? '2px solid #F59E0B' : '2px solid #3B82F6'
                   }}
                 >
-                  <div>
-                    <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#FEF3C7' }}>វត្តអារាម SYSTEMMK</div>
-                    <div style={{ fontSize: '0.62rem', color: '#CBD5E1' }}>Monastery ID Card</div>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#FEF3C7', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>វត្តអារាម SYSTEMMK</div>
+                    <div style={{ fontSize: '0.54rem', color: '#CBD5E1' }}>ID Card</div>
                   </div>
                   <span
                     style={{
                       background: isMonk ? '#FEF3C7' : '#EFF6FF',
                       color: isMonk ? '#92400E' : '#1E40AF',
                       border: isMonk ? '1px solid #F59E0B' : '1px solid #3B82F6',
-                      padding: '2px 8px',
-                      borderRadius: '8px',
-                      fontSize: '0.68rem',
-                      fontWeight: 800
+                      padding: '1px 6px',
+                      borderRadius: '6px',
+                      fontSize: '0.58rem',
+                      fontWeight: 800,
+                      whiteSpace: 'nowrap',
+                      flexShrink: 0
                     }}
                   >
-                    {isMonk ? '🙏 ព្រះសង្ឃ' : '🎓 សិស្សវត្ត'}
+                    {isMonk ? '🙏 សង្ឃ' : '🎓 សិស្ស'}
                   </span>
                 </div>
 
                 {/* Card Body */}
-                <div style={{ padding: '16px' }}>
-                  <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
-                    {/* Avatar Photo */}
-                    <div
-                      style={{
-                        width: '70px',
-                        height: '84px',
-                        borderRadius: '12px',
-                        border: isMonk ? '2px solid #F59E0B' : '2px solid #3B82F6',
-                        background: '#F8FAFC',
-                        overflow: 'hidden',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
-                      }}
-                    >
-                      {member.photo_url ? (
-                        <img src={member.photo_url} alt={member.khmer_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        <span style={{ fontSize: '1.6rem', fontWeight: 800, color: '#94A3B8' }}>{member.khmer_name.charAt(0)}</span>
-                      )}
-                    </div>
+                <div style={{ padding: '10px 10px 8px 10px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+                  {/* Avatar Photo */}
+                  <div
+                    style={{
+                      width: '62px',
+                      height: '74px',
+                      borderRadius: '12px',
+                      border: isMonk ? '2px solid #F59E0B' : '2px solid #3B82F6',
+                      background: '#F8FAFC',
+                      overflow: 'hidden',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                      marginBottom: '8px'
+                    }}
+                  >
+                    {member.photo_url ? (
+                      <img src={member.photo_url} alt={member.khmer_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <span style={{ fontSize: '1.4rem', fontWeight: 800, color: '#94A3B8' }}>{member.khmer_name.charAt(0)}</span>
+                    )}
+                  </div>
 
-                    {/* Basic Info */}
-                    <div style={{ minWidth: 0, flex: 1 }}>
-                      <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#0F172A', margin: 0, lineHeight: 1.3 }}>
-                        {member.khmer_name}
-                      </h4>
-                      {member.latin_name && (
-                        <div style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 600, marginTop: '2px' }}>
-                          {member.latin_name}
-                        </div>
-                      )}
-                      <div style={{ marginTop: '6px' }}>
-                        <span style={{ fontSize: '0.7rem', fontWeight: 800, color: isMonk ? '#B45309' : '#2563EB', background: isMonk ? '#FFFBEB' : '#EFF6FF', padding: '2px 6px', borderRadius: '6px', border: isMonk ? '1px solid #FDE68A' : '1px solid #DBEAFE' }}>
-                          {roleText}
-                        </span>
+                  {/* Basic Info */}
+                  <div style={{ width: '100%', minWidth: 0 }}>
+                    <h4 style={{ fontSize: '0.86rem', fontWeight: 800, color: '#0F172A', margin: 0, lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {member.khmer_name}
+                    </h4>
+                    {member.latin_name && (
+                      <div style={{ fontSize: '0.64rem', color: '#64748B', fontWeight: 600, marginTop: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {member.latin_name}
                       </div>
+                    )}
+                    <div style={{ marginTop: '4px' }}>
+                      <span style={{ fontSize: '0.62rem', fontWeight: 800, color: isMonk ? '#B45309' : '#2563EB', background: isMonk ? '#FFFBEB' : '#EFF6FF', padding: '1px 6px', borderRadius: '6px', border: isMonk ? '1px solid #FDE68A' : '1px solid #DBEAFE', display: 'inline-block', maxWidth: '100%', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {roleText}
+                      </span>
                     </div>
                   </div>
 
                   {/* Metadata Details Box */}
-                  <div style={{ background: '#F8FAFC', borderRadius: '12px', padding: '10px', marginTop: '14px', border: '1px solid #E2E8F0', fontSize: '0.74rem', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <div style={{ width: '100%', background: '#F8FAFC', borderRadius: '10px', padding: '6px 8px', marginTop: '8px', border: '1px solid #E2E8F0', fontSize: '0.64rem', display: 'flex', flexDirection: 'column', gap: '3px', textAlign: 'left' }}>
                     {member.dhamma_name && (
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '4px' }}>
                         <span style={{ color: '#64748B' }}>ឆាយា:</span>
-                        <strong style={{ color: '#1E293B' }}>{member.dhamma_name}</strong>
+                        <strong style={{ color: '#1E293B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{member.dhamma_name}</strong>
                       </div>
                     )}
                     {member.date_of_birth && (
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '4px' }}>
                         <span style={{ color: '#64748B' }}>អាយុ:</span>
-                        <strong style={{ color: '#1E293B' }}>{calculateAge(member.date_of_birth)} ឆ្នាំ ({formatDate(member.date_of_birth)})</strong>
+                        <strong style={{ color: '#1E293B' }}>{calculateAge(member.date_of_birth)} ឆ្នាំ</strong>
                       </div>
                     )}
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ color: '#64748B' }}>ទីកន្លែងស្នាក់:</span>
-                      <strong style={{ color: '#1E293B' }}>{member.room_number || 'កុដិវត្ត'}</strong>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '4px' }}>
+                      <span style={{ color: '#64748B' }}>ស្នាក់នៅ:</span>
+                      <strong style={{ color: '#1E293B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{member.room_number || 'កុដិវត្ត'}</strong>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ color: '#64748B' }}>ស្រុកកំណើត:</span>
-                      <strong style={{ color: '#1E293B' }}>{member.home_province || 'កម្ពុជា'}</strong>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '4px' }}>
+                      <span style={{ color: '#64748B' }}>ខេត្ត:</span>
+                      <strong style={{ color: '#1E293B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{member.home_province || 'កម្ពុជា'}</strong>
                     </div>
                   </div>
                 </div>
 
                 {/* Footer Actions with Edit, Delete & Print Buttons */}
-                <div style={{ background: '#FAFAFA', padding: '10px 16px', borderTop: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'monospace', color: '#64748B' }}>
-                    {cardIdFormatted}
-                  </span>
+                <div style={{ background: '#FAFAFA', padding: '8px 10px', borderTop: '1px solid #F1F5F9', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.64rem', fontWeight: 800, fontFamily: 'monospace', color: '#64748B' }}>
+                      {cardIdFormatted}
+                    </span>
+                  </div>
 
-                  <div style={{ display: 'flex', gap: '6px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.2fr', gap: '4px' }}>
                     {/* Edit Button */}
                     <button
                       type="button"
                       onClick={() => handleEditMember(member)}
                       className="hover-lift"
-                      title="កែប្រែព័ត៌មានកាត"
+                      title="កែប្រែ"
                       style={{
                         background: '#EFF6FF',
                         border: '1px solid #BFDBFE',
                         color: '#2563EB',
-                        padding: '5px 10px',
-                        borderRadius: '8px',
-                        fontSize: '0.72rem',
+                        padding: '4px 2px',
+                        borderRadius: '6px',
+                        fontSize: '0.64rem',
                         fontWeight: 800,
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '4px'
+                        justifyContent: 'center',
+                        gap: '2px'
                       }}
                     >
-                      <Edit3 size={13} />
-                      <span>កែប្រែ</span>
+                      <Edit3 size={11} />
+                      <span>កែ</span>
                     </button>
 
                     {/* Delete Button */}
@@ -1089,22 +1093,23 @@ export default function IDCardsPage() {
                       type="button"
                       onClick={() => handleDeleteMember(member)}
                       className="hover-lift"
-                      title="លុបកាតចេញ"
+                      title="លុប"
                       style={{
                         background: '#FEF2F2',
                         border: '1px solid #FECACA',
                         color: '#DC2626',
-                        padding: '5px 10px',
-                        borderRadius: '8px',
-                        fontSize: '0.72rem',
+                        padding: '4px 2px',
+                        borderRadius: '6px',
+                        fontSize: '0.64rem',
                         fontWeight: 800,
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '4px'
+                        justifyContent: 'center',
+                        gap: '2px'
                       }}
                     >
-                      <Trash2 size={13} />
+                      <Trash2 size={11} />
                       <span>លុប</span>
                     </button>
 
@@ -1113,23 +1118,25 @@ export default function IDCardsPage() {
                       type="button"
                       onClick={() => handlePrintCard(member)}
                       className="hover-lift"
+                      title="បោះពុម្ពកាត"
                       style={{
                         background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
                         color: '#1C1917',
                         border: 'none',
-                        padding: '5px 12px',
-                        borderRadius: '8px',
-                        fontSize: '0.72rem',
+                        padding: '4px 4px',
+                        borderRadius: '6px',
+                        fontSize: '0.64rem',
                         fontWeight: 800,
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '4px',
-                        boxShadow: '0 2px 6px rgba(217, 119, 6, 0.3)'
+                        justifyContent: 'center',
+                        gap: '2px',
+                        boxShadow: '0 2px 6px rgba(217, 119, 6, 0.25)'
                       }}
                     >
-                      <Printer size={13} />
-                      <span>បោះពុម្ព</span>
+                      <Printer size={11} />
+                      <span>ពុម្ព</span>
                     </button>
                   </div>
                 </div>
